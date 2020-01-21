@@ -46,23 +46,27 @@ public class AnimationConrollerSlide implements IAnimationController {
 	        		worldIn = Minecraft.getInstance().world;
 	        	}
 
-				LazyOptional<CompoundNBT> optional = worldIn.getCapability(ItemDataProvider.ITEMDATA_CAP).map(IItemData::getItemData);
-	        	
-	        	if (worldIn == null || !CapUtils.hasCap(worldIn, ItemDataProvider.ITEMDATA_CAP, null) || !stack.hasTag()) {
-	        		return 0.0F;
-	        	}
-	        	CompoundNBT nbt = CapUtils.getCap(worldIn, ItemDataProvider.ITEMDATA_CAP, null).getItemData().getCompound(stack.getOrCreateTag().getString("UUID"));
-				CompoundNBT oldnbt = nbt.getCompound("prev");
-				
-				float pt = RenderPartialTickHandler.renderPartialTick;
-				
-				int oldval = oldnbt.getInt("SlideFrame") == 5 ? 2 : oldnbt.getInt("SlideFrame");
-				
-				int newval = nbt.getInt("SlideFrame") == 5 ? 2 : nbt.getInt("SlideFrame");
-				
-	            float j = oldval * (1 - pt) + newval * pt;
-	                        
-	            return j / 10.0F;
+				World finalWorldIn = worldIn;
+				return worldIn.getCapability(ItemDataProvider.ITEMDATA_CAP).map(iItemData -> {
+
+					if (finalWorldIn == null || !stack.hasTag()) {
+						return 0.0F;
+					}
+
+					CompoundNBT nbt = CapUtils.getCap(finalWorldIn, ItemDataProvider.ITEMDATA_CAP, null).getItemData().getCompound(stack.getOrCreateTag().getString("UUID"));
+					CompoundNBT oldnbt = nbt.getCompound("prev");
+
+					float pt = RenderPartialTickHandler.renderPartialTick;
+
+					int oldval = oldnbt.getInt("SlideFrame") == 5 ? 2 : oldnbt.getInt("SlideFrame");
+
+					int newval = nbt.getInt("SlideFrame") == 5 ? 2 : nbt.getInt("SlideFrame");
+
+					float j = oldval * (1 - pt) + newval * pt;
+
+					return j / 10.0F;
+
+				}).orElse(0f);
 	        }
 	    }));
 	    
