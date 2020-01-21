@@ -1,15 +1,9 @@
 package piman.recievermod.network.messages;
 
-import com.PiMan.RecieverMod.Main;
-import com.PiMan.RecieverMod.util.handlers.FlashHandler;
-
-import io.netty.buffer.ByteBuf;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.EnumSkyBlock;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import piman.recievermod.util.FlashHandler;
 
 public class MessageFlashClient extends MessageBase<MessageFlashClient> {
 		

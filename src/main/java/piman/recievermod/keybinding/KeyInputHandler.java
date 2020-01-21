@@ -1,6 +1,5 @@
 package piman.recievermod.keybinding;
 
-import com.sun.istack.internal.NotNull;
 import net.minecraft.client.GameSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
@@ -113,7 +112,7 @@ public class KeyInputHandler {
 		
 	}
 	
-	public static boolean isKeyPressed(@NotNull KeyPresses key) {
+	public static boolean isKeyPressed(KeyPresses key) {
 		
 		if (prevScreen != null) {
 			return false;

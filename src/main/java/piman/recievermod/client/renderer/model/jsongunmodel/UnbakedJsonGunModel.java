@@ -48,7 +48,7 @@ public class UnbakedJsonGunModel implements IUnbakedModel {
     public UnbakedJsonGunModel(ResourceLocation location) {
 
         try {
-            IResource iResource = Minecraft.getInstance().getResourceManager().getResource(new ResourceLocation(location.getNamespace(), "models/item/" + location.getPath()));
+            IResource iResource = Minecraft.getInstance().getResourceManager().getResource(new ResourceLocation(location.getNamespace(), "models/item/" + location.getPath() + ".json"));
             Reader reader = new InputStreamReader(iResource.getInputStream(), StandardCharsets.UTF_8);
             animator = Animator.deserialize(reader);
             reader.close();
@@ -59,12 +59,12 @@ public class UnbakedJsonGunModel implements IUnbakedModel {
         }
 
         try {
-            IResource iResource = Minecraft.getInstance().getResourceManager().getResource(new ResourceLocation(location.getNamespace(), "models/item/" + location.getPath()));
+            IResource iResource = Minecraft.getInstance().getResourceManager().getResource(new ResourceLocation(location.getNamespace(), "models/item/" + location.getPath() + ".json"));
             Reader reader = new InputStreamReader(iResource.getInputStream(), StandardCharsets.UTF_8);
             model = BlockModel.deserialize(reader);
             for (ResourceLocation location1 : this.getDependenciesForMap()) {
-                IResource iResource1 = Minecraft.getInstance().getResourceManager().getResource(new ResourceLocation(location1.getNamespace(), "models/item/" + location1.getPath()));
-                Reader reader1 = new InputStreamReader(iResource.getInputStream(), StandardCharsets.UTF_8);
+                IResource iResource1 = Minecraft.getInstance().getResourceManager().getResource(new ResourceLocation(location1.getNamespace(), "models/item/" + location1.getPath() + ".json"));
+                Reader reader1 = new InputStreamReader(iResource1.getInputStream(), StandardCharsets.UTF_8);
                 submodels.add(BlockModel.deserialize(reader1));
             }
         }
@@ -107,10 +107,15 @@ public class UnbakedJsonGunModel implements IUnbakedModel {
 
         List<IBakedModel> models = new ArrayList<>();
 
-        models.add(this.bakeNormal(bakery, model, sprite.getState(), sprite.getState(), new ArrayList<>(), format, spriteGetter, false));
+        List<TRSRTransformation> newTransforms = new ArrayList<>();
+        for (BlockPart part : model.getElements()) newTransforms.add(TRSRTransformation.identity());
+
+        models.add(this.bakeNormal(bakery, model, sprite.getState(), sprite.getState(), newTransforms, format, spriteGetter, false));
 
         for (BlockModel model : this.submodels) {
-            models.add(this.bakeNormal(bakery, model, sprite.getState(), sprite.getState(), new ArrayList<>(), format, spriteGetter, false));
+            newTransforms.clear();
+            for (BlockPart part : model.getElements()) newTransforms.add(TRSRTransformation.identity());
+            models.add(this.bakeNormal(bakery, model, sprite.getState(), sprite.getState(), newTransforms, format, spriteGetter, false));
         }
 
         return new BakedGunModel(this, models, new HashMap<>(), spriteGetter.apply(new ResourceLocation(this.model.resolveTextureName("particle"))), format, new GunOverrideHandler(animator), new HashMap<>());

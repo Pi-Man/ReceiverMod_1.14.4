@@ -1,17 +1,8 @@
 package piman.recievermod.network.messages;
 
-import com.PiMan.RecieverMod.Items.guns.ItemGun;
-import com.PiMan.RecieverMod.Items.guns.ItemRifle;
-import com.PiMan.RecieverMod.util.handlers.KeyInputHandler;
-import com.PiMan.RecieverMod.util.handlers.KeyInputHandler.KeyPresses;
-
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import piman.recievermod.items.guns.ItemGun;
 
 public class MessageShoot extends MessageBase<MessageShoot> {

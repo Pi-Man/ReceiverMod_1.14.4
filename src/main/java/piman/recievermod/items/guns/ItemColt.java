@@ -18,6 +18,7 @@ import piman.recievermod.items.animations.*;
 import piman.recievermod.network.NetworkHandler;
 import piman.recievermod.network.messages.MessageUpdateNBT;
 import piman.recievermod.util.CapUtils;
+import piman.recievermod.util.SoundsHandler;
 
 public class ItemColt extends ItemGun implements IItemInit {
 
@@ -47,7 +48,7 @@ public class ItemColt extends ItemGun implements IItemInit {
 
     @Override
     public SoundEvent getShootSound() {
-        return SoundsHandler.getSoundEvent(Sounds.COLT_1911_SHOT);
+        return SoundsHandler.getSoundEvent(SoundsHandler.Sounds.COLT_1911_SHOT);
     }
 
     @Override
@@ -61,17 +62,19 @@ public class ItemColt extends ItemGun implements IItemInit {
 
                 CompoundNBT tag = stack.getOrCreateTag();
 
-                CompoundNBT baseTag = CapUtils.getCap(worldIn, ItemDataProvider.ITEMDATA_CAP, null).getItemData();
+                worldIn.getCapability(ItemDataProvider.ITEMDATA_CAP).ifPresent(cap -> {
+                    CompoundNBT baseTag = cap.getItemData();
 
-                CompoundNBT nbt = baseTag.getCompound(tag.getString("UUID"));
+                    CompoundNBT nbt = baseTag.getCompound(tag.getString("UUID"));
 
-                CompoundNBT oldnbt = nbt.copy();
-                oldnbt.remove("prev");
-                nbt.put("prev", oldnbt);
+                    CompoundNBT oldnbt = nbt.copy();
+                    oldnbt.remove("prev");
+                    nbt.put("prev", oldnbt);
 
-                animationControllers.forEach(controller -> controller.update(stack, worldIn, entityIn, itemSlot, isSelected, nbt, (ItemGun) stack.getItem()));
+                    animationControllers.forEach(controller -> controller.update(stack, worldIn, entityIn, itemSlot, isSelected, nbt, (ItemGun) stack.getItem()));
 
-                NetworkHandler.sendToServer(new MessageUpdateNBT(stack, itemSlot, nbt));
+                    NetworkHandler.sendToServer(new MessageUpdateNBT(stack, itemSlot, nbt));
+                });
             }
         }
     }

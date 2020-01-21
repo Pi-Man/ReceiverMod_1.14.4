@@ -78,14 +78,14 @@ public class Animator {
                             Vector3f rotation = transformation.getRotation();
                             Vector3f center = transformation.getCenter();
 
-                            translation.scale(scaleFactor);
-                            scale.scale(scaleFactor);
-                            rotation.scale(scaleFactor);
-                            center.scale(scaleFactor);
+                            if (translation != null) translation.scale(scaleFactor);
+                            if (scale != null) scale.scale(scaleFactor);
+                            if (rotation != null) rotation.scale(scaleFactor);
+                            if (center != null) center.scale(scaleFactor);
 
                             builder.add(translation, scale, rotation, center, transformation.getOrder());
                         }
-                        catch (IndexOutOfBoundsException e) {
+                        catch (IndexOutOfBoundsException ignored) {
                         }
 
                     }

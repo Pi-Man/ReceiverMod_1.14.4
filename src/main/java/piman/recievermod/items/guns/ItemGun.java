@@ -102,14 +102,14 @@ public abstract class ItemGun extends ItemBase {
 
             if ((flag1 || !nbt.getString("BulletChambered").isEmpty()) && flag2) {
 
-                ItemBullet item = (ItemBullet) ForgeRegistries.ITEMS.getValue(new ResourceLocation(nbt.getString("BulletChambered")));
-
-                if (item != null) {
-                    if (!world.isRemote) {
-                        item.fire(world, player, entityAccuracy, gunAccuracy, life);
-                    }
-                    nbt.putString("BulletChambered", item.getRegistryName().getResourceDomain() + ":" + item.getRegistryName().getResourcePath() + "casing");
-                }
+//                ItemBullet item = (ItemBullet) ForgeRegistries.ITEMS.getValue(new ResourceLocation(nbt.getString("BulletChambered")));
+//
+//                if (item != null) {
+//                    if (!world.isRemote) {
+//                        item.fire(world, player, entityAccuracy, gunAccuracy, life);
+//                    }
+//                    nbt.putString("BulletChambered", item.getRegistryName().getResourceDomain() + ":" + item.getRegistryName().getResourcePath() + "casing");
+//                }
 //                else if (!world.isRemote) {
 //
 //                    EntityBullet bulletdummy = new EntityBullet(world, player);
@@ -151,15 +151,15 @@ public abstract class ItemGun extends ItemBase {
 
     public abstract SoundEvent getShootSound();
 
-    public float getZoomFactor(ItemStack stack) {
-        if (stack.getOrCreateTag().contains("Accessories", 10)) {
-            ItemAccessories item = (ItemAccessories) ForgeRegistries.ITEMS.getValue(new ResourceLocation(this.getNBTTag(stack).getCompoundTag("Accessories").getString("1")));
-            if (item != null) {
-                return item.getZoomFactor();
-            }
-        }
-        return this.getDefaultZoomFactor(stack);
-    }
+//    public float getZoomFactor(ItemStack stack) {
+//        if (stack.getOrCreateTag().contains("Accessories", 10)) {
+//            ItemAccessories item = (ItemAccessories) ForgeRegistries.ITEMS.getValue(new ResourceLocation(this.getNBTTag(stack).getCompoundTag("Accessories").getString("1")));
+//            if (item != null) {
+//                return item.getZoomFactor();
+//            }
+//        }
+//        return this.getDefaultZoomFactor(stack);
+//    }
 
     public abstract float getDefaultZoomFactor(ItemStack stack);
 
@@ -171,29 +171,29 @@ public abstract class ItemGun extends ItemBase {
         return stack.getOrCreateChildTag("Accessories").contains(Integer.valueOf(type).toString(), 8) && !stack.getOrCreateChildTag("Accessories").getString(Integer.valueOf(type).toString()).isEmpty();
     }
 
-    public List<ItemStack> getAccesories(ItemStack stack) {
-
-        if (stack.getOrCreateTag().contains("Accessories", 10)) {
-            CompoundNBT nbt = stack.getOrCreateChildTag("Accessories");
-
-            List<ItemStack> list = new ArrayList<ItemStack>();
-
-            for (int i = 0; i < 9; i++) {
-                ItemStack accessory = new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(nbt.getString(Integer.toString(i)))));
-                if (!accessory.isEmpty()) {
-                    accessory.getOrCreateTag().putBoolean("model", true);
-                    accessory.getOrCreateTag().putString("UUID", stack.getOrCreateTag().getString("UUID"));
-                    accessory.getOrCreateTag().putIntArray("transform", this.getAccessoryTransformInts(((ItemAccessories)accessory.getItem()).getType()));
-                    list.add(accessory);
-                }
-            }
-
-            return list;
-        }
-        else {
-            return null;
-        }
-    }
+//    public List<ItemStack> getAccesories(ItemStack stack) {
+//
+//        if (stack.getOrCreateTag().contains("Accessories", 10)) {
+//            CompoundNBT nbt = stack.getOrCreateChildTag("Accessories");
+//
+//            List<ItemStack> list = new ArrayList<ItemStack>();
+//
+//            for (int i = 0; i < 9; i++) {
+//                ItemStack accessory = new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(nbt.getString(Integer.toString(i)))));
+//                if (!accessory.isEmpty()) {
+//                    accessory.getOrCreateTag().putBoolean("model", true);
+//                    accessory.getOrCreateTag().putString("UUID", stack.getOrCreateTag().getString("UUID"));
+//                    accessory.getOrCreateTag().putIntArray("transform", this.getAccessoryTransformInts(((ItemAccessories)accessory.getItem()).getType()));
+//                    list.add(accessory);
+//                }
+//            }
+//
+//            return list;
+//        }
+//        else {
+//            return null;
+//        }
+//    }
 
     private int [] getAccessoryTransformInts(int type) {
 
@@ -223,7 +223,7 @@ public abstract class ItemGun extends ItemBase {
 
                 if (player.getHeldItemMainhand().equals(stack)) {
                     if (KeyInputHandler.isKeyDown(KeyInputHandler.KeyPresses.Shift)) {
-                        MiscEventHandler.cancleBob();
+                        //MiscEventHandler.cancleBob();
                     }
                 }
             }

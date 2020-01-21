@@ -5,10 +5,17 @@ import net.minecraft.item.ItemStack;
 
 public class ModItemGroups {
 
-    public static final ItemGroup TOOLS = new ItemGroup(-1, "tools") {
+    public static final ItemGroup TOOLS = new ItemGroup("tools") {
         @Override
         public ItemStack createIcon() {
             return new ItemStack(ModItems.BINOCULARS);
+        }
+    };
+
+    public static final ItemGroup GUNS = new ItemGroup("guns") {
+        @Override
+        public ItemStack createIcon() {
+            return new ItemStack(ModItems._GUN_COLT);
         }
     };
 

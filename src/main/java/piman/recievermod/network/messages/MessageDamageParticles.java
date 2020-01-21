@@ -44,7 +44,8 @@ public class MessageDamageParticles extends MessageBase<MessageDamageParticles> 
 
 	@Override
 	public void handleClientSide(MessageDamageParticles message, PlayerEntity player) {
-		if (ModConfig.damageParticles) {
+		//if (ModConfig.damageParticles) {
+		{
 			
 			Random rand = new Random();
 		
@@ -66,9 +67,9 @@ public class MessageDamageParticles extends MessageBase<MessageDamageParticles> 
 			double length = Math.sqrt(dz*dz + dx*dx);
 			double distance = Math.sqrt(dy*dy + length*length);
 			
-			if (distance > ModConfig.damageParticlesDistance) {
-				return;
-			}
+//			if (distance > ModConfig.damageParticlesDistance) {
+//				return;
+//			}
 			
     		float scale = (float) (0.4 * distance);
 			
@@ -96,42 +97,42 @@ public class MessageDamageParticles extends MessageBase<MessageDamageParticles> 
 	    		
 	    		int d = damage[i] - '0';
 	    		    		
-	    		switch(d) {
-	    		case 0:
-	    			textureatlassprite = TextureStitcher.ZERO;
-	    			break;
-	    		case 1:
-	    			textureatlassprite = TextureStitcher.ONE;
-	    			break;
-	    		case 2:
-	    			textureatlassprite = TextureStitcher.TWO;
-	    			break;
-	    		case 3:
-	    			textureatlassprite = TextureStitcher.THREE;
-	    			break;
-	    		case 4:
-	    			textureatlassprite = TextureStitcher.FOUR;
-	    			break;
-	    		case 5:
-	    			textureatlassprite = TextureStitcher.FIVE;
-	    			break;
-	    		case 6:
-	    			textureatlassprite = TextureStitcher.SIX;
-	    			break;
-	    		case 7:
-	    			textureatlassprite = TextureStitcher.SEVEN;
-	    			break;
-	    		case 8:
-	    			textureatlassprite = TextureStitcher.EIGHT;
-	    			break;
-	    		case 9:
-	    			textureatlassprite = TextureStitcher.NINE;
-	    			break;
-				default:
-					textureatlassprite = null;
-	    		}
-	    		ParticleNumber particlenumber = new ParticleNumber(player.world, x, message.posY, z, vx, vy, vz, scale, textureatlassprite);
-	    		Minecraft.getInstance().effectRenderer.addEffect(particlenumber);
+//	    		switch(d) {
+//	    		case 0:
+//	    			textureatlassprite = TextureStitcher.ZERO;
+//	    			break;
+//	    		case 1:
+//	    			textureatlassprite = TextureStitcher.ONE;
+//	    			break;
+//	    		case 2:
+//	    			textureatlassprite = TextureStitcher.TWO;
+//	    			break;
+//	    		case 3:
+//	    			textureatlassprite = TextureStitcher.THREE;
+//	    			break;
+//	    		case 4:
+//	    			textureatlassprite = TextureStitcher.FOUR;
+//	    			break;
+//	    		case 5:
+//	    			textureatlassprite = TextureStitcher.FIVE;
+//	    			break;
+//	    		case 6:
+//	    			textureatlassprite = TextureStitcher.SIX;
+//	    			break;
+//	    		case 7:
+//	    			textureatlassprite = TextureStitcher.SEVEN;
+//	    			break;
+//	    		case 8:
+//	    			textureatlassprite = TextureStitcher.EIGHT;
+//	    			break;
+//	    		case 9:
+//	    			textureatlassprite = TextureStitcher.NINE;
+//	    			break;
+//				default:
+//					textureatlassprite = null;
+//	    		}
+//	    		ParticleNumber particlenumber = new ParticleNumber(player.world, x, message.posY, z, vx, vy, vz, scale, textureatlassprite);
+//	    		Minecraft.getInstance().effectRenderer.addEffect(particlenumber);
 	    	}
 		}
 	}

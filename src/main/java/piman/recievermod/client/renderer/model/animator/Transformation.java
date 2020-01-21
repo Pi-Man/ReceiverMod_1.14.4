@@ -30,19 +30,19 @@ public class Transformation {
     }
 
     public Vector3f getTranslation() {
-        return new Vector3f(translation);
+        return translation == null ? null : new Vector3f(translation);
     }
 
     public Vector3f getScale() {
-        return new Vector3f(scale);
+        return scale == null ? null : new Vector3f(scale);
     }
 
     public Vector3f getRotation() {
-        return new Vector3f(rotation);
+        return rotation == null ? null : new Vector3f(rotation);
     }
 
     public Vector3f getCenter() {
-        return new Vector3f(center);
+        return center == null ? null : new Vector3f(center);
     }
 
     public static class Deserializer implements JsonDeserializer<Transformation> {
@@ -127,7 +127,7 @@ public class Transformation {
 
         private Vector3f getVector3f(JsonObject jsonObject, String memberName, float... fallback) {
 
-            float[] floats = fallback;
+            float[] floats = new float[3];
 
             if (jsonObject.has(memberName)) {
 
@@ -137,6 +137,9 @@ public class Transformation {
                     floats[i] = jsonArray.get(i).getAsFloat();
                 }
 
+            }
+            else {
+                floats = fallback;
             }
 
             return floats == null ? null : new Vector3f(floats);

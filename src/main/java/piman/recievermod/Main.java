@@ -6,6 +6,7 @@ import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -26,9 +27,6 @@ public class Main {
     public static Main instance;
 
     public Main() {
-
-        CapabilityManager.INSTANCE.register(IItemData.class, new ItemDataStorage(), ItemData::new);
-
         instance = this;
     }
 
@@ -60,6 +58,7 @@ public class Main {
 
     @SubscribeEvent
     public void init(FMLCommonSetupEvent event) {
+        CapabilityManager.INSTANCE.register(IItemData.class, new ItemDataStorage(), ItemData::new);
         //soundsHandler = new SoundsHandler();
         //todo update
         //NetworkRegistry.INSTANCE.registerGuiHandler(this.instance, new GuiHandler());
