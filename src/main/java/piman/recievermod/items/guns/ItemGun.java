@@ -30,11 +30,13 @@ import piman.recievermod.capabilities.itemdata.IItemData;
 import piman.recievermod.capabilities.itemdata.ItemDataProvider;
 import piman.recievermod.items.ItemBase;
 import piman.recievermod.items.animations.IAnimationController;
+import piman.recievermod.items.bullets.ItemBullet;
 import piman.recievermod.keybinding.KeyInputHandler;
 import piman.recievermod.network.NetworkHandler;
 import piman.recievermod.network.messages.MessageShoot;
+import piman.recievermod.util.handlers.ClientEventHandler;
 
-public abstract class ItemGun extends ItemBase {
+public abstract class ItemGun extends Item {
 
     //private static final IItemPropertyGetter ADS_GETTER = new BooleanPropertyGetter("ADS");
 
@@ -102,14 +104,17 @@ public abstract class ItemGun extends ItemBase {
 
             if ((flag1 || !nbt.getString("BulletChambered").isEmpty()) && flag2) {
 
-//                ItemBullet item = (ItemBullet) ForgeRegistries.ITEMS.getValue(new ResourceLocation(nbt.getString("BulletChambered")));
-//
-//                if (item != null) {
-//                    if (!world.isRemote) {
-//                        item.fire(world, player, entityAccuracy, gunAccuracy, life);
-//                    }
-//                    nbt.putString("BulletChambered", item.getRegistryName().getResourceDomain() + ":" + item.getRegistryName().getResourcePath() + "casing");
-//                }
+                Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(nbt.getString("BulletChambered")));
+
+                if (!(item instanceof ItemBullet) && player.isCreative()) item = this.ammo;
+
+                if (item instanceof ItemBullet) {
+                    ItemBullet itemBullet = (ItemBullet) item;
+                    if (!world.isRemote) {
+                        itemBullet.fire(world, player, entityAccuracy, gunAccuracy, life);
+                    }
+                    nbt.putString("BulletChambered", itemBullet.getRegistryName().getNamespace() + ":" + itemBullet.getRegistryName().getPath() + "casing");
+                }
 //                else if (!world.isRemote) {
 //
 //                    EntityBullet bulletdummy = new EntityBullet(world, player);
@@ -223,7 +228,7 @@ public abstract class ItemGun extends ItemBase {
 
                 if (player.getHeldItemMainhand().equals(stack)) {
                     if (KeyInputHandler.isKeyDown(KeyInputHandler.KeyPresses.Shift)) {
-                        //MiscEventHandler.cancleBob();
+                        ClientEventHandler.cancleBob();
                     }
                 }
             }
@@ -239,7 +244,7 @@ public abstract class ItemGun extends ItemBase {
             ItemGun oldItem = (ItemGun) oldStack.getItem();
             ItemGun newItem = (ItemGun) newStack.getItem();
 
-            flag = oldItem.checkNBTTags(oldStack).getString("UUID").equals(newItem.checkNBTTags(newStack).getString("UUID"));
+            flag = oldStack.getOrCreateTag().getString("UUID").equals(newStack.getOrCreateTag().getString("UUID"));
         }
 
         return slotChanged || !flag;

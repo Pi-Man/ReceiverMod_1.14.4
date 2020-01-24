@@ -1,9 +1,6 @@
 package piman.recievermod.items.animations;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
@@ -17,45 +14,24 @@ import piman.recievermod.capabilities.itemdata.ItemDataProvider;
 import piman.recievermod.items.ItemPropertyWrapper;
 import piman.recievermod.items.guns.ItemGun;
 import piman.recievermod.keybinding.KeyInputHandler;
-import piman.recievermod.util.CapUtils;
 import piman.recievermod.util.handlers.RenderPartialTickHandler;
+
+import javax.annotation.Nonnull;
 
 public class AnimationControllerFireSelect implements IAnimationController {
 	
-	private final HashSet<Modes> options;
+	private final LinkedHashSet<Modes> options;
 	
 	public AnimationControllerFireSelect(Modes... modes) {
-		options = new HashSet<>(Arrays.asList(modes));
+		options = new LinkedHashSet<>(Arrays.asList(modes));
 	}
 
 	@Override
 	public List<ItemPropertyWrapper> getProperties() {
 		List<ItemPropertyWrapper> list = new ArrayList<>();
 		
-		list.add(new ItemPropertyWrapper("mode", new IItemPropertyGetter() {
-			@Override
-			public float call(ItemStack stack, World worldIn, LivingEntity entityIn) {
-				if (worldIn == null) {
-					worldIn = Minecraft.getInstance().world;
-				}
-	        	if (worldIn == null || !CapUtils.hasCap(worldIn, ItemDataProvider.ITEMDATA_CAP, null) || !stack.hasTag()) {
-	        		return 0.0F;
-	        	}
-	        	CompoundNBT nbt = CapUtils.getCap(worldIn, ItemDataProvider.ITEMDATA_CAP, null).getItemData().getCompound(stack.getOrCreateTag().getString("UUID"));
-				CompoundNBT oldnbt = nbt.getCompound("prev");
-				
-				Modes[] modes = options.toArray(new Modes[0]);
-				
-				int newVal = modes[nbt.getInt("mode")].ordinal();
-				int oldVal = modes[oldnbt.getInt("mode")].ordinal();
-				
-				float pt = RenderPartialTickHandler.renderPartialTick;
-				
-				float f = (newVal - oldVal) * pt + oldVal;
-				
-				return f;
-			}
-		}));
+		list.add(IAnimationController.integerProperty("mode", true));
+		list.add(IAnimationController.integerProperty("modeid", true));
 		
 		return list;
 	}
@@ -65,7 +41,8 @@ public class AnimationControllerFireSelect implements IAnimationController {
 		if (entityIn instanceof PlayerEntity) {
 			PlayerEntity player = (PlayerEntity) entityIn;
 			if (KeyInputHandler.isKeyPressed(KeyInputHandler.KeyPresses.Safety)) {
-				nbt.putInt("mode", (nbt.getInt("mode") + 1)%options.size());
+				nbt.putInt("modeid", (nbt.getInt("mode") + 1)%options.size());
+				nbt.putInt("mode", options.toArray(new Modes[0])[nbt.getInt("modeid")].ordinal());
 			}
 		}
 	}
@@ -73,6 +50,7 @@ public class AnimationControllerFireSelect implements IAnimationController {
 	public enum Modes {
 		SAFETY,
 		SEMI,
+		BURST,
 		AUTO;
 	}
 

@@ -13,7 +13,7 @@ public class CapabilityHandler {
 	public static final ResourceLocation ITEM_CAP = new ResourceLocation(Reference.MOD_ID, "item");
 	
 	@SubscribeEvent
-	public void attachCapability(AttachCapabilitiesEvent<World> event) {
+	public static void attachCapability(AttachCapabilitiesEvent<World> event) {
 		event.addCapability(ITEM_CAP, new ItemDataProvider());
 	}
 }

@@ -1,6 +1,6 @@
 {
 	"textures": {
-		"0": "rm:items/1911"
+		"0": "receiver:items/1911"
 	},
 	"elements": [
 		{

@@ -20,6 +20,8 @@ public class MessageEject extends MessageBase<MessageEject> {
 
     private ItemStack itemstack;
 
+    public MessageEject() {}
+
 	public MessageEject (ItemStack itemstack) {
 		this.itemstack = itemstack;
 	}

@@ -1,6 +1,8 @@
 package piman.recievermod.client.renderer.model.jsongunmodel;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
@@ -13,10 +15,7 @@ import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.resources.IResource;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.model.BasicState;
-import net.minecraftforge.client.model.ModelLoader;
-import net.minecraftforge.client.model.ModelStateComposition;
-import net.minecraftforge.client.model.PerspectiveMapWrapper;
+import net.minecraftforge.client.model.*;
 import net.minecraftforge.client.model.animation.AnimationItemOverrideList;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.common.model.IModelState;
@@ -110,6 +109,12 @@ public class UnbakedJsonGunModel implements IUnbakedModel {
         List<TRSRTransformation> newTransforms = new ArrayList<>();
         for (BlockPart part : model.getElements()) newTransforms.add(TRSRTransformation.identity());
 
+        ItemCameraTransforms transforms = model.getAllTransforms();
+        Map<ItemCameraTransforms.TransformType, TRSRTransformation> tMap = Maps.newEnumMap(ItemCameraTransforms.TransformType.class);
+        tMap.putAll(PerspectiveMapWrapper.getTransforms(transforms));
+        tMap.putAll(PerspectiveMapWrapper.getTransforms(sprite.getState()));
+        //IModelState perState = new SimpleModelState(ImmutableMap.copyOf(tMap), sprite.getState().apply(Optional.empty()));
+
         models.add(this.bakeNormal(bakery, model, sprite.getState(), sprite.getState(), newTransforms, format, spriteGetter, false));
 
         for (BlockModel model : this.submodels) {
@@ -118,7 +123,7 @@ public class UnbakedJsonGunModel implements IUnbakedModel {
             models.add(this.bakeNormal(bakery, model, sprite.getState(), sprite.getState(), newTransforms, format, spriteGetter, false));
         }
 
-        return new BakedGunModel(this, models, new HashMap<>(), spriteGetter.apply(new ResourceLocation(this.model.resolveTextureName("particle"))), format, new GunOverrideHandler(animator), new HashMap<>());
+        return new BakedGunModel(this, models, tMap, spriteGetter.apply(new ResourceLocation(this.model.resolveTextureName("particle"))), format, new GunOverrideHandler(animator), new HashMap<>());
     }
 
     private IBakedModel bakeNormal(ModelBakery bakery, BlockModel model, IModelState perState, final IModelState modelState, List<TRSRTransformation> newTransforms, final VertexFormat format, final Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter, boolean uvLocked) {

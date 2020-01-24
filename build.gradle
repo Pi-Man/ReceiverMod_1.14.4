@@ -1,11 +1,12 @@
 buildscript {
     repositories {
         maven { url = 'https://files.minecraftforge.net/maven' }
+        maven {  url 'http://dogforce-games.com/maven' }
         jcenter()
         mavenCentral()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.0.165-run-configs-rework', changing: true
     }
 }
 apply plugin: 'net.minecraftforge.gradle'
@@ -13,9 +14,9 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = '1.0'
+version = '1.0_(MC_1.14.4)'
 group = 'piman.receiver' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = 'receiver'
+archivesBaseName = 'Receiver'
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 
@@ -43,7 +44,7 @@ minecraft {
             property 'forge.logging.console.level', 'info'
 
             mods {
-                examplemod {
+                receiver {
                     source sourceSets.main
                 }
             }
@@ -59,7 +60,7 @@ minecraft {
             property 'forge.logging.console.level', 'info'
 
             mods {
-                examplemod {
+                receiver {
                     source sourceSets.main
                 }
             }
@@ -74,10 +75,10 @@ minecraft {
             // Recommended logging level for the console
             property 'forge.logging.console.level', 'info'
 
-            args '--mod', 'examplemod', '--all', '--output', file('src/generated/resources/')
+            args '--mod', 'receiver', '--all', '--output', file('src/generated/resources/')
 
             mods {
-                examplemod {
+                receiver {
                     source sourceSets.main
                 }
             }

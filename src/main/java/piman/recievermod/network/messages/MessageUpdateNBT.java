@@ -12,7 +12,6 @@ import piman.recievermod.Main;
 import piman.recievermod.capabilities.itemdata.IItemData;
 import piman.recievermod.capabilities.itemdata.ItemDataProvider;
 import piman.recievermod.network.NetworkHandler;
-import piman.recievermod.util.CapUtils;
 
 public class MessageUpdateNBT extends MessageBase<MessageUpdateNBT> {
 	
@@ -54,11 +53,11 @@ public class MessageUpdateNBT extends MessageBase<MessageUpdateNBT> {
 						
 		stack1.setTag(stack2.getOrCreateTag());
 		
-		CompoundNBT dataTag = CapUtils.getCap(player.world, ItemDataProvider.ITEMDATA_CAP, null).getItemData();
-		CompoundNBT itemTag = getItemTag(dataTag, stack2.getOrCreateTag().getString("UUID"));
-		itemTag.merge(message.nbt);
-		
-		CapUtils.getCap(player.world, ItemDataProvider.ITEMDATA_CAP, null).setItemData(dataTag);
+		player.world.getCapability(ItemDataProvider.ITEMDATA_CAP).ifPresent(itemData -> {
+			CompoundNBT dataTag = itemData.getItemData();
+			CompoundNBT itemTag = getItemTag(dataTag, stack2.getOrCreateTag().getString("UUID"));
+			itemTag.merge(message.nbt);
+		});
 	}
 
 	@Override
@@ -74,58 +73,55 @@ public class MessageUpdateNBT extends MessageBase<MessageUpdateNBT> {
 			Main.LOGGER.info("Items are not Equal");
 			return;
 		}
-		
-		String uuid = null;
-		short status = -1; 
+
+		final String[] uuid = {null};
+		final short[] status = {-1};
 		
 		for ( World world : ServerLifecycleHooks.getCurrentServer().getWorlds()) {
-			IItemData itemData = CapUtils.getCap(world, ItemDataProvider.ITEMDATA_CAP, null);
-			
-			CompoundNBT baseTag = itemData.getItemData();
-			CompoundNBT itemTag = null;
-			if (uuid == null) {
-				if (message.nbt.getString("UUID").isEmpty()) {
-					if (!stack2.getOrCreateTag().getString("UUID").isEmpty()) {
-						uuid = stack2.getOrCreateTag().getString("UUID");
-						itemTag = getItemTag(baseTag, uuid);
-						status = 0;
-					}
-					else {
-						uuid = UUID.randomUUID().toString();
-						CompoundNBT nbt = new CompoundNBT();
-						nbt.putString("UUID", uuid);
-						stack2.getOrCreateTag().merge(nbt);
-						Main.LOGGER.info("Set UUID To: {}", uuid);
-						itemTag = getItemTag(baseTag, uuid);
+			ItemStack finalStack = stack2;
+			world.getCapability(ItemDataProvider.ITEMDATA_CAP).ifPresent(itemData -> {
+
+				CompoundNBT baseTag = itemData.getItemData();
+				CompoundNBT itemTag = null;
+				if (uuid[0] == null) {
+					if (message.nbt.getString("UUID").isEmpty()) {
+						if (!finalStack.getOrCreateTag().getString("UUID").isEmpty()) {
+							uuid[0] = finalStack.getOrCreateTag().getString("UUID");
+							itemTag = getItemTag(baseTag, uuid[0]);
+							status[0] = 0;
+						} else {
+							uuid[0] = UUID.randomUUID().toString();
+							CompoundNBT nbt = new CompoundNBT();
+							nbt.putString("UUID", uuid[0]);
+							finalStack.getOrCreateTag().merge(nbt);
+							Main.LOGGER.info("Set UUID To: {}", uuid[0]);
+							itemTag = getItemTag(baseTag, uuid[0]);
+							itemTag.merge(message.nbt);
+							itemTag.putString("UUID", uuid[0]);
+							status[0] = 1;
+							itemData.setItemData(baseTag);
+						}
+						NetworkHandler.sendToAll(new MessageUpdateNBT(finalStack, message.slot, itemTag));
+					} else {
+						itemTag = getItemTag(baseTag, message.nbt.getString("UUID"));
 						itemTag.merge(message.nbt);
-						itemTag.putString("UUID", uuid);
-						status = 1;
+						status[0] = 2;
 						itemData.setItemData(baseTag);
 					}
-					NetworkHandler.sendToAll(new MessageUpdateNBT(stack2, message.slot, itemTag));
+				} else {
+					if (status[0] == 0) {
+						itemTag = getItemTag(baseTag, uuid[0]);
+					} else if (status[0] == 1) {
+						itemTag = getItemTag(baseTag, uuid[0]);
+						itemTag.merge(message.nbt);
+						itemData.setItemData(baseTag);
+					} else if (status[0] == 2) {
+						itemTag = getItemTag(baseTag, uuid[0]);
+						itemTag.merge(message.nbt);
+						itemData.setItemData(baseTag);
+					}
 				}
-				else {
-					itemTag = getItemTag(baseTag, message.nbt.getString("UUID"));
-					itemTag.merge(message.nbt);
-					status = 2;
-					itemData.setItemData(baseTag);
-				}
-			}
-			else {
-				if (status == 0) {
-					itemTag = getItemTag(baseTag, uuid);
-				}
-				else if (status == 1) {
-					itemTag = getItemTag(baseTag, uuid);
-					itemTag.merge(message.nbt);
-					itemData.setItemData(baseTag);
-				}
-				else if (status == 2) {
-					itemTag = getItemTag(baseTag, uuid);
-					itemTag.merge(message.nbt);
-					itemData.setItemData(baseTag);
-				}
-			}
+			});
 		}
 	}
 	

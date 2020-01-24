@@ -17,7 +17,6 @@ import piman.recievermod.items.ItemPropertyWrapper;
 import piman.recievermod.items.animations.*;
 import piman.recievermod.network.NetworkHandler;
 import piman.recievermod.network.messages.MessageUpdateNBT;
-import piman.recievermod.util.CapUtils;
 import piman.recievermod.util.SoundsHandler;
 
 public class ItemColt extends ItemGun implements IItemInit {
@@ -36,7 +35,7 @@ public class ItemColt extends ItemGun implements IItemInit {
         this.mag = ModItems._CLIP_COLT;
 
         this.animationControllers.add(new AnimationControllerADS());
-        this.animationControllers.add(new AnimationControllerShoot(nbt->nbt.getInt("SlideFrame") == 0));
+        this.animationControllers.add(new AnimationControllerShoot(nbt->nbt.getInt("slide") == 0));
         this.animationControllers.add(new AnimationControllerHammer(false));
         this.animationControllers.add(new AnimationControllerMag());
         this.animationControllers.add(new AnimationConrollerSlide());
@@ -48,7 +47,7 @@ public class ItemColt extends ItemGun implements IItemInit {
 
     @Override
     public SoundEvent getShootSound() {
-        return SoundsHandler.getSoundEvent(SoundsHandler.Sounds.COLT_1911_SHOT);
+        return SoundsHandler.ITEM_1911_SHOT;
     }
 
     @Override

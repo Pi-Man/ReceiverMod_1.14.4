@@ -4,6 +4,7 @@ import net.minecraft.client.GameSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.client.util.InputMappings;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -11,15 +12,17 @@ import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.InputUpdateEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 import org.lwjgl.glfw.GLFW;
 import piman.recievermod.Main;
 import piman.recievermod.items.guns.ItemGun;
 
 @OnlyIn(Dist.CLIENT)
+@Mod.EventBusSubscriber
 public class KeyInputHandler {
 		
 	@SubscribeEvent
-	public void onClientTickEvent(TickEvent.ClientTickEvent event) {
+	public static void onClientTickEvent(TickEvent.ClientTickEvent event) {
 		if (Minecraft.getInstance().player != null) {
 			if (event.phase == TickEvent.Phase.START) {
 				prevScreen = currentScreen;
@@ -33,11 +36,11 @@ public class KeyInputHandler {
 	}
 
 	@SubscribeEvent
-	public void onInput(InputEvent event) {
+	public static void onInput(InputEvent event) {
 		
 		PlayerEntity player = Minecraft.getInstance().player;
 		
-		if (player.getHeldItemMainhand().getItem() instanceof ItemGun && !gs.keyBindSprint.isKeyDown()) {
+		if (player != null && player.getHeldItemMainhand().getItem() instanceof ItemGun && !gs.keyBindSprint.isKeyDown()) {
 						
 			KeyBinding.setKeyBindState(gs.keyBindAttack.getKey(), false);
 			while (gs.keyBindAttack.isPressed());
@@ -49,12 +52,12 @@ public class KeyInputHandler {
 	}
 	
 	@SubscribeEvent
-	public void resetScrollCancle(InputUpdateEvent event) {
+	public static void resetScrollCancle(InputUpdateEvent event) {
 		scrollCancle = false;
 	}
 	
 	@SubscribeEvent
-	public void onMouseEvent(InputEvent.MouseScrollEvent event) {
+	public static void onMouseEvent(InputEvent.MouseScrollEvent event) {
 		
 		if (scrollCancle) {
 			event.setCanceled(true);
@@ -99,14 +102,13 @@ public class KeyInputHandler {
 			
 			getStates()[OLD][i] = getStates()[NEW][i];
 			
-			int keyCode = Keys[i].getKey().getKeyCode();
+			InputMappings.Input key = Keys[i].getKey();
 			
-			if (keyCode < 0) {
-				keyCode += 100;
-				getStates()[NEW][i] = GLFW.glfwGetMouseButton(windowId, keyCode) != 0 && !gs.keyBindSprint.isKeyDown();
+			if (key.getType() == InputMappings.Type.MOUSE) {
+				getStates()[NEW][i] = GLFW.glfwGetMouseButton(windowId, key.getKeyCode()) != 0 && !gs.keyBindSprint.isKeyDown();
 			}
 			else {
-				getStates()[NEW][i] = GLFW.glfwGetKey(windowId, keyCode) != 0;
+				getStates()[NEW][i] = GLFW.glfwGetKey(windowId, key.getKeyCode()) != 0;
 			}
 		}
 		

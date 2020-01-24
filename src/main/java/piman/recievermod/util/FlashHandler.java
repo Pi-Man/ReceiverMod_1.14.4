@@ -1,6 +1,8 @@
 package piman.recievermod.util;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -14,9 +16,11 @@ import piman.recievermod.network.messages.MessageFlashServer;
 
 public class FlashHandler {
 
-	static private Map<BlockPos, Integer> flashcache = new HashMap<BlockPos, Integer>();
-	
+	static private Map<BlockPos, Integer> flashcache = new HashMap<>();
+
+	@OnlyIn(Dist.CLIENT)
 	public static void Update(int dimension) {
+		List<BlockPos> remove = new ArrayList<>();
 		for (Entry<BlockPos, Integer> entry : flashcache.entrySet()) {
 			
 			BlockPos pos = entry.getKey();
@@ -28,18 +32,11 @@ public class FlashHandler {
 				entry.setValue(duration - 1);
 			}
 			else {
-				for (int i = -1; i <= 1; i++) {
-					for (int k = -1; k <= 1; k++) {
-						BlockPos pos2 = pos.add(i, 0, k);
-						if (!flashcache.containsKey(pos2)) {
-							//Main.proxy.getWorld(dimension).checkLight(pos2);
-						}
-					}
-				}
-				//Main.proxy.getWorld(dimension).checkLight(pos);
-				flashcache.remove(pos);
+				Minecraft.getInstance().world.getChunk(pos).getWorldLightManager().checkBlock(pos);
+				remove.add(pos);
 			}
 		}
+		remove.forEach(flashcache::remove);
 	}
 
 	public static void CreateFlash(BlockPos pos, int dimension, int duration) {
@@ -54,10 +51,7 @@ public class FlashHandler {
 		BlockPos pos2 = pos.add(0, -1, 0);
 
 		if (world.isAreaLoaded(pos2, 0)) {
-
 			world.getChunk(pos2).getWorldLightManager().func_215573_a(pos2, 15);
-			//world.getChunk(pos2).getWorldLightManager().checkBlock(pos2);
-
 		}
 		
 		flashcache.put(pos, duration);

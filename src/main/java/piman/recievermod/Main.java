@@ -2,6 +2,8 @@ package piman.recievermod;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.EntityRayTraceResult;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -18,15 +20,19 @@ import net.minecraftforge.fml.common.Mod;
 import piman.recievermod.capabilities.itemdata.IItemData;
 import piman.recievermod.capabilities.itemdata.ItemData;
 import piman.recievermod.capabilities.itemdata.ItemDataStorage;
+import piman.recievermod.init.ModEntities;
+import piman.recievermod.network.NetworkHandler;
 import piman.recievermod.util.Reference;
+import piman.recievermod.util.SoundsHandler;
 
 @Mod(Reference.MOD_ID)
-@Mod.EventBusSubscriber
+@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class Main {
 
     public static Main instance;
 
     public Main() {
+        NetworkHandler.init();
         instance = this;
     }
 
@@ -57,7 +63,13 @@ public class Main {
 //    }
 
     @SubscribeEvent
-    public void init(FMLCommonSetupEvent event) {
+    @OnlyIn(Dist.CLIENT)
+    public static void cinit(FMLClientSetupEvent event) {
+        ModEntities.registerRenderers();
+    }
+
+    @SubscribeEvent
+    public static void init(FMLCommonSetupEvent event) {
         CapabilityManager.INSTANCE.register(IItemData.class, new ItemDataStorage(), ItemData::new);
         //soundsHandler = new SoundsHandler();
         //todo update

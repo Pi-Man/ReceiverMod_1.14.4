@@ -37,14 +37,16 @@ public class MessageFlashClient extends MessageBase<MessageFlashClient> {
 	@Override
 	public MessageFlashClient fromBytes(PacketBuffer buf) {
 
-		update = buf.readBoolean();
-		duration = buf.readInt();
-		dimension = buf.readInt();
-		x = buf.readInt();
-		y = buf.readInt();
-		z = buf.readInt();
+		MessageFlashClient message = new MessageFlashClient();
 
-		return new MessageFlashClient();
+		message.update = buf.readBoolean();
+		message.duration = buf.readInt();
+		message.dimension = buf.readInt();
+		message.x = buf.readInt();
+		message.y = buf.readInt();
+		message.z = buf.readInt();
+
+		return message;
 	}
 
 	@Override

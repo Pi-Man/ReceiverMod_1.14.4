@@ -18,7 +18,7 @@ public class NetworkHandler {
 	private static int i = 0;
 
 	public static void init() {
-		INSTANCE = NetworkRegistry.newSimpleChannel(new ResourceLocation(Reference.MOD_ID, "main network"), () -> "1.0.0", "1.0.0"::equals, "1.0.0"::equals);
+		INSTANCE = NetworkRegistry.newSimpleChannel(new ResourceLocation(Reference.MOD_ID, "main_network"), () -> "1.0.0", "1.0.0"::equals, "1.0.0"::equals);
 		
 		int i = 0;
 

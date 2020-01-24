@@ -11,7 +11,7 @@ public class RenderPartialTickHandler {
 	public static float renderPartialTick;
 	
 	@SubscribeEvent
-	public void OnRenderPartialTick(TickEvent.RenderTickEvent event) {
+	public static void OnRenderPartialTick(TickEvent.RenderTickEvent event) {
 		renderPartialTick = event.renderTickTime;
 	}
 

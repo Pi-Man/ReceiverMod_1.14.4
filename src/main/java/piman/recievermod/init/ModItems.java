@@ -6,6 +6,7 @@ import net.minecraft.item.ItemGroup;
 import net.minecraftforge.registries.ObjectHolder;
 import piman.recievermod.items.IItemInit;
 import piman.recievermod.items.ItemBinoculars;
+import piman.recievermod.items.bullets.ItemBulletMedium;
 import piman.recievermod.items.guns.ItemColt;
 import piman.recievermod.util.Reference;
 
@@ -50,6 +51,7 @@ public class ModItems {
         ITEMS.clear();
 
         ITEMS.add(new ItemColt(new Item.Properties().group(ModItemGroups.GUNS)).setRegistryName(Reference.MOD_ID, "_gun_colt"));
+        ITEMS.add(new ItemBulletMedium(new Item.Properties(), 0.45f, 20f, "bullet45").setRegistryName("bullet45"));
         ITEMS.add(new ItemBinoculars(new Item.Properties().maxStackSize(1).group(ModItemGroups.TOOLS)).setRegistryName(Reference.MOD_ID, "binoculars"));
         ITEMS.add(new Item(new Item.Properties().group(ModItemGroups.TOOLS)).setRegistryName(Reference.MOD_ID, "lens"));
 

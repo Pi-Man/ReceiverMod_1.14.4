@@ -737,7 +737,7 @@
                     {
                         "value": "variable",
                         "transformation": {
-                            "translation": [-0.4, 0, 0]
+                            "translation": [-0.04, 0, 0]
                         }
                     }
                 ]
@@ -786,10 +786,53 @@
     ],
     "basetransformation": {
         "predicates": {
+            "fired": {
+                "FIRST_PERSON_LEFT_HAND": [
+                    {
+                        "value": "variable",
+                        "order": 2,
+                        "transformation": {
+                            "rotation": [0, 0, 30],
+							"center": [0.3, 0, 0]
+                        }
+                    }
+                ],
+                "FIRST_PERSON_RIGHT_HAND": [
+                    {
+                        "value": "variable",
+                        "order": 2,
+                        "transformation": {
+                            "rotation": [0, 0, -30],
+							"center": [-0.3, 0, 0]
+                        }
+                    }
+                ],
+                "THIRD_PERSON_LEFT_HAND": [
+                    {
+                        "value": "variable",
+                        "order": 2,
+                        "transformation": {
+                            "rotation": [0, 0, 30],
+							"center": [0.3, 0, 0]
+                        }
+                    }
+                ],
+                "THIRD_PERSON_RIGHT_HAND": [
+                    {
+                        "value": "variable",
+                        "order": 2,
+                        "transformation": {
+                            "rotation": [0, 0, -30],
+							"center": [-0.3, 0, 0]
+                        }
+                    }
+                ]
+            },
             "ads": {
                 "FIRST_PERSON_LEFT_HAND": [
                     {
                         "value": "variable",
+                        "order": 3,
                         "transformation": {
                             "translation": [-0.1, 0.257, 0.8412]
                         }
@@ -798,6 +841,7 @@
                 "FIRST_PERSON_RIGHT_HAND": [
                     {
                         "value": "variable",
+                        "order": 3,
                         "transformation": {
                             "translation": [-0.1, 0.257, -0.8412]
                         }
@@ -811,7 +855,7 @@
                         "order": 0,
                         "transformation": {
                             "translation": [0, 0, 0],
-                            "rotation": [-100, 0, 0]
+                            "rotation": [-10, 0, 0]
                         }
                     },
                     {
@@ -819,7 +863,7 @@
                         "order": 1,
                         "transformation": {
                             "translation": [0, 0, 0],
-                            "rotation": [0, 100, -100]
+                            "rotation": [0, 10, -10]
                         }
                     }
                 ],
@@ -829,7 +873,7 @@
                         "order": 0,
                         "transformation": {
                             "translation": [0, 0, 0],
-                            "rotation": [-100, 0, 0]
+                            "rotation": [-10, 0, 0]
                         }
                     },
                     {
@@ -837,7 +881,7 @@
                         "order": 1,
                         "transformation": {
                             "translation": [0, 0, 0],
-                            "rotation": [0, 100, -100]
+                            "rotation": [0, 10, -10]
                         }
                     }
                 ],
@@ -846,7 +890,7 @@
                         "value": "variable",
                         "transformation": {
                             "translation": [0, 0.4, 0.8],
-                            "rotation": [0, -100, 100]
+                            "rotation": [0, -10, 10]
                         }
                     }
                 ],
@@ -855,7 +899,7 @@
                         "value": "variable",
                         "transformation": {
                             "translation": [0, 0.4, 0.1],
-                            "rotation": [0, 100, -100]
+                            "rotation": [0, 10, -10]
                         }
                     }
                 ]

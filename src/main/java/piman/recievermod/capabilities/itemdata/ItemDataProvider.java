@@ -6,26 +6,24 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
 
 public class ItemDataProvider implements ICapabilitySerializable<INBT> {
 
-	@CapabilityInject (IItemData.class)
-	public static final Capability<IItemData> ITEMDATA_CAP = null;
-	
-	private IItemData instance = ITEMDATA_CAP.getDefaultInstance();
+	public static Capability<IItemData> ITEMDATA_CAP;
 
+	@CapabilityInject(IItemData.class)
+	public static void init(Capability<IItemData> capIn) {
+		ITEMDATA_CAP = capIn;
+	}
+
+	private IItemData instance = new ItemData();
+
+	@Nonnull
 	@Override
-	public <T> LazyOptional<T> getCapability(Capability<T> capability, Direction facing) {
-		return LazyOptional.of(new NonNullSupplier<T>() {
-			@Nonnull
-			@Override
-			public T get() {
-				return (T) instance;
-			}
-		});
+	public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> capability, Direction facing) {
+		return LazyOptional.of(() -> (T) instance);
 	}
 
 	@Override

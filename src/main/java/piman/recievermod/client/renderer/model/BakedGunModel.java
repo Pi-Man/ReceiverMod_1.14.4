@@ -10,15 +10,16 @@ import net.minecraftforge.client.model.PerspectiveMapWrapper;
 import net.minecraftforge.common.model.TRSRTransformation;
 import org.apache.commons.lang3.tuple.Pair;
 
+import javax.annotation.Nonnull;
 import javax.vecmath.Matrix4f;
 import java.util.*;
 
 public class BakedGunModel implements IBakedModel {
     private final IUnbakedModel parent;
     private final List<IBakedModel> models;
-    private List<BakedQuad> quads = new ArrayList<BakedQuad>();
+    private List<BakedQuad> quads = new ArrayList<>();
     private Map<ItemCameraTransforms.TransformType, TRSRTransformation> transforms;
-    private List<TRSRTransformation> subTransforms = new ArrayList<TRSRTransformation>();
+    private List<TRSRTransformation> subTransforms = new ArrayList<>();
     private final TextureAtlasSprite particle;
     private final VertexFormat format;
     private final ItemOverrideList overrides;
@@ -31,8 +32,7 @@ public class BakedGunModel implements IBakedModel {
                          TextureAtlasSprite particle,
                          VertexFormat format,
                          ItemOverrideList overrides,
-                         Map<String, IBakedModel> cache)
-    {
+                         Map<String, IBakedModel> cache) {
         this.parent = parent;
         this.models = models;
         this.transforms = transforms;
@@ -84,8 +84,9 @@ public class BakedGunModel implements IBakedModel {
 //        }
 //    }
 
+    @Nonnull
     @Override
-    public List<BakedQuad> getQuads(BlockState state, Direction side, Random rand) {
+    public List<BakedQuad> getQuads(BlockState state, Direction side, @Nonnull Random rand) {
 
         Long start = System.nanoTime();
 
@@ -175,22 +176,22 @@ public class BakedGunModel implements IBakedModel {
 
     private int calculateNormal(Matrix4f points) {
 
-        float xp = points.m03-points.m01;
-        float yp = points.m13-points.m11;
-        float zp = points.m23-points.m21;
+        float xp = points.m03 - points.m01;
+        float yp = points.m13 - points.m11;
+        float zp = points.m23 - points.m21;
 
-        float xq = points.m02-points.m00;
-        float yq = points.m12-points.m10;
-        float zq = points.m22-points.m20;
+        float xq = points.m02 - points.m00;
+        float yq = points.m12 - points.m10;
+        float zq = points.m22 - points.m20;
 
         //Cross Product
-        float xn = yq*zp - zq*yp;
-        float yn = zq*xp - xq*zp;
-        float zn = xq*yp - yq*xp;
+        float xn = yq * zp - zq * yp;
+        float yn = zq * xp - xq * zp;
+        float zn = xq * yp - yq * xp;
 
         //Normalize
-        float norm = (float)Math.sqrt(xn*xn + yn*yn + zn*zn);
-        final float SMALL_LENGTH =  1.0E-4F;  //Vec3d.normalise() uses this
+        float norm = (float) Math.sqrt(xn * xn + yn * yn + zn * zn);
+        final float SMALL_LENGTH = 1.0E-4F;  //Vec3d.normalise() uses this
         if (norm < SMALL_LENGTH) norm = 1.0F;  // protect against degenerate quad
 
         norm = 1.0F / norm;
@@ -198,10 +199,14 @@ public class BakedGunModel implements IBakedModel {
         yn *= norm;
         zn *= norm;
 
-        int x = ((byte)(xn * 127)) & 0xFF;
-        int y = ((byte)(yn * 127)) & 0xFF;
-        int z = ((byte)(zn * 127)) & 0xFF;
+        int x = ((byte) (xn * 127)) & 0xFF;
+        int y = ((byte) (yn * 127)) & 0xFF;
+        int z = ((byte) (zn * 127)) & 0xFF;
         return x | (y << 0x08) | (z << 0x10);
+    }
+
+    public IUnbakedModel getParent() {
+        return parent;
     }
 
     @Override
@@ -219,22 +224,28 @@ public class BakedGunModel implements IBakedModel {
         return false;
     }
 
+    @Nonnull
     @Override
     public TextureAtlasSprite getParticleTexture() {
         return this.particle;
     }
 
+    @Nonnull
     @Override
     public ItemOverrideList getOverrides() {
         return this.overrides;
     }
 
-    public Pair<? extends IBakedModel, Matrix4f> handlePerspective(ItemCameraTransforms.TransformType type)
-    {
+    @Override
+    public ItemCameraTransforms getItemCameraTransforms() {
+        return models.get(0).getItemCameraTransforms();
+    }
+
+    public Pair<? extends IBakedModel, Matrix4f> handlePerspective(ItemCameraTransforms.TransformType type) {
         return PerspectiveMapWrapper.handlePerspective(this, ImmutableMap.copyOf(transforms), type);
     }
 
-    public void setCameraTransforms (ImmutableMap<ItemCameraTransforms.TransformType, TRSRTransformation> transforms) {
+    public void setCameraTransforms(ImmutableMap<ItemCameraTransforms.TransformType, TRSRTransformation> transforms) {
         this.transforms = new HashMap<>(transforms);
     }
 

@@ -1,35 +1,32 @@
 package piman.recievermod.network.messages;
 
-import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
-import piman.recievermod.util.SoundsHandler;
+import net.minecraft.util.SoundEvent;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class MessagePlaySound extends MessageBase<MessagePlaySound> {
 
-	private int sound;
+	private String sound;
 	
 	public MessagePlaySound() {}
-	
-	public MessagePlaySound(int sound) {
-		this.sound = sound;
-	}
-	
-	public MessagePlaySound(SoundsHandler.Sounds sound) {
-		this.sound = sound.ordinal();
+
+	public MessagePlaySound(SoundEvent sound) {
+		this.sound = ForgeRegistries.SOUND_EVENTS.getKey(sound).toString();
 	}
 	
 	@Override
 	public MessagePlaySound fromBytes(PacketBuffer buf) {
 		MessagePlaySound message = new MessagePlaySound();
-		message.sound = buf.readInt();
+		message.sound = buf.readString();
 		return message;
 	}
 
 	@Override
 	public void toBytes(MessagePlaySound message, PacketBuffer buf) {
-		buf.writeInt(message.sound);
+		buf.writeString(message.sound);
 	}
 
 	@Override
@@ -37,7 +34,7 @@ public class MessagePlaySound extends MessageBase<MessagePlaySound> {
 
 	@Override
 	public void handleServerSide(MessagePlaySound message, PlayerEntity player) {
-		player.world.playSound(null, player.posX, player.posY, player.posZ, SoundsHandler.getSoundEvent(message.sound), SoundCategory.PLAYERS, 1, 1);
+		player.world.playSound(null, player.posX, player.posY, player.posZ, ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation(message.sound)), SoundCategory.PLAYERS, 1, 1);
 	}
 
 }

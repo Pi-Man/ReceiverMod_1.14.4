@@ -1,7 +1,7 @@
 {
 	"textures": {
-		"0": "rm:items/1911",
-		"particle": "rm:items/1911"
+		"0": "receiver:items/1911",
+		"particle": "receiver:items/1911"
 	},
 	"elements": [
 		{

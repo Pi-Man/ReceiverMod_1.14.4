@@ -20,7 +20,6 @@ import piman.recievermod.items.guns.ItemGun;
 import piman.recievermod.keybinding.KeyInputHandler;
 import piman.recievermod.network.NetworkHandler;
 import piman.recievermod.network.messages.MessageAddToInventory;
-import piman.recievermod.util.CapUtils;
 import piman.recievermod.util.handlers.RenderPartialTickHandler;
 
 public class AnimationControllerCylinder implements IAnimationController {
@@ -36,189 +35,15 @@ public class AnimationControllerCylinder implements IAnimationController {
 		
 		List<ItemPropertyWrapper> list = new ArrayList<>();
 		
-		list.add(new ItemPropertyWrapper("spin",new IItemPropertyGetter()
-	    {
-	        @Override
-	        public float call(ItemStack stack, @Nullable World worldIn, @Nullable LivingEntity entityIn)
-	        {
-	        	if (worldIn == null) {
-	        		worldIn = Minecraft.getInstance().world;
-	        	}
-	        	
-	        	if (worldIn == null || !CapUtils.hasCap(worldIn, ItemDataProvider.ITEMDATA_CAP, null) || !stack.hasTag()) {
-	        		return 0.0F;
-	        	}
-	        	CompoundNBT nbt = CapUtils.getCap(worldIn, ItemDataProvider.ITEMDATA_CAP, null).getItemData().getCompound(stack.getOrCreateTag().getString("UUID"));
-	        	
-	        	CompoundNBT oldnbt = nbt.getCompound("prev");
-	        	
-	        	float nextspin = 0;//(float) ((Item44Magnum) stack.getItem()).getSpin(nbt);
-	        	
-	        	float prevspin = 0;//(float) ((Item44Magnum) stack.getItem()).getSpin(oldnbt);
-
-	        	float partialTicks = RenderPartialTickHandler.renderPartialTick;
-	        	
-	        	float spin = prevspin * (1 - partialTicks) + nextspin * partialTicks;
-	        	        	
-	        	return spin;
-	        }
-	    }));
-	    
-	    list.add(new ItemPropertyWrapper("open", new IItemPropertyGetter() {
-			@Override
-			public float call(ItemStack stack, World worldIn, LivingEntity entityIn) {
-	        	if (worldIn == null) {
-	        		worldIn = Minecraft.getInstance().world;
-	        	}
-	        	
-	        	if (worldIn == null || !CapUtils.hasCap(worldIn, ItemDataProvider.ITEMDATA_CAP, null) || !stack.hasTag()) {
-	        		return 0.0F;
-	        	}
-	        	CompoundNBT nbt = CapUtils.getCap(worldIn, ItemDataProvider.ITEMDATA_CAP, null).getItemData().getCompound(stack.getOrCreateTag().getString("UUID"));
-				CompoundNBT oldnbt = (CompoundNBT) nbt.get("prev");
-				
-				if (oldnbt == null) {
-					return 0.0F;
-				}
-				
-				float pt = RenderPartialTickHandler.renderPartialTick;
-				
-	            float j = (oldnbt.getBoolean("open") ? 1.0F : 0.0F) * (1 - pt) + (nbt.getBoolean("open") ? 1.0F : 0.0F) * pt;
-	                        
-	            return j;
-			}
-		}));
-	    
-	    list.add(new ItemPropertyWrapper("eject", new IItemPropertyGetter() {
-			@Override
-			public float call(ItemStack stack, World worldIn, LivingEntity entityIn) {
-	        	if (worldIn == null) {
-	        		worldIn = Minecraft.getInstance().world;
-	        	}
-	        	
-	        	if (worldIn == null || !CapUtils.hasCap(worldIn, ItemDataProvider.ITEMDATA_CAP, null) || !stack.hasTag()) {
-	        		return 0.0F;
-	        	}
-	        	CompoundNBT nbt = CapUtils.getCap(worldIn, ItemDataProvider.ITEMDATA_CAP, null).getItemData().getCompound(stack.getOrCreateTag().getString("UUID"));
-				CompoundNBT oldnbt = (CompoundNBT) nbt.get("prev");
-				
-				if (oldnbt == null) {
-					return 0.0F;
-				}
-				
-				float pt = RenderPartialTickHandler.renderPartialTick;
-				
-	            float j = (oldnbt.getBoolean("eject") ? 1.0F : 0.0F) * (1 - pt) + (nbt.getBoolean("eject") ? 1.0F : 0.0F) * pt;
-	                        
-	            return j;
-			}
-		}));
-	    
-		list.add(new ItemPropertyWrapper("bullet1", new IItemPropertyGetter() {
-	        @Override
-	        public float call(ItemStack stack, @Nullable World worldIn, @Nullable LivingEntity entityIn)
-	        {
-	        	if (worldIn == null) {
-	        		worldIn = Minecraft.getInstance().world;
-	        	}
-	        	
-	        	if (worldIn == null || !CapUtils.hasCap(worldIn, ItemDataProvider.ITEMDATA_CAP, null) || !stack.hasTag()) {
-	        		return 0.0F;
-	        	}
-	        	CompoundNBT nbt = CapUtils.getCap(worldIn, ItemDataProvider.ITEMDATA_CAP, null).getItemData().getCompound(stack.getOrCreateTag().getString("UUID"));
-	        	
-	        	return nbt.getInt("bullet1");
-	        }
-	    }));
-	    
-	    list.add(new ItemPropertyWrapper("bullet2", new IItemPropertyGetter() {
-	        @Override
-	        public float call(ItemStack stack, @Nullable World worldIn, @Nullable LivingEntity entityIn)
-	        {
-	        	if (worldIn == null) {
-	        		worldIn = Minecraft.getInstance().world;
-	        	}
-	        	
-	        	if (worldIn == null || !CapUtils.hasCap(worldIn, ItemDataProvider.ITEMDATA_CAP, null) || !stack.hasTag()) {
-	        		return 0.0F;
-	        	}
-	        	CompoundNBT nbt = CapUtils.getCap(worldIn, ItemDataProvider.ITEMDATA_CAP, null).getItemData().getCompound(stack.getOrCreateTag().getString("UUID"));
-	        	
-	        	return nbt.getInt("bullet2");
-	        }
-	    }));
-	    
-	    list.add(new ItemPropertyWrapper("bullet3", new IItemPropertyGetter()
-	    {
-	        @Override
-	        public float call(ItemStack stack, @Nullable World worldIn, @Nullable LivingEntity entityIn)
-	        {
-	        	if (worldIn == null) {
-	        		worldIn = Minecraft.getInstance().world;
-	        	}
-	        	
-	        	if (worldIn == null || !CapUtils.hasCap(worldIn, ItemDataProvider.ITEMDATA_CAP, null) || !stack.hasTag()) {
-	        		return 0.0F;
-	        	}
-	        	CompoundNBT nbt = CapUtils.getCap(worldIn, ItemDataProvider.ITEMDATA_CAP, null).getItemData().getCompound(stack.getOrCreateTag().getString("UUID"));
-	        	
-	        	return nbt.getInt("bullet3");
-	        }
-	    }));
-	    
-	    list.add(new ItemPropertyWrapper("bullet4", new IItemPropertyGetter()
-	    {
-	        @Override
-	        public float call(ItemStack stack, @Nullable World worldIn, @Nullable LivingEntity entityIn)
-	        {
-	        	if (worldIn == null) {
-	        		worldIn = Minecraft.getInstance().world;
-	        	}
-	        	
-	        	if (worldIn == null || !CapUtils.hasCap(worldIn, ItemDataProvider.ITEMDATA_CAP, null) || !stack.hasTag()) {
-	        		return 0.0F;
-	        	}
-	        	CompoundNBT nbt = CapUtils.getCap(worldIn, ItemDataProvider.ITEMDATA_CAP, null).getItemData().getCompound(stack.getOrCreateTag().getString("UUID"));
-	        	
-	        	return nbt.getInt("bullet4");
-	        }
-	    }));
-	    
-	    list.add(new ItemPropertyWrapper("bullet5", new IItemPropertyGetter()
-	    {
-	        @Override
-	        public float call(ItemStack stack, @Nullable World worldIn, @Nullable LivingEntity entityIn)
-	        {
-	        	if (worldIn == null) {
-	        		worldIn = Minecraft.getInstance().world;
-	        	}
-	        	
-	        	if (worldIn == null || !CapUtils.hasCap(worldIn, ItemDataProvider.ITEMDATA_CAP, null) || !stack.hasTag()) {
-	        		return 0.0F;
-	        	}
-	        	CompoundNBT nbt = CapUtils.getCap(worldIn, ItemDataProvider.ITEMDATA_CAP, null).getItemData().getCompound(stack.getOrCreateTag().getString("UUID"));
-	        	
-	        	return nbt.getInt("bullet5");
-	        }
-	    }));
-	    
-	    list.add(new ItemPropertyWrapper("bullet6", new IItemPropertyGetter()
-	    {
-	        @Override
-	        public float call(ItemStack stack, @Nullable World worldIn, @Nullable LivingEntity entityIn)
-	        {
-	        	if (worldIn == null) {
-	        		worldIn = Minecraft.getInstance().world;
-	        	}
-	        	
-	        	if (worldIn == null || !CapUtils.hasCap(worldIn, ItemDataProvider.ITEMDATA_CAP, null) || !stack.hasTag()) {
-	        		return 0.0F;
-	        	}
-	        	CompoundNBT nbt = CapUtils.getCap(worldIn, ItemDataProvider.ITEMDATA_CAP, null).getItemData().getCompound(stack.getOrCreateTag().getString("UUID"));
-	        	
-	        	return nbt.getInt("bullet6");
-	        }
-	    }));
+		list.add(IAnimationController.floatProperty("spin", true));
+	    list.add(IAnimationController.booleanProperty("open", true));
+	    list.add(IAnimationController.booleanProperty("eject", true));
+		list.add(IAnimationController.integerProperty("bullet1", true));
+		list.add(IAnimationController.integerProperty("bullet2", true));
+		list.add(IAnimationController.integerProperty("bullet3", true));
+		list.add(IAnimationController.integerProperty("bullet4", true));
+		list.add(IAnimationController.integerProperty("bullet5", true));
+		list.add(IAnimationController.integerProperty("bullet6", true));
 		
 		return list;
 	}

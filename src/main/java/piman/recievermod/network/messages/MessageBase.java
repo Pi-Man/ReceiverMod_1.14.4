@@ -36,6 +36,8 @@ public abstract class MessageBase<T extends MessageBase<T>> {
 		    	
 		    });
 
+			ctx.get().setPacketHandled(true);
+
 		}
 		else {
 
@@ -47,6 +49,8 @@ public abstract class MessageBase<T extends MessageBase<T>> {
 				}
 				
 			});
+
+			ctx.get().setPacketHandled(true);
 
 		}
 	}

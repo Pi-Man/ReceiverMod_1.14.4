@@ -1,0 +1,92 @@
+{
+    "item.rifle.shot": {
+        "category": "player",
+        "subtitle": "item.rifle.shot",
+        "sounds": [{ "name": "receiver:item/rifle/shot", "stream": false}]
+    },
+    
+    "item.rifle.boltup": {
+        "category": "player",
+        "subtitle": "item.rifle.boltup",
+        "sounds": [{ "name": "receiver:item/rifle/boltup", "stream": false}]
+    },
+    
+    "item.rifle.boltback": {
+        "category": "player",
+        "subtitle": "item.rifle.boltback",
+        "sounds": [{ "name": "receiver:item/rifle/boltback", "stream": false}]
+    },
+    
+    "item.rifle.boltforward": {
+        "category": "player",
+        "subtitle": "item.rifle.boltforward",
+        "sounds": [{ "name": "receiver:item/rifle/boltforward", "stream": false}]
+    },
+    
+    "item.rifle.boltdown": {
+        "category": "player",
+        "subtitle": "item.rifle.boltdown",
+        "sounds": [{ "name": "receiver:item/rifle/boltdown", "stream": false}]
+    },
+    
+    "item.1911.shot": {
+        "category": "player",
+        "subtitle": "item.1911.shot",
+        "sounds": [{ "name": "receiver:item/colt/shot", "stream": false}]
+    },
+    
+    "item.1911.slideforward": {
+        "category": "player",
+        "subtitle": "item.1911.slideforward",
+        "sounds": [{ "name": "receiver:item/colt/slideforward", "stream": false}]
+    },
+    
+    "item.1911.slideback": {
+        "category": "player",
+        "subtitle": "item.1911.slideback",
+        "sounds": [{ "name": "receiver:item/colt/slideback", "stream": false}]
+    },
+    
+    "item.glock.dry": {
+        "category": "player",
+        "subtitle": "item.glock.dry",
+        "sounds": [{ "name": "receiver:item/glock/dry", "stream": false}]
+    },
+    
+    "item.glock.magin": {
+        "category": "player",
+        "subtitle": "item.glock.magin",
+        "sounds": [{ "name": "receiver:item/glock/magin", "stream": false}]
+    },
+    
+    "item.glock.magout": {
+        "category": "player",
+        "subtitle": "item.glock.magout",
+        "sounds": [{ "name": "receiver:item/glock/magout", "stream": false}]
+    },
+    
+    "item.glock.shot": {
+        "category": "player",
+        "subtitle": "item.glock.shot",
+        "sounds": [{ "name": "receiver:item/glock/shot", "stream": false}]
+    },
+    
+    "item.glock.slideforward": {
+        "category": "player",
+        "subtitle": "item.glock.slideforward",
+        "sounds": [{ "name": "receiver:item/glock/slideforward", "stream": false}]
+    },
+    
+    "item.glock.slideback": {
+        "category": "player",
+        "subtitle": "item.glock.slideback",
+        "sounds": [{ "name": "receiver:item/glock/slideback", "stream": false}]
+    },
+    
+    "entity.turret.target": {
+        "category": "hostile",
+        "subtitle": "entity.turret.target",
+        "sounds": [{ "name": "receiver:entity/turret/target"}]
+    }
+    
+}

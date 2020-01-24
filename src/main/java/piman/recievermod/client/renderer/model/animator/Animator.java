@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.*;
+import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
@@ -23,16 +24,17 @@ public class Animator {
     private static final Gson SERIALIZER = new GsonBuilder().registerTypeAdapter(Animator.class, new Animator.Deserializer()).registerTypeAdapter(Predicate.class, new Predicate.Deserializer()).registerTypeAdapter(Transformation.class, new Transformation.Deserializer()).create();
 
     private final List<ResourceLocation> dependencies;
-
     private final Map<ResourceLocation, Map<ResourceLocation, Predicate>> predicates;
+    private final Map<ResourceLocation, Map<ItemCameraTransforms.TransformType, Predicate>> baseTransforms;
 
     public Animator() {
-        this(new ArrayList<>(), new HashMap<>());
+        this(new ArrayList<>(), new HashMap<>(), new HashMap<>());
     }
 
-    public Animator(List<ResourceLocation> dependencies, Map<ResourceLocation, Map<ResourceLocation, Predicate>> predicates) {
+    public Animator(List<ResourceLocation> dependencies, Map<ResourceLocation, Map<ResourceLocation, Predicate>> predicates, Map<ResourceLocation, Map<ItemCameraTransforms.TransformType, Predicate>> baseTransforms) {
         this.dependencies = dependencies;
         this.predicates = predicates;
+        this.baseTransforms = baseTransforms;
     }
 
     public static Animator deserialize(Reader reader) {
@@ -45,10 +47,6 @@ public class Animator {
 
     public List<ResourceLocation> getDependenciesForMap() {
         return ImmutableList.copyOf(dependencies);
-    }
-
-    public Map<ResourceLocation, Map<ResourceLocation, Predicate>> getPredicates() {
-        return ImmutableMap.copyOf(predicates);
     }
 
     public List<TRSRTransformation> getSubTransforms(ItemStack stack, World world, LivingEntity entity) {
@@ -70,23 +68,7 @@ public class Animator {
 
                     for (Transformation transformation : predicate.getTransformations()) {
 
-                        try {
-                            float scaleFactor = transformation.getValue().eval(value);
-
-                            Vector3f translation = transformation.getTranslation();
-                            Vector3f scale = transformation.getScale();
-                            Vector3f rotation = transformation.getRotation();
-                            Vector3f center = transformation.getCenter();
-
-                            if (translation != null) translation.scale(scaleFactor);
-                            if (scale != null) scale.scale(scaleFactor);
-                            if (rotation != null) rotation.scale(scaleFactor);
-                            if (center != null) center.scale(scaleFactor);
-
-                            builder.add(translation, scale, rotation, center, transformation.getOrder());
-                        }
-                        catch (IndexOutOfBoundsException ignored) {
-                        }
+                       addTransformation(builder, transformation, value);
 
                     }
 
@@ -100,6 +82,64 @@ public class Animator {
 
         return list;
 
+    }
+
+    public Map<ItemCameraTransforms.TransformType, TRSRTransformation> getBaseTransforms(ItemStack stack, World world, LivingEntity entity) {
+
+        Map<ItemCameraTransforms.TransformType, TRSRTransformation> baseTransforms = new EnumMap<>(ItemCameraTransforms.TransformType.class);
+
+        Map<ItemCameraTransforms.TransformType, TransformationBuilder> builders = new EnumMap<>(ItemCameraTransforms.TransformType.class);
+
+        for (ItemCameraTransforms.TransformType type : ItemCameraTransforms.TransformType.values()) {
+            builders.put(type, new TransformationBuilder());
+        }
+
+        for (Map.Entry<ResourceLocation, Map<ItemCameraTransforms.TransformType, Predicate>> entry : this.baseTransforms.entrySet()) {
+
+            for (Map.Entry<ItemCameraTransforms.TransformType, Predicate> entry1 : entry.getValue().entrySet()) {
+
+                IItemPropertyGetter getter = stack.getItem().getPropertyGetter(entry.getKey());
+
+                if (getter != null) {
+
+                    float value = getter.call(stack, world, entity);
+
+                    for (Transformation transformation : entry1.getValue().getTransformations()) {
+
+                        addTransformation(builders.get(entry1.getKey()), transformation, value);
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        builders.forEach((type, builder) -> baseTransforms.put(type, builder.build()));
+
+        return baseTransforms;
+
+    }
+
+    private void addTransformation(TransformationBuilder builder, Transformation transformation, float value) {
+        try {
+            float scaleFactor = transformation.getValue().eval(value);
+
+            Vector3f translation = transformation.getTranslation();
+            Vector3f scale = transformation.getScale();
+            Vector3f rotation = transformation.getRotation();
+            Vector3f center = transformation.getCenter();
+
+            if (translation != null) translation.scale(scaleFactor);
+            if (scale != null) scale.scale(scaleFactor);
+            if (rotation != null) rotation.scale(scaleFactor);
+            if (center != null) center.scale(scaleFactor);
+
+            builder.add(translation, rotation, center, scale, transformation.getOrder());
+        }
+        catch (IndexOutOfBoundsException ignored) {
+        }
     }
 
     public static class Deserializer implements JsonDeserializer<Animator> {
@@ -124,7 +164,7 @@ public class Animator {
 
             List<ResourceLocation> dependencies = new ArrayList<>();
 
-            Map<ResourceLocation, Map<ResourceLocation, Predicate>> predicates = new HashMap<>();
+            Map<ResourceLocation, Map<ResourceLocation, Predicate>> predicates = new LinkedHashMap<>();
 
             JsonArray submodels = json.getAsJsonObject().getAsJsonArray("submodels");
 
@@ -154,7 +194,32 @@ public class Animator {
 
             }
 
-            return new Animator(dependencies, predicates);
+            JsonObject transformsObject = json.getAsJsonObject().getAsJsonObject("basetransformation");
+
+            if (transformsObject.has("predicates")) {
+                transformsObject = transformsObject.getAsJsonObject("predicates");
+            }
+
+            Map<ResourceLocation, Map<ItemCameraTransforms.TransformType, Predicate>> baseTransforms = new HashMap<>();
+
+            for (Map.Entry<String, JsonElement> entry : transformsObject.entrySet()) {
+
+                ResourceLocation location = new ResourceLocation(entry.getKey());
+                JsonObject transformTypeObject = entry.getValue().getAsJsonObject();
+
+                Map<ItemCameraTransforms.TransformType, Predicate> transformationListMap = new EnumMap<ItemCameraTransforms.TransformType, Predicate>(ItemCameraTransforms.TransformType.class);
+
+                for (ItemCameraTransforms.TransformType type : ItemCameraTransforms.TransformType.values()) {
+                    if (transformTypeObject.has(type.name())) {
+                        transformationListMap.put(type, context.deserialize(transformTypeObject.getAsJsonArray(type.name()), Predicate.class));
+                    }
+                }
+
+                baseTransforms.put(location, transformationListMap);
+
+            }
+
+            return new Animator(dependencies, predicates, baseTransforms);
         }
 
     }

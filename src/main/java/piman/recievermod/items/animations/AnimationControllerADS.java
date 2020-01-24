@@ -14,7 +14,6 @@ import piman.recievermod.capabilities.itemdata.ItemDataProvider;
 import piman.recievermod.items.ItemPropertyWrapper;
 import piman.recievermod.items.guns.ItemGun;
 import piman.recievermod.keybinding.KeyInputHandler;
-import piman.recievermod.util.CapUtils;
 import piman.recievermod.util.handlers.RenderPartialTickHandler;
 
 public class AnimationControllerADS implements IAnimationController {
@@ -23,34 +22,14 @@ public class AnimationControllerADS implements IAnimationController {
 	public List<ItemPropertyWrapper> getProperties() {
 		List<ItemPropertyWrapper> list= new ArrayList<>();
 		
-		list.add(new ItemPropertyWrapper("ads", new IItemPropertyGetter() {
-			@Override
-			public float call(ItemStack stack, World worldIn, LivingEntity entityIn) {
-				if (worldIn == null) {
-					worldIn = Minecraft.getInstance().world;
-				}
-				
-				if (worldIn == null || !CapUtils.hasCap(worldIn, ItemDataProvider.ITEMDATA_CAP, null) || !stack.hasTag()) {
-					return 0.0F;
-				}
-				
-				CompoundNBT nbt = CapUtils.getCap(worldIn, ItemDataProvider.ITEMDATA_CAP, null).getItemData().getCompound(stack.getOrCreateTag().getString("UUID"));
-				CompoundNBT oldnbt = nbt.getCompound("prev");
-				
-				float pt = RenderPartialTickHandler.renderPartialTick;
-				
-	            float j = (oldnbt.getBoolean("ADS") ? 1.0F : 0.0F) * (1 - pt) + (nbt.getBoolean("ADS") ? 1.0F : 0.0F) * pt;
-				
-				return j;
-			}
-		}));
+		list.add(IAnimationController.booleanProperty("ads", false));
 		
 		return list;
 	}
 
 	@Override
 	public void update(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected, CompoundNBT nbt, ItemGun gun) {
-		nbt.putBoolean("ADS", KeyInputHandler.isKeyDown(KeyInputHandler.KeyPresses.RightClick));
+		nbt.putBoolean("ads", KeyInputHandler.isKeyDown(KeyInputHandler.KeyPresses.RightClick));
 	}
 
 }

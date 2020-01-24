@@ -1,66 +1,105 @@
 package piman.recievermod.util.handlers;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.IUnbakedModel;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.client.renderer.model.ModelRotation;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ModelBakeEvent;
-import net.minecraftforge.client.event.TextureStitchEvent;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraftforge.client.event.FOVUpdateEvent;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.registries.ForgeRegistries;
-import piman.recievermod.client.renderer.model.ModelLoaderRegistry;
+import piman.recievermod.capabilities.itemdata.ItemDataProvider;
+import piman.recievermod.init.ModItems;
+import piman.recievermod.items.guns.ItemGun;
 
-import java.util.HashSet;
-import java.util.Map;
-
-@Mod.EventBusSubscriber(value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
+@Mod.EventBusSubscriber
 public class ClientEventHandler {
 
-    @SubscribeEvent
-    public static void init(FMLClientSetupEvent event) {
-        System.out.println("Setup Event");
+    private static boolean cancleBob;
+    private static boolean bob;
+    private static double mouseSensitivity = Minecraft.getInstance().gameSettings.mouseSensitivity;
 
+    @SubscribeEvent
+    public static void renderOverlayEvent(RenderGameOverlayEvent.Pre event) {
+        if (event.getType() == RenderGameOverlayEvent.ElementType.CROSSHAIRS) {
+            if (Minecraft.getInstance().player.getHeldItemMainhand().getItem() instanceof ItemGun) {
+                event.setCanceled(true);
+            }
+        }
     }
 
     @SubscribeEvent
-    public static void onTextureStitch(TextureStitchEvent.Pre event) {
-        System.out.println("Texture Stitching");
-        System.out.println(event.getMap().getBasePath());
+    public static void FOVEvent(FOVUpdateEvent event) {
+        if (Minecraft.getInstance().player.getHeldItemMainhand().getItem() instanceof ItemGun) {
+            ItemStack stack = Minecraft.getInstance().player.getHeldItemMainhand();
+            ItemGun gun = (ItemGun) Minecraft.getInstance().player.getHeldItemMainhand().getItem();
 
-        if (event.getMap().getBasePath().equals("textures")) {
+            Minecraft.getInstance().world.getCapability(ItemDataProvider.ITEMDATA_CAP).ifPresent(itemData -> {
+                CompoundNBT nbt = itemData.getItemData().getCompound(stack.getOrCreateTag().getString("UUID"));
+                if (nbt.getBoolean("ads")) {
+                    event.setNewfov(event.getFov() * gun.getDefaultZoomFactor(stack));
+                }
+            });
 
-            for (ResourceLocation location : ForgeRegistries.ITEMS.getKeys()) {
-                ModelLoaderRegistry.getModelOrLogError(new ModelResourceLocation(location, "inventory"), "Could Not Load Model");
+        }
+    }
+
+    @SubscribeEvent
+    public static void renderTick(TickEvent.RenderTickEvent event) {
+        if (event.phase == TickEvent.Phase.START) {
+            bob = Minecraft.getInstance().gameSettings.viewBobbing;
+            if (cancleBob) {
+                Minecraft.getInstance().gameSettings.viewBobbing = false;
             }
-
-            for (Map.Entry<ResourceLocation, IUnbakedModel> entry : ModelLoaderRegistry.getUnbakedModels().entrySet()) {
-                entry.getValue().getTextures(ModelLoaderRegistry.getUnbakedModels()::get, new HashSet<>()).forEach(event::addSprite);
+            mouseSensitivity = Minecraft.getInstance().gameSettings.mouseSensitivity;
+            if (Minecraft.getInstance().player != null) {
+                ItemStack stack = Minecraft.getInstance().player.getHeldItemMainhand();
+                if (stack.getItem() instanceof ItemGun) {
+                    ItemGun gun = (ItemGun)stack.getItem();
+                    Minecraft.getInstance().world.getCapability(ItemDataProvider.ITEMDATA_CAP).ifPresent(itemData -> {
+                        CompoundNBT nbt = itemData.getItemData().getCompound(stack.getOrCreateTag().getString("UUID"));
+                        if (nbt.getBoolean("ads")) {
+                            float f = gun.getDefaultZoomFactor(stack);
+                            Minecraft.getInstance().gameSettings.mouseSensitivity = mouseSensitivity * f;
+                        }
+                    });
+                }
             }
+        }
+        if (event.phase == TickEvent.Phase.END) {
+            Minecraft.getInstance().gameSettings.viewBobbing = bob;
+            Minecraft.getInstance().gameSettings.mouseSensitivity = mouseSensitivity;
+        }
+    }
 
+    @SubscribeEvent
+    public static void ClientTick(TickEvent.ClientTickEvent event) {
+
+        if (event.phase == TickEvent.Phase.START) {
+            cancleBob = false;
+            mouseSensitivity = Minecraft.getInstance().gameSettings.mouseSensitivity;
+            if (Minecraft.getInstance().player != null) {
+                ItemStack stack = Minecraft.getInstance().player.getHeldItemMainhand();
+                if (stack.getItem() instanceof ItemGun) {
+                    ItemGun gun = (ItemGun)stack.getItem();
+                    Minecraft.getInstance().world.getCapability(ItemDataProvider.ITEMDATA_CAP).ifPresent(itemData -> {
+                        CompoundNBT nbt = itemData.getItemData().getCompound(stack.getOrCreateTag().getString("UUID"));
+                        if (nbt.getBoolean("ads")) {
+                            float f = gun.getDefaultZoomFactor(stack);
+                            Minecraft.getInstance().gameSettings.mouseSensitivity = mouseSensitivity * f;
+                        }
+                    });
+                }
+            }
+        }
+        else if (event.phase == TickEvent.Phase.END) {
+            Minecraft.getInstance().gameSettings.mouseSensitivity = mouseSensitivity;
         }
 
     }
 
-    @SubscribeEvent
-    public static void onModelBake(ModelBakeEvent event) {
-        System.out.println("Model Bake Event");
-
-        Map<ResourceLocation, IBakedModel> map = event.getModelRegistry();
-
-        for (Map.Entry<ResourceLocation, IBakedModel> entry : map.entrySet()) {
-            if (ModelLoaderRegistry.loaded(entry.getKey())) {
-                IUnbakedModel unbakedModel = ModelLoaderRegistry.getModelOrMissing(entry.getKey());
-                IBakedModel bakedModel = unbakedModel.bake(event.getModelLoader(), Minecraft.getInstance().getTextureMap()::getSprite, ModelRotation.X0_Y0, DefaultVertexFormats.ITEM);
-                entry.setValue(bakedModel);
-            }
-        }
-
+    public static void cancleBob() {
+        cancleBob = true;
     }
 
 }

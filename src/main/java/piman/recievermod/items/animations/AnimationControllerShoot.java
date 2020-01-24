@@ -18,7 +18,6 @@ import piman.recievermod.items.guns.ItemGun;
 import piman.recievermod.keybinding.KeyInputHandler;
 import piman.recievermod.network.NetworkHandler;
 import piman.recievermod.network.messages.MessagePlaySound;
-import piman.recievermod.util.CapUtils;
 import piman.recievermod.util.FlashHandler;
 import piman.recievermod.util.SoundsHandler;
 import piman.recievermod.util.handlers.RenderPartialTickHandler;
@@ -35,27 +34,7 @@ public class AnimationControllerShoot implements IAnimationController {
 	public List<ItemPropertyWrapper> getProperties() {
 		List<ItemPropertyWrapper> list = new ArrayList<>();
 		
-		list.add(new ItemPropertyWrapper("fired", new IItemPropertyGetter() {
-			@Override
-			public float call(ItemStack stack, World worldIn, LivingEntity entityIn) {
-				if (worldIn == null) {
-					worldIn = Minecraft.getInstance().world;
-				}
-				
-				if (worldIn == null || !CapUtils.hasCap(worldIn, ItemDataProvider.ITEMDATA_CAP, null) || !stack.hasTag()) {
-					return 0.0F;
-				}
-				
-				CompoundNBT nbt = CapUtils.getCap(worldIn, ItemDataProvider.ITEMDATA_CAP, null).getItemData().getCompound(stack.getOrCreateTag().getString("UUID"));
-				CompoundNBT oldnbt = nbt.getCompound("prev");
-				
-				float pt = RenderPartialTickHandler.renderPartialTick;
-				
-	            float j = (oldnbt.getBoolean("fired") ? 1.0F : 0.0F) * (1 - pt) + (nbt.getBoolean("fired") ? 1.0F : 0.0F) * pt;
-				
-				return j;
-			}
-		}));
+		list.add(IAnimationController.booleanProperty("fired", false));
 		
 		return list;
 	}
@@ -66,8 +45,8 @@ public class AnimationControllerShoot implements IAnimationController {
 			PlayerEntity player = (PlayerEntity) entityIn;
 			nbt.putBoolean("fired", false);
 			if (KeyInputHandler.isKeyDown(KeyInputHandler.KeyPresses.LeftClick) && nbt.getBoolean("hammer") && (!nbt.getBoolean("held") || nbt.getBoolean("Auto"))) {
-				//boolean flag = gun.Shoot(nbt, (LivingEntity) entityIn, ModConfig.glockdamage, nbt.getBoolean("ADS") ? 0 : 10, 0, 1, condition.apply(nbt));
-				boolean flag = gun.Shoot(nbt, (LivingEntity) entityIn, 10, nbt.getBoolean("ADS") ? 0 : 10, 0, 1, condition.apply(nbt));
+				//boolean flag = gun.Shoot(nbt, (LivingEntity) entityIn, ModConfig.glockdamage, nbt.getBoolean("ads") ? 0 : 10, 0, 1, condition.apply(nbt));
+				boolean flag = gun.Shoot(nbt, (LivingEntity) entityIn, 10, nbt.getBoolean("ads") ? 0 : 10, 0, 1, condition.apply(nbt));
 				if (flag) {
 					if (!player.isCreative()) {
 						//NetworkHandler.sendToServer(new MessageEject(new ItemStack(ModItems.BULLET9MMCASING)));
@@ -76,12 +55,12 @@ public class AnimationControllerShoot implements IAnimationController {
 						FlashHandler.CreateFlash(new BlockPos(player.posX, player.posY + 1, player.posZ), player.dimension.getId(), 1);
 					}
 					else {
-						FlashHandler.CreateFlash(new BlockPos(player.posX, player.posY + 1, player.posZ), player.dimension.getId(), 2);
+						FlashHandler.CreateFlash(new BlockPos(player.posX, player.posY + 1, player.posZ), player.dimension.getId(), 10);
 					}
 					nbt.putBoolean("fired", true);
 				}
 				else {
-					NetworkHandler.sendToServer(new MessagePlaySound(SoundsHandler.Sounds.GLOCK_DRY));
+					NetworkHandler.sendToServer(new MessagePlaySound(SoundsHandler.ITEM_GLOCK_DRY));
 				}
 				nbt.putBoolean("held", true);
 			}
@@ -91,8 +70,8 @@ public class AnimationControllerShoot implements IAnimationController {
 		}
 	}
 
-	public static interface Condition {
-		public boolean apply(CompoundNBT nbt);
+	public interface Condition {
+		boolean apply(CompoundNBT nbt);
 	}
 	
 }
