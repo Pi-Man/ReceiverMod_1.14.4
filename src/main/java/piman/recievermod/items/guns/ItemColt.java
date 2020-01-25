@@ -32,7 +32,7 @@ public class ItemColt extends ItemGun implements IItemInit {
         this.spreadY = 0.5;
         this.ammo = ModItems.BULLET45;
         this.casing = ModItems.BULLET45CASING;
-        this.mag = ModItems._CLIP_COLT;
+        this.mag = ModItems.COLT_MAG;
 
         this.animationControllers.add(new AnimationControllerADS());
         this.animationControllers.add(new AnimationControllerShoot(nbt->nbt.getInt("slide") == 0));
@@ -55,27 +55,6 @@ public class ItemColt extends ItemGun implements IItemInit {
 
         super.inventoryTick(stack, worldIn, entityIn, itemSlot, isSelected);
 
-        if (entityIn instanceof PlayerEntity && ((PlayerEntity) entityIn).getHeldItemMainhand().equals(stack)) {
-
-            if (worldIn.isRemote) {
-
-                CompoundNBT tag = stack.getOrCreateTag();
-
-                worldIn.getCapability(ItemDataProvider.ITEMDATA_CAP).ifPresent(cap -> {
-                    CompoundNBT baseTag = cap.getItemData();
-
-                    CompoundNBT nbt = baseTag.getCompound(tag.getString("UUID"));
-
-                    CompoundNBT oldnbt = nbt.copy();
-                    oldnbt.remove("prev");
-                    nbt.put("prev", oldnbt);
-
-                    animationControllers.forEach(controller -> controller.update(stack, worldIn, entityIn, itemSlot, isSelected, nbt, (ItemGun) stack.getItem()));
-
-                    NetworkHandler.sendToServer(new MessageUpdateNBT(stack, itemSlot, nbt));
-                });
-            }
-        }
     }
 
     @Override

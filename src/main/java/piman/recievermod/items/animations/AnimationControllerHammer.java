@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -36,11 +37,12 @@ public class AnimationControllerHammer implements IAnimationController {
 	}
 
 	@Override
-	public void update(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected, CompoundNBT nbt, ItemGun gun) {
-		if (nbt.getBoolean("hammer") && KeyInputHandler.isKeyDown(KeyInputHandler.KeyPresses.LeftClick) && (!nbt.getBoolean("held") || nbt.getBoolean("Auto"))) {
+	public void update(ItemStack stack, World worldIn, PlayerEntity player, int itemSlot, boolean isSelected, CompoundNBT nbt, ItemGun gun) {
+		boolean flag = player.getHeldItemMainhand().equals(stack);
+		if (nbt.getBoolean("hammer") && flag && KeyInputHandler.isKeyDown(KeyInputHandler.KeyPresses.LeftClick) && (!nbt.getBoolean("held") || nbt.getBoolean("Auto"))) {
 			nbt.putBoolean("hammer", false);
 		}
-		else if ((doubleAction && KeyInputHandler.isKeyPressed(KeyInputHandler.KeyPresses.LeftClick)) || KeyInputHandler.isKeyPressed(KeyInputHandler.KeyPresses.Safety)) {
+		else if ((doubleAction && flag && KeyInputHandler.isKeyPressed(KeyInputHandler.KeyPresses.LeftClick)) || (flag && KeyInputHandler.isKeyPressed(KeyInputHandler.KeyPresses.Safety))) {
 			nbt.putBoolean("hammer", true);
 		}
 	}

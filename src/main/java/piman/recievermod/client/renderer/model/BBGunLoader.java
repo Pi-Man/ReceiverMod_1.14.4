@@ -5,13 +5,16 @@ import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.ICustomModelLoader;
+import piman.recievermod.Main;
 import piman.recievermod.client.renderer.model.bbgunmodel.UnbakedBBGunModel;
 import piman.recievermod.util.Reference;
+
+import javax.annotation.Nonnull;
 
 public class BBGunLoader implements ICustomModelLoader {
 
     @Override
-    public void onResourceManagerReload(IResourceManager resourceManager) {
+    public void onResourceManagerReload(@Nonnull IResourceManager resourceManager) {
 
     }
 
@@ -30,8 +33,10 @@ public class BBGunLoader implements ICustomModelLoader {
      * @param modelLocation The model to (re)load, either path to an
      *                      actual file or a {@link ModelResourceLocation}.
      */
+    @Nonnull
     @Override
-    public IUnbakedModel loadModel(ResourceLocation modelLocation) throws Exception {
+    public IUnbakedModel loadModel(@Nonnull ResourceLocation modelLocation) throws Exception {
+        Main.LOGGER.info("Loading Model: {}", modelLocation);
         return new UnbakedBBGunModel(modelLocation);
     }
 }

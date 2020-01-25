@@ -7,6 +7,7 @@ import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.DeferredRegister;
 import piman.recievermod.Main;
 import piman.recievermod.client.renderer.model.JsonGunLoader;
 import piman.recievermod.client.renderer.model.ModelLoaderRegistry;
@@ -24,6 +25,7 @@ public class RegistryEventHandler {
         Main.LOGGER.info("Registering Model Loaders");
         ModelLoaderRegistry.registerLoader(new BBGunLoader());
         ModelLoaderRegistry.registerLoader(new JsonGunLoader());
+        ModelLoaderRegistry.registerItems(ModItems.MODELS);
         ModItems.ITEMS.forEach(item -> {if (item instanceof IItemInit) ((IItemInit)item).Init();});
     }
 

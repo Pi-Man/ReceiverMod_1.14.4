@@ -5,6 +5,7 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -21,7 +22,7 @@ public interface IAnimationController {
 	
 	List<ItemPropertyWrapper> getProperties();
 	
-	void update(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected, CompoundNBT nbt, ItemGun gun);
+	void update(ItemStack stack, World worldIn, PlayerEntity player, int itemSlot, boolean isSelected, CompoundNBT nbt, ItemGun gun);
 
 	static ItemPropertyWrapper booleanProperty(String name, boolean showInInvenotry) {
 		return new ItemPropertyWrapper(name, (stack, worldIn, entity) -> {
@@ -31,7 +32,7 @@ public interface IAnimationController {
 				}
 			}
 
-			if (!stack.hasTag() || worldIn == null || entity == null) {
+			if (!stack.hasTag() || worldIn == null) {
 				return 0F;
 			}
 
@@ -56,7 +57,7 @@ public interface IAnimationController {
 				}
 			}
 
-			if (!stack.hasTag() || worldIn == null || entity == null) {
+			if (!stack.hasTag() || worldIn == null) {
 				return 0F;
 			}
 
@@ -81,7 +82,7 @@ public interface IAnimationController {
 				}
 			}
 
-			if (!stack.hasTag() || worldIn == null || entity == null) {
+			if (!stack.hasTag() || worldIn == null) {
 				return 0F;
 			}
 
@@ -106,7 +107,7 @@ public interface IAnimationController {
 				}
 			}
 
-			if (!stack.hasTag() || worldIn == null || entity == null) {
+			if (!stack.hasTag() || worldIn == null) {
 				return 0F;
 			}
 

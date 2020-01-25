@@ -15,7 +15,7 @@ public class ModItemGroups {
     public static final ItemGroup GUNS = new ItemGroup("guns") {
         @Override
         public ItemStack createIcon() {
-            return new ItemStack(ModItems._GUN_COLT);
+            return new ItemStack(ModItems.COLT_1911);
         }
     };
 

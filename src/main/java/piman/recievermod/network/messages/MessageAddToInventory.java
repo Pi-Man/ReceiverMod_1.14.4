@@ -78,7 +78,7 @@ public class MessageAddToInventory extends MessageBase<MessageAddToInventory> {
 			
 			if (ItemStack.areItemsEqual(stack1, stack2)) {
 				
-				if (stack1.getOrCreateTag().equals(stack2.getOrCreateTag())) {
+				if (ItemStack.areItemStackTagsEqual(stack1, stack2)) {
 					
 					stack2.grow(message.amount);
 					

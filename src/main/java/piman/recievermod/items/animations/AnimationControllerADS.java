@@ -6,6 +6,7 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -28,8 +29,9 @@ public class AnimationControllerADS implements IAnimationController {
 	}
 
 	@Override
-	public void update(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected, CompoundNBT nbt, ItemGun gun) {
-		nbt.putBoolean("ads", KeyInputHandler.isKeyDown(KeyInputHandler.KeyPresses.RightClick));
+	public void update(ItemStack stack, World worldIn, PlayerEntity player, int itemSlot, boolean isSelected, CompoundNBT nbt, ItemGun gun) {
+		boolean flag = player.getHeldItemMainhand().equals(stack);
+		nbt.putBoolean("ads", flag && KeyInputHandler.isKeyDown(KeyInputHandler.KeyPresses.RightClick));
 	}
 
 }

@@ -20,9 +20,11 @@
 package piman.recievermod.client.renderer.model;
 
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import net.minecraft.item.Item;
 import net.minecraftforge.client.model.ICustomModelLoader;
 import net.minecraftforge.client.model.ItemLayerModel;
 import net.minecraftforge.client.model.ModelLoader;
@@ -55,6 +57,8 @@ public class ModelLoaderRegistry {
     private static final Map<ResourceLocation, IUnbakedModel> cache = Maps.newHashMap();
     private static final Deque<ResourceLocation> loadingModels = Queues.newArrayDeque();
 
+    private static final Map<Item, ResourceLocation> registeredItems = new HashMap<>();
+
     private static IResourceManager manager;
 
     // Forge built-in loaders
@@ -79,8 +83,16 @@ public class ModelLoaderRegistry {
         loader.onResourceManagerReload(Minecraft.getInstance().getResourceManager());
     }
 
+    public static void registerItems(Map<Item, ResourceLocation> map) {
+        registeredItems.putAll(map);
+    }
+
     public static boolean loaded(ResourceLocation location) {
         return cache.containsKey(location);
+    }
+
+    public static IUnbakedModel getLoaded(ResourceLocation location) {
+        return cache.get(location);
     }
 
     public static Map<ResourceLocation, IUnbakedModel> getUnbakedModels() {
@@ -104,11 +116,13 @@ public class ModelLoaderRegistry {
      *                 - {@link ModelResourceLocation}. The blockstate system will load the model, using {@link ModelLoader.VariantLoader}.
      */
     @SuppressWarnings("JavadocReference")
-    public static IUnbakedModel getModel(ResourceLocation location) throws Exception {
+    public static IUnbakedModel getModel(Map.Entry<ResourceLocation, Item> entry) throws Exception {
         IUnbakedModel model;
 
-        IUnbakedModel cached = cache.get(location);
+        IUnbakedModel cached = cache.get(new ModelResourceLocation(entry.getKey(), "inventory"));
         if (cached != null) return cached;
+
+        ResourceLocation location = registeredItems.get(entry.getValue());
 
         for (ResourceLocation loading : loadingModels) {
             if (location.getClass() == loading.getClass() && location.equals(loading)) {
@@ -133,8 +147,7 @@ public class ModelLoaderRegistry {
             }
 
             if (accepted == null) {
-                //throw new LoaderException("no suitable loader found for the model " + location + ", skipping");
-                return null;
+                throw new LoaderException("no suitable loader found for the model " + location + ", skipping");
             }
             try {
                 model = accepted.loadModel(actual);
@@ -153,9 +166,9 @@ public class ModelLoaderRegistry {
                 throw new IllegalStateException("Corrupted loading model stack: " + popLoc + " != " + location);
             }
         }
-        cache.put(location, model);
+        cache.put(new ModelResourceLocation(entry.getKey(), "inventory"), model);
         for (ResourceLocation dep : model.getDependencies()) {
-            getModelOrMissing(dep);
+            getModelOrMissing(entry);
         }
         return model;
     }
@@ -163,24 +176,32 @@ public class ModelLoaderRegistry {
     /**
      * Use this if you don't care about the exception and want some model anyway.
      */
-    public static IUnbakedModel getModelOrMissing(ResourceLocation location) {
-        try {
-            return getModel(location);
-        } catch (Exception e) {
-            return getMissingModel(location, e);
+    public static IUnbakedModel getModelOrMissing(Map.Entry<ResourceLocation, Item> entry) {
+        if (registeredItems.containsKey(entry.getValue())) {
+            try {
+                return getModel(entry);
+            }
+            catch (Exception e) {
+                return getMissingModel(new ModelResourceLocation(entry.getKey(), "inventory"), e);
+            }
         }
+        return null;
     }
 
     /**
      * Use this if you want the model, but need to log the error.
      */
-    public static IUnbakedModel getModelOrLogError(ResourceLocation location, String error) {
-        try {
-            return getModel(location);
-        } catch (Exception e) {
-            LOGGER.error(error, e);
-            return getMissingModel(location, e);
+    public static IUnbakedModel getModelOrLogError(Map.Entry<ResourceLocation, Item> entry, String error) {
+        if (registeredItems.containsKey(entry.getValue())) {
+            try {
+                return getModel(entry);
+            }
+            catch (Exception e) {
+                LOGGER.error(error, e);
+                return getMissingModel(new ModelResourceLocation(entry.getKey(), "inventory"), e);
+            }
         }
+        return null;
     }
 
     public static IUnbakedModel getMissingModel() {

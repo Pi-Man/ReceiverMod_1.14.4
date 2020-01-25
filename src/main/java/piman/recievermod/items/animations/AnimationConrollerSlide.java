@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -41,12 +42,15 @@ public class AnimationConrollerSlide implements IAnimationController {
 	}
 
 	@Override
-	public void update(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected, CompoundNBT nbt, ItemGun gun) {
+	public void update(ItemStack stack, World worldIn, PlayerEntity player, int itemSlot, boolean isSelected, CompoundNBT nbt, ItemGun gun) {
+
+		boolean flag = player.getHeldItemMainhand().equals(stack);
+
 		if (nbt.getBoolean("fired")) {
 			nbt.putInt("slide", 4);
 		}
 
-		if (nbt.getInt("slide") < 3 && KeyInputHandler.isKeyDown(KeyInputHandler.KeyPresses.SlideLock) && KeyInputHandler.isKeyDown(KeyInputHandler.KeyPresses.RemoveBullet)) {
+		if (nbt.getInt("slide") < 3 && flag && KeyInputHandler.isKeyDown(KeyInputHandler.KeyPresses.SlideLock) && KeyInputHandler.isKeyDown(KeyInputHandler.KeyPresses.RemoveBullet)) {
 			if (nbt.getInt("check") < 4) {
 				nbt.putInt("check", nbt.getInt("check") + 1);
 			}
@@ -57,7 +61,7 @@ public class AnimationConrollerSlide implements IAnimationController {
 			}
 		}
 
-		if (KeyInputHandler.isKeyDown(KeyInputHandler.KeyPresses.RemoveBullet)) {
+		if (flag && KeyInputHandler.isKeyDown(KeyInputHandler.KeyPresses.RemoveBullet)) {
 			if (nbt.getInt("slide") == 0) NetworkHandler.sendToServer(new MessagePlaySound(SoundsHandler.ITEM_1911_SLIDEBACK));
 			if (nbt.getInt("slide") < 4 && nbt.getInt("check") < 3) {
 				nbt.putInt("slide", nbt.getInt("slide") + 1);
@@ -95,7 +99,7 @@ public class AnimationConrollerSlide implements IAnimationController {
 			if (nbt.getInt("slide") == 4 && !nbt.getString("mag").isEmpty() && nbt.getList("Bullets", 8).size() == 0) {
 				nbt.putBoolean("AutoSlideLock", true);
 			}
-			if (KeyInputHandler.isKeyPressed(KeyInputHandler.KeyPresses.SlideLock)) {
+			if (flag && KeyInputHandler.isKeyPressed(KeyInputHandler.KeyPresses.SlideLock)) {
 				nbt.putBoolean("AutoSlideLock", false);
 			}
 			if (nbt.getInt("slide") == 4 && nbt.getBoolean("AutoSlideLock")) {

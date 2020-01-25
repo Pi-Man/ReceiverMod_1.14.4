@@ -14,10 +14,6 @@ import net.minecraftforge.fml.network.NetworkEvent;
 
 public class MessageEject extends MessageBase<MessageEject> {
 
-//    public static BiConsumer<MessageEject, PacketBuffer> encoder = MessageBase::toBytes;
-//    public static Function<PacketBuffer, MessageEject> decoder = (packetBuffer -> new MessageEject(packetBuffer));
-//    public static BiConsumer<MessageEject, Supplier<NetworkEvent.Context>> consumer = (MessageEject message, Supplier<NetworkEvent.Context> supplier) -> message.onMessage(message, supplier);
-
     private ItemStack itemstack;
 
     public MessageEject() {}

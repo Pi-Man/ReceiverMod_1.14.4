@@ -37,13 +37,11 @@ public class AnimationControllerFireSelect implements IAnimationController {
 	}
 
 	@Override
-	public void update(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected, CompoundNBT nbt, ItemGun gun) {
-		if (entityIn instanceof PlayerEntity) {
-			PlayerEntity player = (PlayerEntity) entityIn;
-			if (KeyInputHandler.isKeyPressed(KeyInputHandler.KeyPresses.Safety)) {
-				nbt.putInt("modeid", (nbt.getInt("mode") + 1)%options.size());
-				nbt.putInt("mode", options.toArray(new Modes[0])[nbt.getInt("modeid")].ordinal());
-			}
+	public void update(ItemStack stack, World worldIn, PlayerEntity player, int itemSlot, boolean isSelected, CompoundNBT nbt, ItemGun gun) {
+		boolean flag = player.getHeldItemMainhand().equals(stack);
+		if (flag && KeyInputHandler.isKeyPressed(KeyInputHandler.KeyPresses.Safety)) {
+			nbt.putInt("modeid", (nbt.getInt("mode") + 1)%options.size());
+			nbt.putInt("mode", options.toArray(new Modes[0])[nbt.getInt("modeid")].ordinal());
 		}
 	}
 	

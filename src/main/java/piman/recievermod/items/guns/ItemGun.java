@@ -34,6 +34,7 @@ import piman.recievermod.items.bullets.ItemBullet;
 import piman.recievermod.keybinding.KeyInputHandler;
 import piman.recievermod.network.NetworkHandler;
 import piman.recievermod.network.messages.MessageShoot;
+import piman.recievermod.network.messages.MessageUpdateNBT;
 import piman.recievermod.util.handlers.ClientEventHandler;
 
 public abstract class ItemGun extends Item {
@@ -73,11 +74,7 @@ public abstract class ItemGun extends Item {
 
     public ItemGun(Item.Properties properties) {
         super(properties.maxStackSize(1));
-
-        //this.addPropertyOverride(new ResourceLocation("ads"), ADS_GETTER);
-        //this.addPropertyOverride(new ResourceLocation("chambered"), BULLET_CHAMBERED_GETTER);
-        //this.addPropertyOverride(new ResourceLocation("fired"), FIRED_GETTER);
-
+        this.addPropertyOverride(new ResourceLocation("chambered"), BULLET_CHAMBERED_GETTER);
     }
 
     public boolean Shoot(CompoundNBT nbt, LivingEntity entityLiving, double damage, float entityAccuracy, float gunAccuracy, int bullets, boolean flag2) {
@@ -106,14 +103,24 @@ public abstract class ItemGun extends Item {
 
                 Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(nbt.getString("BulletChambered")));
 
-                if (!(item instanceof ItemBullet) && player.isCreative()) item = this.ammo;
+                boolean flag = false;
+
+                if (!(item instanceof ItemBullet) && player.isCreative())  {
+                    item = this.ammo;
+                    flag = true;
+                }
 
                 if (item instanceof ItemBullet) {
                     ItemBullet itemBullet = (ItemBullet) item;
                     if (!world.isRemote) {
                         itemBullet.fire(world, player, entityAccuracy, gunAccuracy, life);
                     }
-                    nbt.putString("BulletChambered", itemBullet.getRegistryName().getNamespace() + ":" + itemBullet.getRegistryName().getPath() + "casing");
+                    if (flag) {
+                        nbt.putString("BulletChambered", "");
+                    }
+                    else {
+                        nbt.putString("BulletChambered", itemBullet.getRegistryName().getNamespace() + ":" + itemBullet.getRegistryName().getPath() + "casing");
+                    }
                 }
 //                else if (!world.isRemote) {
 //
@@ -231,6 +238,20 @@ public abstract class ItemGun extends Item {
                         ClientEventHandler.cancleBob();
                     }
                 }
+
+                worldIn.getCapability(ItemDataProvider.ITEMDATA_CAP).ifPresent(cap -> {
+                    CompoundNBT baseTag = cap.getItemData();
+
+                    CompoundNBT nbt = baseTag.getCompound(stack.getOrCreateTag().getString("UUID"));
+
+                    CompoundNBT oldnbt = nbt.copy();
+                    oldnbt.remove("prev");
+                    nbt.put("prev", oldnbt);
+
+                    animationControllers.forEach(controller -> controller.update(stack, worldIn, player, itemSlot, isSelected, nbt, (ItemGun) stack.getItem()));
+
+                    NetworkHandler.sendToServer(new MessageUpdateNBT(stack, itemSlot, nbt));
+                });
             }
         }
     }
@@ -271,13 +292,13 @@ public abstract class ItemGun extends Item {
         return -1;
     }
 
-    public int findClip(PlayerEntity player) {
+    public int findMag(PlayerEntity player) {
         for (int i = -1; i < player.inventory.getSizeInventory() - 1; ++i) {
             int k = i < 0 ? player.inventory.getSizeInventory() - 1 : i;
 
             ItemStack itemstack = player.inventory.getStackInSlot(k);
 
-            if (this.isClip(itemstack)) {
+            if (this.isMag(itemstack)) {
                 return k;
             }
         }
@@ -285,7 +306,7 @@ public abstract class ItemGun extends Item {
         return -1;
     }
 
-    public boolean isClip(ItemStack stack) {
+    public boolean isMag(ItemStack stack) {
         return stack.getItem() == mag;
     }
 

@@ -3,9 +3,9 @@ package piman.recievermod.util.handlers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.IUnbakedModel;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.renderer.model.ModelRotation;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelBakeEvent;
@@ -30,13 +30,13 @@ public class ClientSetupEventHandler {
 
     @SubscribeEvent
     public static void onTextureStitch(TextureStitchEvent.Pre event) {
-        System.out.println("Texture Stitching");
-        System.out.println(event.getMap().getBasePath());
+//        System.out.println("Texture Stitching");
+//        System.out.println(event.getMap().getBasePath());
 
         if (event.getMap().getBasePath().equals("textures")) {
 
-            for (ResourceLocation location : ForgeRegistries.ITEMS.getKeys()) {
-                ModelLoaderRegistry.getModelOrLogError(new ModelResourceLocation(location, "inventory"), "Could Not Load Model");
+            for (Map.Entry<ResourceLocation, Item> entry : ForgeRegistries.ITEMS.getEntries()) {
+                ModelLoaderRegistry.getModelOrLogError(entry, "Could Not Load Model");
             }
 
             for (Map.Entry<ResourceLocation, IUnbakedModel> entry : ModelLoaderRegistry.getUnbakedModels().entrySet()) {
@@ -55,7 +55,7 @@ public class ClientSetupEventHandler {
 
         for (Map.Entry<ResourceLocation, IBakedModel> entry : map.entrySet()) {
             if (ModelLoaderRegistry.loaded(entry.getKey())) {
-                IUnbakedModel unbakedModel = ModelLoaderRegistry.getModelOrMissing(entry.getKey());
+                IUnbakedModel unbakedModel = ModelLoaderRegistry.getLoaded(entry.getKey());
                 IBakedModel bakedModel = unbakedModel.bake(event.getModelLoader(), Minecraft.getInstance().getTextureMap()::getSprite, ModelRotation.X0_Y0, DefaultVertexFormats.ITEM);
                 entry.setValue(bakedModel);
             }

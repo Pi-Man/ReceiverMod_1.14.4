@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.*;
+import javafx.util.Pair;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.IItemPropertyGetter;
@@ -24,14 +25,14 @@ public class Animator {
     private static final Gson SERIALIZER = new GsonBuilder().registerTypeAdapter(Animator.class, new Animator.Deserializer()).registerTypeAdapter(Predicate.class, new Predicate.Deserializer()).registerTypeAdapter(Transformation.class, new Transformation.Deserializer()).create();
 
     private final List<ResourceLocation> dependencies;
-    private final Map<ResourceLocation, Map<ResourceLocation, Predicate>> predicates;
+    private final List<Pair<ResourceLocation, Map<ResourceLocation, Predicate>>> predicates;
     private final Map<ResourceLocation, Map<ItemCameraTransforms.TransformType, Predicate>> baseTransforms;
 
     public Animator() {
-        this(new ArrayList<>(), new HashMap<>(), new HashMap<>());
+        this(new ArrayList<>(), new ArrayList<>(), new HashMap<>());
     }
 
-    public Animator(List<ResourceLocation> dependencies, Map<ResourceLocation, Map<ResourceLocation, Predicate>> predicates, Map<ResourceLocation, Map<ItemCameraTransforms.TransformType, Predicate>> baseTransforms) {
+    public Animator(List<ResourceLocation> dependencies, List<Pair<ResourceLocation, Map<ResourceLocation, Predicate>>> predicates, Map<ResourceLocation, Map<ItemCameraTransforms.TransformType, Predicate>> baseTransforms) {
         this.dependencies = dependencies;
         this.predicates = predicates;
         this.baseTransforms = baseTransforms;
@@ -53,7 +54,7 @@ public class Animator {
 
         List<TRSRTransformation> list = new ArrayList<>();
 
-        for (Map.Entry<ResourceLocation, Map<ResourceLocation, Predicate>> entry : predicates.entrySet()) {
+        for (Pair<ResourceLocation, Map<ResourceLocation, Predicate>> entry : predicates) {
 
             TransformationBuilder builder = new TransformationBuilder();
             for (Map.Entry<ResourceLocation, Predicate> entry2 : entry.getValue().entrySet()) {
@@ -164,7 +165,7 @@ public class Animator {
 
             List<ResourceLocation> dependencies = new ArrayList<>();
 
-            Map<ResourceLocation, Map<ResourceLocation, Predicate>> predicates = new LinkedHashMap<>();
+            List<Pair<ResourceLocation, Map<ResourceLocation, Predicate>>> predicates = new ArrayList<>();
 
             JsonArray submodels = json.getAsJsonObject().getAsJsonArray("submodels");
 
@@ -190,32 +191,36 @@ public class Animator {
 
                 }
 
-                predicates.put(model, map);
+                predicates.add(new Pair<>(model, map));
 
             }
 
             JsonObject transformsObject = json.getAsJsonObject().getAsJsonObject("basetransformation");
 
-            if (transformsObject.has("predicates")) {
-                transformsObject = transformsObject.getAsJsonObject("predicates");
-            }
-
             Map<ResourceLocation, Map<ItemCameraTransforms.TransformType, Predicate>> baseTransforms = new HashMap<>();
 
-            for (Map.Entry<String, JsonElement> entry : transformsObject.entrySet()) {
+            if (transformsObject != null) {
 
-                ResourceLocation location = new ResourceLocation(entry.getKey());
-                JsonObject transformTypeObject = entry.getValue().getAsJsonObject();
-
-                Map<ItemCameraTransforms.TransformType, Predicate> transformationListMap = new EnumMap<ItemCameraTransforms.TransformType, Predicate>(ItemCameraTransforms.TransformType.class);
-
-                for (ItemCameraTransforms.TransformType type : ItemCameraTransforms.TransformType.values()) {
-                    if (transformTypeObject.has(type.name())) {
-                        transformationListMap.put(type, context.deserialize(transformTypeObject.getAsJsonArray(type.name()), Predicate.class));
-                    }
+                if (transformsObject.has("predicates")) {
+                    transformsObject = transformsObject.getAsJsonObject("predicates");
                 }
 
-                baseTransforms.put(location, transformationListMap);
+                for (Map.Entry<String, JsonElement> entry : transformsObject.entrySet()) {
+
+                    ResourceLocation location = new ResourceLocation(entry.getKey());
+                    JsonObject transformTypeObject = entry.getValue().getAsJsonObject();
+
+                    Map<ItemCameraTransforms.TransformType, Predicate> transformationListMap = new EnumMap<ItemCameraTransforms.TransformType, Predicate>(ItemCameraTransforms.TransformType.class);
+
+                    for (ItemCameraTransforms.TransformType type : ItemCameraTransforms.TransformType.values()) {
+                        if (transformTypeObject.has(type.name())) {
+                            transformationListMap.put(type, context.deserialize(transformTypeObject.getAsJsonArray(type.name()), Predicate.class));
+                        }
+                    }
+
+                    baseTransforms.put(location, transformationListMap);
+
+                }
 
             }
 

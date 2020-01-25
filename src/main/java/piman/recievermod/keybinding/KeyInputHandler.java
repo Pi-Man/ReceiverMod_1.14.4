@@ -75,7 +75,7 @@ public class KeyInputHandler {
 	static KeyBinding Keys[] = new KeyBinding[] {
 			Keybinds.addBullet, 
 			Keybinds.removeBullet, 
-			Keybinds.removeClip, 
+			Keybinds.removeMag, 
 			Keybinds.slideLock, 
 			Keybinds.safety, 
 			gs.keyBindAttack, 
@@ -161,7 +161,7 @@ public class KeyInputHandler {
 	public enum KeyPresses {
 		AddBullet,
 		RemoveBullet,
-		RemoveClip,
+		RemoveMag,
 		SlideLock,
 		Safety,
 		LeftClick,

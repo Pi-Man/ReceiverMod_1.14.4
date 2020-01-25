@@ -14,6 +14,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
+import piman.recievermod.capabilities.itemdata.IItemData;
 import piman.recievermod.capabilities.itemdata.ItemDataProvider;
 import piman.recievermod.items.ItemPropertyWrapper;
 import piman.recievermod.items.guns.ItemGun;
@@ -36,65 +37,62 @@ public class AnimationControllerMag implements IAnimationController {
 	}
 
 	@Override
-	public void update(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected, CompoundNBT nbt, ItemGun gun) {
-		if (entityIn instanceof PlayerEntity) {
-			PlayerEntity player = (PlayerEntity) entityIn;
-			if (worldIn.isRemote) {
-				worldIn.getCapability(ItemDataProvider.ITEMDATA_CAP).ifPresent(itemData -> {
-					CompoundNBT baseTag = itemData.getItemData();
-					if (KeyInputHandler.isKeyPressed(KeyInputHandler.KeyPresses.AddBullet) && nbt.getString("mag").isEmpty()) {
-						System.out.println("Add Clip Pressed");
+	public void update(ItemStack stack, World worldIn, PlayerEntity player, int itemSlot, boolean isSelected, CompoundNBT nbt, ItemGun gun) {
 
-						int clipslot = gun.findClip(player);
+		boolean flag = player.getHeldItemMainhand().equals(stack);
 
-						if (clipslot != -1) {
-							ItemStack clip = player.inventory.getStackInSlot(clipslot);
-							//System.out.println("Clip Found: " + clip + clip.getTagCompound());
-							NetworkHandler.sendToServer(new MessageAddToInventory(clip, -1, clipslot));
-							CompoundNBT clipTag = baseTag.getCompound(clip.getOrCreateTag().getString("UUID"));
-							nbt.put("Bullets", clipTag.getList("Bullets", 8));
-							nbt.putString("mag", clipTag.getString("UUID"));
-							NetworkHandler.sendToServer(new MessagePlaySound(SoundsHandler.ITEM_GLOCK_MAGIN));
-						}
+		CompoundNBT baseTag = worldIn.getCapability(ItemDataProvider.ITEMDATA_CAP).map(IItemData::getItemData).orElse(new CompoundNBT());
+
+		if (flag && KeyInputHandler.isKeyPressed(KeyInputHandler.KeyPresses.AddBullet) && nbt.getString("mag").isEmpty()) {
+			System.out.println("Add Mag Pressed");
+
+			int magslot = gun.findMag(player);
+
+			if (magslot != -1) {
+				ItemStack mag = player.inventory.getStackInSlot(magslot);
+				//System.out.println("Mag Found: " + mag + mag.getTagCompound());
+				NetworkHandler.sendToServer(new MessageAddToInventory(mag, -1, magslot));
+				CompoundNBT magTag = baseTag.getCompound(mag.getOrCreateTag().getString("UUID"));
+				nbt.put("Bullets", magTag.getList("Bullets", 8));
+				nbt.putString("mag", magTag.getString("UUID"));
+				NetworkHandler.sendToServer(new MessagePlaySound(SoundsHandler.ITEM_GLOCK_MAGIN));
+			}
+		}
+		if (flag && KeyInputHandler.isKeyPressed(KeyInputHandler.KeyPresses.RemoveMag)) {
+
+			if (!nbt.getString("mag").isEmpty()) {
+				CompoundNBT magNBT = new CompoundNBT();
+
+				magNBT.put("Bullets", nbt.getList("Bullets", 8));
+				magNBT.putString("UUID", nbt.getString("mag"));
+				nbt.putInt("Bullets", 0);
+				nbt.putString("mag", "");
+
+				ItemStack mag = new ItemStack(gun.mag);
+
+				mag.getOrCreateTag().putString("UUID", magNBT.getString("UUID"));
+				baseTag.put(magNBT.getString("UUID"), magNBT);
+
+				NetworkHandler.sendToServer(new MessageAddToInventory(mag, 1, player.inventory.getSizeInventory() - 1));
+
+				NetworkHandler.sendToServer(new MessagePlaySound(SoundsHandler.ITEM_GLOCK_MAGOUT));
+			} else if (gun.isMag(player.getHeldItemOffhand())) {
+				TreeMap<Integer, Pair<ItemStack, Integer>> mags = new TreeMap<Integer, Pair<ItemStack, Integer>>();
+				for (int i = 0; i < player.inventory.getSizeInventory() - 1; i++) {
+					ItemStack itemstack = player.inventory.getStackInSlot(i);
+					if (gun.isMag(itemstack)) {
+						mags.put(baseTag.getCompound(itemstack.getOrCreateTag().getString("UUID")).getInt("Bullets"), Pair.of(itemstack, i));
 					}
-					if (KeyInputHandler.isKeyPressed(KeyInputHandler.KeyPresses.RemoveClip)) {
-
-						if (!nbt.getString("mag").isEmpty()) {
-							CompoundNBT clipNBT = new CompoundNBT();
-
-							clipNBT.put("Bullets", nbt.getList("Bullets", 8));
-							clipNBT.putString("UUID", nbt.getString("mag"));
-							nbt.putInt("Bullets", 0);
-							nbt.putString("mag", "");
-
-							ItemStack clip = new ItemStack(gun.mag);
-
-							clip.getOrCreateTag().putString("UUID", clipNBT.getString("UUID"));
-							baseTag.put(clipNBT.getString("UUID"), clipNBT);
-
-							NetworkHandler.sendToServer(new MessageAddToInventory(clip, 1, player.inventory.getSizeInventory() - 1));
-
-							NetworkHandler.sendToServer(new MessagePlaySound(SoundsHandler.ITEM_GLOCK_MAGOUT));
-						} else if (gun.isClip(player.getHeldItemOffhand())) {
-							TreeMap<Integer, Pair<ItemStack, Integer>> mags = new TreeMap<Integer, Pair<ItemStack, Integer>>();
-							for (int i = 0; i < player.inventory.getSizeInventory() - 1; i++) {
-								ItemStack itemstack = player.inventory.getStackInSlot(i);
-								if (gun.isClip(itemstack)) {
-									mags.put(baseTag.getCompound(itemstack.getOrCreateTag().getString("UUID")).getInt("Bullets"), Pair.of(itemstack, i));
-								}
-							}
-							if (!mags.isEmpty()) {
-								int slot = mags.lastEntry().getValue().getRight();
-								ItemStack oldstack = player.getHeldItemOffhand();
-								ItemStack newstack = mags.lastEntry().getValue().getLeft();
-								NetworkHandler.sendToServer(new MessageAddToInventory(newstack, -1, slot));
-								NetworkHandler.sendToServer(new MessageAddToInventory(oldstack, -1, player.inventory.getSizeInventory() - 1));
-								NetworkHandler.sendToServer(new MessageAddToInventory(oldstack, 1, slot));
-								NetworkHandler.sendToServer(new MessageAddToInventory(newstack, 1, player.inventory.getSizeInventory() - 1));
-							}
-						}
-					}
-				});
+				}
+				if (!mags.isEmpty()) {
+					int slot = mags.lastEntry().getValue().getRight();
+					ItemStack oldstack = player.getHeldItemOffhand();
+					ItemStack newstack = mags.lastEntry().getValue().getLeft();
+					NetworkHandler.sendToServer(new MessageAddToInventory(newstack, -1, slot));
+					NetworkHandler.sendToServer(new MessageAddToInventory(oldstack, -1, player.inventory.getSizeInventory() - 1));
+					NetworkHandler.sendToServer(new MessageAddToInventory(oldstack, 1, slot));
+					NetworkHandler.sendToServer(new MessageAddToInventory(newstack, 1, player.inventory.getSizeInventory() - 1));
+				}
 			}
 		}
 	}

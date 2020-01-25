@@ -42,7 +42,7 @@ public class MessageUpdateNBT extends MessageBase<MessageUpdateNBT> {
 	@Override
 	public void toBytes(MessageUpdateNBT message, PacketBuffer buf) {
 		buf.writeItemStack(message.stack);
-		buf.writeInt(slot);
+		buf.writeInt(message.slot);
 		buf.writeCompoundTag(message.nbt);
 	}
 
@@ -51,7 +51,7 @@ public class MessageUpdateNBT extends MessageBase<MessageUpdateNBT> {
 		ItemStack stack1 = player.inventory.getStackInSlot(message.slot);
 		ItemStack stack2 = message.stack;
 						
-		stack1.setTag(stack2.getOrCreateTag());
+		stack1.setTag(stack2.getOrCreateTag().copy());
 		
 		player.world.getCapability(ItemDataProvider.ITEMDATA_CAP).ifPresent(itemData -> {
 			CompoundNBT dataTag = itemData.getItemData();

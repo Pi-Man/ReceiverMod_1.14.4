@@ -22,6 +22,7 @@ public class NetworkHandler {
 		
 		int i = 0;
 
+		registerMessage(MessageAddToInventory.class);
 		registerMessage(MessageUpdateNBT.class);
 		registerMessage(MessagePlaySound.class);
 		registerMessage(MessageEject.class);

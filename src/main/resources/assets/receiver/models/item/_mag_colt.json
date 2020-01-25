@@ -226,60 +226,138 @@
 		}
 	},
     "submodels": [
-        {
-            "model": "rm:bullet45",
-            "predicates": {
-                "bullets": [
-                    {
-                        "value": "default",
-                        "transformation": {
-                            "scale": [0, 0, 0]
-                        }
-                    },
-                    {
-                        "value": 1,
-                        "transformation": {
-                            "translation": [0.30625, -0.0825, 0]
-                        }
-                    },
-                    {
-                        "value": 2,
-                        "transformation": {
-                            "translation": [0.30625, -0.11375, 0]
-                        }
-                    },
-                    {
-                        "value": 3,
-                        "transformation": {
-                            "translation": [0.30625, -0.14625, 0]
-                        }
-                    },
-                    {
-                        "value": 4,
-                        "transformation": {
-                            "translation": [0.30625, -0.17875, 0]
-                        }
-                    },
-                    {
-                        "value": 5,
-                        "transformation": {
-                            "translation": [0.30625, -0.21, 0]
-                        }
-                    },
-                    {
-                        "value": 6,
-                        "transformation": {
-                            "translation": [0.30625, -0.2425, 0]
-                        }
-                    },
-                    {
-                        "value": 7,
-                        "transformation": {
-                            "translation": [0.30625, -0.275, 0]
-                        }
-                    }
-                ]
-            }
+		{
+			"model": "receiver:bullet45",
+			"predicates": {
+				"bullets": [
+					{
+						"value": { "max": 0 },
+						"transformation": {
+							"scale": [0, 0, 0]
+						}
+					},
+					{
+						"value": { "min": 1 },
+						"transformation": {
+							"translation": [0.30625, -0.0825, 0]
+						}
+					}
+				]
+			}
+		},
+		{
+			"model": "receiver:bullet45",
+			"predicates": {
+				"bullets": [
+					{
+						"value": { "max": 1 },
+						"transformation": {
+							"scale": [0, 0, 0]
+						}
+					},
+					{
+						"value": { "min": 2 },
+						"transformation": {
+							"translation": [0.30625, -0.11375, 0]
+						}
+					}
+				]
+			}
+		},
+		{
+			"model": "receiver:bullet45",
+			"predicates": {
+				"bullets": [
+					{
+						"value": { "max": 2 },
+						"transformation": {
+							"scale": [0, 0, 0]
+						}
+					},
+					{
+						"value": { "min": 3 },
+						"transformation": {
+							"translation": [0.30625, -0.14625, 0]
+						}
+					}
+				]
+			}
+		},
+		{
+			"model": "receiver:bullet45",
+			"predicates": {
+				"bullets": [
+					{
+						"value": { "max": 3 },
+						"transformation": {
+							"scale": [0, 0, 0]
+						}
+					},
+					{
+						"value": { "min": 4 },
+						"transformation": {
+							"translation": [0.30625, -0.17875, 0]
+						}
+					}
+				]
+			}
+		},
+		{
+			"model": "receiver:bullet45",
+			"predicates": {
+				"bullets": [
+					{
+						"value": { "max": 4 },
+						"transformation": {
+							"scale": [0, 0, 0]
+						}
+					},
+					{
+						"value": { "min": 5 },
+						"transformation": {
+							"translation": [0.30625, -0.21, 0]
+						}
+					}
+				]
+			}
+		},
+		{
+			"model": "receiver:bullet45",
+			"predicates": {
+				"bullets": [
+					{
+						"value": { "max": 5 },
+						"transformation": {
+							"scale": [0, 0, 0]
+						}
+					},
+					{
+						"value": { "min": 6 },
+						"transformation": {
+							"translation": [0.30625, -0.2425, 0]
+						}
+					}
+				]
+			}
+		},
+		{
+			"model": "receiver:bullet45",
+			"predicates": {
+				"bullets": [
+					{
+						"value": { "max": 6 },
+						"transformation": {
+							"scale": [0, 0, 0]
+						}
+					},
+					{
+						"value": { "min": 7 },
+						"transformation": {
+							"translation": [0.30625, -0.275, 0]
+						}
+					}
+				]
+			}
         }
     ]
 }

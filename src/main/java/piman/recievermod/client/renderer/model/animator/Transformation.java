@@ -101,8 +101,8 @@ public class Transformation {
                 float start, end;
                 boolean scale;
 
-                start = JSONUtils.getFloat(valueObject, "start", -Float.MAX_VALUE);
-                end = JSONUtils.getFloat(valueObject, "end", Float.MAX_VALUE);
+                start = JSONUtils.getFloat(valueObject, "min", -Float.MAX_VALUE);
+                end = JSONUtils.getFloat(valueObject, "max", Float.MAX_VALUE);
                 scale = JSONUtils.getBoolean(valueObject, "scale", false);
 
                 value = new Value(start, end, scale);
@@ -175,7 +175,7 @@ public class Transformation {
         }
 
         public float eval(float value) {
-            if (value > start && value < end) {
+            if (value >= start && value <= end) {
                 return scale ? value : 1;
             }
             else {

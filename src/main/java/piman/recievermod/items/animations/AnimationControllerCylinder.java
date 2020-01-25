@@ -49,118 +49,113 @@ public class AnimationControllerCylinder implements IAnimationController {
 	}
 
 	@Override
-	public void update(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected, CompoundNBT nbt, ItemGun gun) {
+	public void update(ItemStack stack, World worldIn, PlayerEntity player, int itemSlot, boolean isSelected, CompoundNBT nbt, ItemGun gun) {
 		double theta = nbt.getDouble("theta");
 		double dtheta = nbt.getDouble("dtheta");
 		double prevtheta = nbt.getCompound("prev").getDouble("theta");
 		double prevdtheta = nbt.getCompound("prev").getDouble("dtheta");
-					
-		if (entityIn instanceof PlayerEntity) {
-		
-			PlayerEntity player = (PlayerEntity) entityIn;
-			
-			if (stack.equals(player.getHeldItemMainhand())) {
-												
-				if (KeyInputHandler.isKeyDown(KeyInputHandler.KeyPresses.Shift)) {
-					dtheta += KeyInputHandler.getScroll();
-				}
-				
-				KeyInputHandler.cancleScroll(KeyInputHandler.isKeyDown(KeyInputHandler.KeyPresses.Shift));
-				
-				if (KeyInputHandler.isKeyPressed(KeyInputHandler.KeyPresses.RemoveClip)) {
-					nbt.putBoolean("open", !nbt.getBoolean("open"));
+
+		if (stack.equals(player.getHeldItemMainhand())) {
+
+			if (KeyInputHandler.isKeyDown(KeyInputHandler.KeyPresses.Shift)) {
+				dtheta += KeyInputHandler.getScroll();
+			}
+
+			KeyInputHandler.cancleScroll(KeyInputHandler.isKeyDown(KeyInputHandler.KeyPresses.Shift));
+
+			if (KeyInputHandler.isKeyPressed(KeyInputHandler.KeyPresses.RemoveMag)) {
+				nbt.putBoolean("open", !nbt.getBoolean("open"));
+			}
+
+			{
+				int n = (int) -Math.round(theta) + 2;
+
+				while (n < 1) {
+					n += 6;
 				}
 
-				{
+				while (n > 6) {
+					n -= 6;
+				}
+
+				if (nbt.getString("BulletChambered").equals(gun.casing.getRegistryName().toString())) {
+					setBullet(n, 2, nbt);
+				}
+
+				if (getBullet(n, nbt) == 1) {
+					nbt.putString("BulletChambered", gun.ammo.getRegistryName().toString());
+				}
+				else {
+					nbt.putString("BulletChambered", "");
+				}
+			}
+
+			if (nbt.getBoolean("hammer") && KeyInputHandler.isKeyDown(KeyInputHandler.KeyPresses.LeftClick)) {
+				theta += 1;
+			}
+
+			if (KeyInputHandler.isKeyPressed(KeyInputHandler.KeyPresses.AddBullet) && nbt.getBoolean("open")) {
+
+				int k = gun.findAmmo(player);
+
+				if (k != -1) {
+
 					int n = (int) -Math.round(theta) + 2;
-					
+
 					while (n < 1) {
 						n += 6;
 					}
-					
-					while (n > 6) {
-						n -= 6;
-					}
-					
-					if (nbt.getString("BulletChambered").equals(gun.casing.getRegistryName().toString())) {
-						setBullet(n, 2, nbt);
-					}
-					
-					if (getBullet(n, nbt) == 1) {
-						nbt.putString("BulletChambered", gun.ammo.getRegistryName().toString());
-					}
-					else {
-						nbt.putString("BulletChambered", "");
-					}
-				}
 
-				if (nbt.getBoolean("hammer") && KeyInputHandler.isKeyDown(KeyInputHandler.KeyPresses.LeftClick)) {
-					theta += 1;
-				}
-				
-				if (KeyInputHandler.isKeyPressed(KeyInputHandler.KeyPresses.AddBullet) && nbt.getBoolean("open")) {
-					
-					int k = gun.findAmmo(player);
-					
-					if (k != -1) {
-					
-						int n = (int) -Math.round(theta) + 2;
-						
-						while (n < 1) {
-							n += 6;
-						}
-						
-						while (n > 6) {
-							n -= 6;
-						}
-						
-						int i;
-						
-						for (i = 0; getBullet(n--, nbt) != 0 && i < 6; i++) {
-							if (n < 1) {
-								n += 6;
-							}
-						};
-						if (i < 6) {
-							setBullet(n + 1, 1, nbt);
-							ItemStack bullet = player.inventory.getStackInSlot(k);
-							NetworkHandler.sendToServer(new MessageAddToInventory(bullet, -1, k));
-						}
-					}
-				}
-				
-				if (KeyInputHandler.isKeyPressed(KeyInputHandler.KeyPresses.RemoveBullet) && nbt.getBoolean("open")) {
-					int n = (int) -Math.round(theta) + 2;
-					
-					while (n < 1) {
-						n += 6;
-					}
-					
 					while (n > 6) {
 						n -= 6;
 					}
-					
+
 					int i;
-					
-					for (i = 0; getBullet(n--, nbt) == 0 && i < 6; i++) {
+
+					for (i = 0; getBullet(n--, nbt) != 0 && i < 6; i++) {
 						if (n < 1) {
 							n += 6;
 						}
 					};
-					
 					if (i < 6) {
-						if (getBullet(n + 1, nbt) == 1) {
-							NetworkHandler.sendToServer(new MessageAddToInventory(gun.ammo,  1));
-						}
-						else {
-							NetworkHandler.sendToServer(new MessageAddToInventory(gun.casing,  1));
-						}
-						setBullet(n + 1, 0, nbt);
+						setBullet(n + 1, 1, nbt);
+						ItemStack bullet = player.inventory.getStackInSlot(k);
+						NetworkHandler.sendToServer(new MessageAddToInventory(bullet, -1, k));
 					}
 				}
 			}
+
+			if (KeyInputHandler.isKeyPressed(KeyInputHandler.KeyPresses.RemoveBullet) && nbt.getBoolean("open")) {
+				int n = (int) -Math.round(theta) + 2;
+
+				while (n < 1) {
+					n += 6;
+				}
+
+				while (n > 6) {
+					n -= 6;
+				}
+
+				int i;
+
+				for (i = 0; getBullet(n--, nbt) == 0 && i < 6; i++) {
+					if (n < 1) {
+						n += 6;
+					}
+				};
+
+				if (i < 6) {
+					if (getBullet(n + 1, nbt) == 1) {
+						NetworkHandler.sendToServer(new MessageAddToInventory(gun.ammo,  1));
+					}
+					else {
+						NetworkHandler.sendToServer(new MessageAddToInventory(gun.casing,  1));
+					}
+					setBullet(n + 1, 0, nbt);
+				}
+			}
 		}
-		
+
 		double b = Math.sqrt(Math.abs(2*friction*dtheta));
 		
 		double velocity = b - friction/2;

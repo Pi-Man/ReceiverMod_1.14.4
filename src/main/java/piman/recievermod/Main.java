@@ -1,13 +1,18 @@
 package piman.recievermod;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.data.DataGenerator;
+import net.minecraft.item.Item;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.EntityRayTraceResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.model.generators.ItemModelProvider;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,9 +26,14 @@ import piman.recievermod.capabilities.itemdata.IItemData;
 import piman.recievermod.capabilities.itemdata.ItemData;
 import piman.recievermod.capabilities.itemdata.ItemDataStorage;
 import piman.recievermod.init.ModEntities;
+import piman.recievermod.init.ModItems;
+import piman.recievermod.items.bullets.ItemBullet;
 import piman.recievermod.network.NetworkHandler;
 import piman.recievermod.util.Reference;
 import piman.recievermod.util.SoundsHandler;
+
+import javax.annotation.Nonnull;
+import java.util.Map;
 
 @Mod(Reference.MOD_ID)
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -41,14 +51,11 @@ public class Main {
 
     public static final Logger LOGGER = LogManager.getLogger(Reference.MOD_ID);
 
-    //todo update
-    //public static SoundsHandler soundsHandler;
-
     //todo move
 //    @SubscribeEvent
 //    public static void PreInit(FMLPreInitializationEvent event) {
 //
-//        NetworkHandler.init();
+////        NetworkHandler.init();
 //
 //        proxy.preInit();
 //
@@ -58,9 +65,32 @@ public class Main {
 //        GameRegistry.registerWorldGenerator(new WorldGenWastelandTower(), 0);
 //
 ////        CapabilityManager.INSTANCE.register(IItemData.class, new ItemDataStorage(), ItemData::new);
-//        MinecraftForge.EVENT_BUS.register(new ServerEventHandler());
+////        MinecraftForge.EVENT_BUS.register(new ServerEventHandler());
 //        GameRegistry.registerTileEntity(TileEntityBulletCrafter.class, new ResourceLocation(Reference.MOD_ID, "bullet_crafter"));
 //    }
+
+    @SubscribeEvent
+    public static void dataGens(GatherDataEvent event) {
+        DataGenerator gen = event.getGenerator();
+
+        if (event.includeClient()) {
+            gen.addProvider(new ItemModelProvider(gen, Reference.MOD_ID, event.getExistingFileHelper()) {
+                @Override
+                protected void registerModels() {
+                    for (Map.Entry<Item, ResourceLocation> entry : ModItems.MODELS.entrySet()) {
+                        this.getBuilder(entry.getKey().getRegistryName().getPath()).parent(this.getExistingFile(entry.getValue()));
+                    }
+                }
+
+                @Nonnull
+                @Override
+                public String getName() {
+                    return "Bullet Model Gen";
+                }
+            });
+        }
+
+    }
 
     @SubscribeEvent
     @OnlyIn(Dist.CLIENT)

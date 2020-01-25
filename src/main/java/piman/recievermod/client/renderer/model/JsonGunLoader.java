@@ -27,7 +27,7 @@ public class JsonGunLoader implements ICustomModelLoader {
      */
     @Override
     public boolean accepts(ResourceLocation modelLocation) {
-        return modelLocation.getNamespace().equals(Reference.MOD_ID) && modelLocation.getPath().startsWith("_gun_");
+        return modelLocation.getNamespace().equals(Reference.MOD_ID) && (modelLocation.getPath().startsWith("_gun_") || modelLocation.getPath().startsWith("_mag_") || modelLocation.getPath().startsWith("_clip_"));
     }
 
     /**

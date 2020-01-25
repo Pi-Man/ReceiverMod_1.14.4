@@ -17,8 +17,8 @@ public class ItemBulletMedium extends ItemBullet {
 	private final float caliber;
 	private final float velocity;
 
-	public ItemBulletMedium(Item.Properties properties, float caliber, float velocity, String model) {
-		super(properties, model);
+	public ItemBulletMedium(Item.Properties properties, float caliber, float velocity) {
+		super(properties);
 		this.caliber = caliber;
 		this.velocity = velocity;
 	}
