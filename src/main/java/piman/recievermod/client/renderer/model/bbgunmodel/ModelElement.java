@@ -67,7 +67,9 @@ public class ModelElement {
 			for (Entry<String, JsonElement> entry : facesObject.entrySet()) {
 				Direction facing = Direction.byName(entry.getKey());
 				ElementFace face = context.deserialize(entry.getValue(), ElementFace.class);
-				faces.put(facing, face);
+				if (face != null) {
+					faces.put(facing, face);
+				}
 			}
 			
 			UUID uuid = this.getUUID(jsonObject, "uuid");

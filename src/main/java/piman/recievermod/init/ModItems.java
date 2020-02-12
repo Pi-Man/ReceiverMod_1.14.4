@@ -36,6 +36,7 @@ public class ModItems {
     public static final Item THOMPSON_CLIP = null;
     public static final Item _GUN_RPG7 = null;
     public static final Item RPG = null;
+    public static final Item M1_GARAND = null;
     public static final Item BULLET45 = null;
     public static final Item BULLET45CASING = null;
     public static final Item BULLET9MM = null;
@@ -60,6 +61,8 @@ public class ModItems {
         putModel("_gun_colt");
         ITEMS.add(new ItemMagColt(new Item.Properties()).setRegistryName("colt_mag"));
         putModel("_mag_colt");
+        ITEMS.add(new ItemColt(new Item.Properties().group(ModItemGroups.GUNS)).setRegistryName(Reference.MOD_ID, "m1_garand"));
+        putModel("m1_garand.bbmodel");
         ITEMS.add(new ItemBulletMedium(new Item.Properties(), 0.45f, 20f).setRegistryName("bullet45"));
         ITEMS.add(new ItemBulletMediumCasing((new Item.Properties())).setRegistryName(Reference.MOD_ID, "bullet45casing"));
         ITEMS.add(new ItemBinoculars(new Item.Properties().maxStackSize(1).group(ModItemGroups.TOOLS)).setRegistryName(Reference.MOD_ID, "binoculars"));

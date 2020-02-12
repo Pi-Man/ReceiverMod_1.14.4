@@ -3,12 +3,7 @@ package piman.recievermod.client.renderer.model.bbgunmodel;
 import java.io.Reader;
 import java.io.StringReader;
 import java.lang.reflect.Type;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.Map.Entry;
 
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
@@ -40,8 +35,9 @@ public class ModelBlock
 {
     private static final Logger LOGGER = LogManager.getLogger();
     @VisibleForTesting
-    static final Gson SERIALIZER = (new GsonBuilder()).registerTypeAdapter(ModelBlock.class, new Deserializer()).registerTypeAdapter(ModelElement.class, new ModelElement.Deserializer()).registerTypeAdapter(ElementFace.class, new ElementFace.Deserializer()).registerTypeAdapter(ItemTransformVec3f.class, new ItemTransformVec3f.Deserializer()).registerTypeAdapter(ItemCameraTransforms.class, new ItemCameraTransforms.Deserializer()).registerTypeAdapter(ItemOverride.class, new ItemOverrideDeserializer()).create();
+    static final Gson SERIALIZER = (new GsonBuilder()).registerTypeAdapter(ModelBlock.class, new Deserializer()).registerTypeAdapter(ModelElement.class, new ModelElement.Deserializer()).registerTypeAdapter(ElementFace.class, new ElementFace.Deserializer()).registerTypeAdapter(ModelGroup.class, new ModelGroup.Deserializer()).registerTypeAdapter(ItemTransformVec3f.class, new ItemTransformVec3f.Deserializer()).registerTypeAdapter(ItemCameraTransforms.class, new ItemCameraTransforms.Deserializer()).registerTypeAdapter(ItemOverride.class, new ItemOverrideDeserializer()).create();
     private final Map<UUID, ModelElement> elements;
+    private final List<ModelGroup> groups;
     private final boolean gui3d;
     public final boolean ambientOcclusion;
     private final ItemCameraTransforms cameraTransforms;
@@ -52,7 +48,7 @@ public class ModelBlock
 
     public static ModelBlock deserialize(Reader readerIn)
     {
-        return (ModelBlock) JSONUtils.fromJson(SERIALIZER, readerIn, ModelBlock.class, false);
+        return JSONUtils.fromJson(SERIALIZER, readerIn, ModelBlock.class, false);
     }
 
     public static ModelBlock deserialize(String jsonString)
@@ -60,9 +56,10 @@ public class ModelBlock
         return deserialize(new StringReader(jsonString));
     }
 
-    public ModelBlock(Map<UUID, ModelElement> elementsIn, Map<String, String> texturesIn, boolean ambientOcclusionIn, boolean gui3dIn, ItemCameraTransforms cameraTransformsIn, List<ItemOverride> overridesIn)
+    public ModelBlock(Map<UUID, ModelElement> elementsIn,List<ModelGroup> groups, Map<String, String> texturesIn, boolean ambientOcclusionIn, boolean gui3dIn, ItemCameraTransforms cameraTransformsIn, List<ItemOverride> overridesIn)
     {
         this.elements = elementsIn;
+        this.groups = groups;
         this.ambientOcclusion = ambientOcclusionIn;
         this.gui3d = gui3dIn;
         this.textures = texturesIn;
@@ -73,6 +70,10 @@ public class ModelBlock
     public Map<UUID, ModelElement> getElements()
     {
         return this.elements;
+    }
+
+    public List<ModelGroup> getGroups() {
+        return groups;
     }
 
     public boolean isAmbientOcclusion()
@@ -197,6 +198,8 @@ public class ModelBlock
             	this.checkVersion(baseElement);
             	
             	Map<UUID, ModelElement> elements = this.getElements(baseObject, context);
+
+            	List<ModelGroup> groups = this.getGroups(baseObject, context);
             	
             	Map<String, String> textures = this.getTextures(baseObject);
             	
@@ -212,10 +215,10 @@ public class ModelBlock
             	
             	List<ItemOverride> overrides = this.getItemOverrides(context, baseObject);
             	
-            	return new ModelBlock(elements, textures, ambientOclusion, true, itemcameratransforms, overrides);
+            	return new ModelBlock(elements, groups, textures, ambientOclusion, true, itemcameratransforms, overrides);
             	
             }
-            
+
             private void checkVersion(JsonElement element) {
             	
 				JsonObject object = element.getAsJsonObject();
@@ -287,6 +290,21 @@ public class ModelBlock
             	
             	return map;
             }
+
+            private List<ModelGroup> getGroups(JsonObject baseObject, JsonDeserializationContext context) {
+
+                JsonArray groupsArray = baseObject.getAsJsonArray("outliner");
+
+                List<ModelGroup> list = new ArrayList<>();
+
+                for (JsonElement jsonElement : groupsArray) {
+                    ModelGroup group = context.deserialize(jsonElement, ModelGroup.class);
+                    list.add(group);
+                }
+
+                return list;
+            }
+
         }
 
     @OnlyIn(Dist.CLIENT)

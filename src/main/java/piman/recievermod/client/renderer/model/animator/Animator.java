@@ -169,7 +169,8 @@ public class Animator {
 
             JsonArray submodels = json.getAsJsonObject().getAsJsonArray("submodels");
 
-            for (JsonElement submodelElement : submodels) {
+
+            if (submodels != null) for (JsonElement submodelElement : submodels) {
 
                 JsonObject submodelObject = submodelElement.getAsJsonObject();
 

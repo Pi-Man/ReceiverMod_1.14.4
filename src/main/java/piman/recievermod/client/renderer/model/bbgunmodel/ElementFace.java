@@ -31,10 +31,14 @@ public class ElementFace {
 		public ElementFace deserialize(JsonElement baseElement, Type type, JsonDeserializationContext context) throws JsonParseException {
 			
 			JsonObject jsonObject = (JsonObject) baseElement;
+
+			if (jsonObject.get("texture").isJsonNull()) {
+				return null;
+			}
 			
 			Vector4f uv = this.getVector4f(jsonObject, "uv", 0, 0, 16, 16);
-			
-			String texture = JSONUtils.getString( jsonObject, "texture", "missingno");
+
+			String texture = JSONUtils.getString(jsonObject, "texture", "missingno");
 			
 			return new ElementFace(uv, texture);
 			
