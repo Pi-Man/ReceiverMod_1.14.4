@@ -6,6 +6,8 @@ import java.lang.reflect.Type;
 import java.util.*;
 import java.util.Map.Entry;
 
+import javax.vecmath.Vector3f;
+
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.model.ItemOverride;
 import net.minecraft.client.renderer.model.ItemTransformVec3f;
@@ -38,6 +40,8 @@ public class ModelBlock
     static final Gson SERIALIZER = (new GsonBuilder()).registerTypeAdapter(ModelBlock.class, new Deserializer()).registerTypeAdapter(ModelElement.class, new ModelElement.Deserializer()).registerTypeAdapter(ElementFace.class, new ElementFace.Deserializer()).registerTypeAdapter(ModelGroup.class, new ModelGroup.Deserializer()).registerTypeAdapter(ItemTransformVec3f.class, new ItemTransformVec3f.Deserializer()).registerTypeAdapter(ItemCameraTransforms.class, new ItemCameraTransforms.Deserializer()).registerTypeAdapter(ItemOverride.class, new ItemOverrideDeserializer()).create();
     private final Map<UUID, ModelElement> elements;
     private final List<ModelGroup> groups;
+    public Vector3f rotation = new Vector3f();
+    public Vector3f origin = new Vector3f();
     private final boolean gui3d;
     public final boolean ambientOcclusion;
     private final ItemCameraTransforms cameraTransforms;
@@ -56,7 +60,7 @@ public class ModelBlock
         return deserialize(new StringReader(jsonString));
     }
 
-    public ModelBlock(Map<UUID, ModelElement> elementsIn,List<ModelGroup> groups, Map<String, String> texturesIn, boolean ambientOcclusionIn, boolean gui3dIn, ItemCameraTransforms cameraTransformsIn, List<ItemOverride> overridesIn)
+    public ModelBlock(Map<UUID, ModelElement> elementsIn, List<ModelGroup> groups, Map<String, String> texturesIn, boolean ambientOcclusionIn, boolean gui3dIn, ItemCameraTransforms cameraTransformsIn, List<ItemOverride> overridesIn)
     {
         this.elements = elementsIn;
         this.groups = groups;
@@ -66,7 +70,57 @@ public class ModelBlock
         this.cameraTransforms = cameraTransformsIn;
         this.overrides = overridesIn;
     }
-
+    
+    public ModelBlock getGroupAsModel(List<ModelGroup> groupList, String name) {
+    	ModelBlock model = null;
+    	ModelGroup removeGroup = null;
+    	for (ModelGroup group : groupList) {
+    		if (group.name.equals(name)) {
+    			removeGroup = group;
+    			Map<UUID, ModelElement> elements = getAllGroupElements(group);
+    			model = new ModelBlock(elements, group.subGroups, textures, ambientOcclusion, gui3d, cameraTransforms, overrides);
+    			model.rotation = group.rotation;
+    			model.origin = group.origin;
+    			for (UUID uuid : elements.keySet()) {
+    				this.elements.remove(uuid);
+    			}
+    			break;
+    		}
+    		else {
+    			model = getGroupAsModel(group.subGroups, name);
+    			if (model != null) {
+					break;
+				}
+    		}
+    	}
+    	if (removeGroup != null) {
+    		groupList.remove(removeGroup);
+    	}
+    	return model;
+    }
+    
+    public Map<UUID, ModelElement> getAllGroupElements(ModelGroup group) {
+    	List<ModelGroup> stack = new ArrayList<>();
+    	stack.add(group);
+    	return getAllGroupElements(stack);
+    }
+    
+    private Map<UUID, ModelElement> getAllGroupElements(List<ModelGroup> groupStack) {
+    	Map<UUID, ModelElement> map = new HashMap<>();
+    	
+		for (UUID uuid : groupStack.get(0).elements) {
+			map.put(uuid, this.elements.get(uuid));
+		}
+		
+		for (ModelGroup group : groupStack.get(0).subGroups) {
+			groupStack.add(0, group);
+			map.putAll(getAllGroupElements(groupStack));
+			groupStack.remove(0);
+		}
+		
+    	return map;
+    }
+    
     public Map<UUID, ModelElement> getElements()
     {
         return this.elements;
@@ -298,18 +352,15 @@ public class ModelBlock
                 List<ModelGroup> list = new ArrayList<>();
 
                 for (JsonElement jsonElement : groupsArray) {
-                    ModelGroup group = context.deserialize(jsonElement, ModelGroup.class);
-                    list.add(group);
+                	if (jsonElement.isJsonObject()) {
+	                    ModelGroup group = context.deserialize(jsonElement, ModelGroup.class);
+	                    list.add(group);
+                	}
                 }
 
                 return list;
             }
 
-        }
-
-    @OnlyIn(Dist.CLIENT)
-    public static class LoopException extends RuntimeException
-        {
         }
     
     @OnlyIn(Dist.CLIENT)

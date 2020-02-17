@@ -99,13 +99,14 @@ public class Transformation {
             else if (valueElement.isJsonObject()) {
                 JsonObject valueObject = valueElement.getAsJsonObject();
                 float start, end;
-                boolean scale;
+                boolean scale, local;
 
                 start = JSONUtils.getFloat(valueObject, "min", -Float.MAX_VALUE);
                 end = JSONUtils.getFloat(valueObject, "max", Float.MAX_VALUE);
                 scale = JSONUtils.getBoolean(valueObject, "scale", false);
+                local = JSONUtils.getBoolean(valueObject, "local", false);
 
-                value = new Value(start, end, scale);
+                value = new Value(start, end, scale, local);
             }
             else {
                 throw new JsonParseException("Unknown Value Element: " + valueElement);
@@ -150,16 +151,17 @@ public class Transformation {
     public static class Value {
 
         private float start, end;
-        private boolean scale;
+        private boolean scale, local;
 
-        public Value(float start, float end, boolean scale) {
+        public Value(float start, float end, boolean scale, boolean local) {
             this.start = start;
             this.end = end;
             this.scale = scale;
+            this.local = local;
         }
 
         public Value(float start, float end) {
-            this(start, end, false);
+            this(start, end, false, false);
         }
 
         public Value(float value) {
@@ -167,7 +169,7 @@ public class Transformation {
         }
 
         public Value(boolean scale) {
-            this(-Float.MAX_VALUE, Float.MAX_VALUE, scale);
+            this(-Float.MAX_VALUE, Float.MAX_VALUE, scale, false);
         }
 
         public Value() {
@@ -176,7 +178,7 @@ public class Transformation {
 
         public float eval(float value) {
             if (value >= start && value <= end) {
-                return scale ? value : 1;
+                return scale ? local ? value - start : value : 1;
             }
             else {
                 throw new IndexOutOfBoundsException();

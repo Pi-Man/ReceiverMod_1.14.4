@@ -1,10 +1,8 @@
 package piman.recievermod.client.renderer.model.jsongunmodel;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import mcp.MethodsReturnNonnullByDefault;
-import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Vector3f;
 import net.minecraft.client.renderer.model.*;
@@ -16,12 +14,9 @@ import net.minecraft.resources.IResource;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.*;
-import net.minecraftforge.client.model.animation.AnimationItemOverrideList;
-import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.common.model.IModelState;
 import net.minecraftforge.common.model.Models;
 import net.minecraftforge.common.model.TRSRTransformation;
-import net.minecraftforge.common.property.Properties;
 import piman.recievermod.Main;
 import piman.recievermod.client.renderer.model.BakedGunModel;
 import piman.recievermod.client.renderer.model.GunOverrideHandler;
@@ -107,7 +102,7 @@ public class UnbakedJsonGunModel implements IUnbakedModel {
         List<IBakedModel> models = new ArrayList<>();
 
         List<TRSRTransformation> newTransforms = new ArrayList<>();
-        for (BlockPart part : model.getElements()) newTransforms.add(TRSRTransformation.identity());
+        for (@SuppressWarnings("unused") BlockPart part : model.getElements()) newTransforms.add(TRSRTransformation.identity());
 
         ItemCameraTransforms transforms = model.getAllTransforms();
         Map<ItemCameraTransforms.TransformType, TRSRTransformation> tMap = Maps.newEnumMap(ItemCameraTransforms.TransformType.class);
@@ -119,7 +114,7 @@ public class UnbakedJsonGunModel implements IUnbakedModel {
 
         for (BlockModel model : this.submodels) {
             newTransforms.clear();
-            for (BlockPart part : model.getElements()) newTransforms.add(TRSRTransformation.identity());
+            for (@SuppressWarnings("unused") BlockPart part : model.getElements()) newTransforms.add(TRSRTransformation.identity());
             models.add(this.bakeNormal(bakery, model, sprite.getState(), sprite.getState(), newTransforms, format, spriteGetter, false));
         }
 

@@ -7,7 +7,7 @@ import net.minecraft.world.World;
 public class ItemBulletMediumCasing extends ItemBullet {
 
 	public ItemBulletMediumCasing(Item.Properties properties) {
-		super(properties);
+		super(properties, null);
 	}
 
 	@Override

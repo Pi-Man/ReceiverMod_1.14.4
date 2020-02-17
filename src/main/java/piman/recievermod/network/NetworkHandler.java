@@ -20,8 +20,6 @@ public class NetworkHandler {
 	public static void init() {
 		INSTANCE = NetworkRegistry.newSimpleChannel(new ResourceLocation(Reference.MOD_ID, "main_network"), () -> "1.0.0", "1.0.0"::equals, "1.0.0"::equals);
 		
-		int i = 0;
-
 		registerMessage(MessageAddToInventory.class);
 		registerMessage(MessageUpdateNBT.class);
 		registerMessage(MessagePlaySound.class);

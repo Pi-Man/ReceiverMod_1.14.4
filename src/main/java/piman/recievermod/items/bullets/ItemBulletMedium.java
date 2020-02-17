@@ -1,5 +1,7 @@
 package piman.recievermod.items.bullets;
 
+import java.util.function.Supplier;
+
 import javax.vecmath.Matrix4f;
 import javax.vecmath.Vector3f;
 
@@ -17,8 +19,8 @@ public class ItemBulletMedium extends ItemBullet {
 	private final float caliber;
 	private final float velocity;
 
-	public ItemBulletMedium(Item.Properties properties, float caliber, float velocity) {
-		super(properties);
+	public ItemBulletMedium(Item.Properties properties, float caliber, float velocity, Supplier<Item> casing) {
+		super(properties, casing);
 		this.caliber = caliber;
 		this.velocity = velocity;
 	}

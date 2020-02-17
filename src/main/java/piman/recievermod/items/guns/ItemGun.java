@@ -2,6 +2,7 @@ package piman.recievermod.items.guns;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 import javax.vecmath.Matrix4f;
@@ -16,9 +17,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
@@ -28,7 +27,7 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.registries.ForgeRegistries;
 import piman.recievermod.capabilities.itemdata.IItemData;
 import piman.recievermod.capabilities.itemdata.ItemDataProvider;
-import piman.recievermod.items.ItemBase;
+import piman.recievermod.items.IItemInit;
 import piman.recievermod.items.animations.IAnimationController;
 import piman.recievermod.items.bullets.ItemBullet;
 import piman.recievermod.keybinding.KeyInputHandler;
@@ -37,7 +36,7 @@ import piman.recievermod.network.messages.MessageShoot;
 import piman.recievermod.network.messages.MessageUpdateNBT;
 import piman.recievermod.util.handlers.ClientEventHandler;
 
-public abstract class ItemGun extends Item {
+public abstract class ItemGun extends Item implements IItemInit {
 
     //private static final IItemPropertyGetter ADS_GETTER = new BooleanPropertyGetter("ADS");
 
@@ -68,9 +67,9 @@ public abstract class ItemGun extends Item {
     protected double spreadX;
     protected double drift;
     protected List<IAnimationController> animationControllers = new ArrayList<>();
-    public Item ammo;
-    public Item casing;
-    public Item mag;
+    public Supplier<Item> ammo;
+    public Supplier<Item> casing;
+    public Supplier<Item> mag;
 
     public ItemGun(Item.Properties properties) {
         super(properties.maxStackSize(1));
@@ -106,7 +105,7 @@ public abstract class ItemGun extends Item {
                 boolean flag = false;
 
                 if (!(item instanceof ItemBullet) && player.isCreative())  {
-                    item = this.ammo;
+                    item = this.ammo.get();
                     flag = true;
                 }
 
@@ -119,7 +118,7 @@ public abstract class ItemGun extends Item {
                         nbt.putString("BulletChambered", "");
                     }
                     else {
-                        nbt.putString("BulletChambered", itemBullet.getRegistryName().getNamespace() + ":" + itemBullet.getRegistryName().getPath() + "casing");
+                        nbt.putString("BulletChambered", itemBullet.getCasing().getRegistryName().toString());
                     }
                 }
 //                else if (!world.isRemote) {
@@ -262,9 +261,6 @@ public abstract class ItemGun extends Item {
         boolean flag = false;
 
         if (oldStack.getItem() instanceof ItemGun && newStack.getItem() instanceof ItemGun) {
-            ItemGun oldItem = (ItemGun) oldStack.getItem();
-            ItemGun newItem = (ItemGun) newStack.getItem();
-
             flag = oldStack.getOrCreateTag().getString("UUID").equals(newStack.getOrCreateTag().getString("UUID"));
         }
 
@@ -307,11 +303,11 @@ public abstract class ItemGun extends Item {
     }
 
     public boolean isMag(ItemStack stack) {
-        return stack.getItem() == mag;
+        return stack.getItem() == mag.get();
     }
 
     private boolean isAmmo(ItemStack stack) {
-        return stack.getItem() == ammo;
+        return stack.getItem() == ammo.get();
     }
 
 //    protected static class BooleanPropertyGetter implements IItemPropertyGetter {

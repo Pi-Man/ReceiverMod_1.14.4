@@ -108,7 +108,7 @@ public class SimpleBakedBBModel implements IBakedModel {
 			    buildFromElement(groupStack, entry.getValue(), quads);
             }
 			
-			return new SimpleBakedBBModel(quads, null, model.ambientOcclusion, true, bakedTextureGetter.apply(new ResourceLocation(model.textures.get("0"))), model.getAllTransforms(), overrides);
+			return new SimpleBakedBBModel(quads, null, model.ambientOcclusion, false, bakedTextureGetter.apply(new ResourceLocation(model.textures.get("0"))), model.getAllTransforms(), overrides);
 		}
 
         private void buildFromGroup(List<ModelGroup> groupStack, Map<UUID, ModelElement> elementMap, List<BakedQuad> quads) {
@@ -152,7 +152,7 @@ public class SimpleBakedBBModel implements IBakedModel {
                     builder.applyRotation(group.rotation, group.origin);
                 }
 
-                quads.add(builder.build());
+                quads.add(builder.applyRotation(model.rotation, model.origin).build());
             }
 
         }

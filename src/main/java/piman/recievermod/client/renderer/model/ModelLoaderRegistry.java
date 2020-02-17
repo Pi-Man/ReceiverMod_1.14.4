@@ -115,14 +115,13 @@ public class ModelLoaderRegistry {
      *                 appends ".json" before looking the model up.
      *                 - {@link ModelResourceLocation}. The blockstate system will load the model, using {@link ModelLoader.VariantLoader}.
      */
-    @SuppressWarnings("JavadocReference")
     public static IUnbakedModel getModel(Map.Entry<ResourceLocation, Item> entry) throws Exception {
         IUnbakedModel model;
 
         IUnbakedModel cached = cache.get(new ModelResourceLocation(entry.getKey(), "inventory"));
         if (cached != null) return cached;
 
-        ResourceLocation location = registeredItems.get(entry.getValue());
+        ResourceLocation location = entry.getValue() == null ? new ModelResourceLocation(entry.getKey(), "inventory") : registeredItems.get(entry.getValue());
 
         for (ResourceLocation loading : loadingModels) {
             if (location.getClass() == loading.getClass() && location.equals(loading)) {
@@ -167,9 +166,24 @@ public class ModelLoaderRegistry {
             }
         }
         cache.put(new ModelResourceLocation(entry.getKey(), "inventory"), model);
-        for (ResourceLocation dep : model.getDependencies()) {
-            getModelOrMissing(entry);
-        }
+//        for (ResourceLocation dep : model.getDependencies()) {
+//            getModelOrMissing(new Entry<ResourceLocation, Item>() {
+//				@Override
+//				public Item setValue(Item value) {
+//					return null;
+//				}
+//				
+//				@Override
+//				public Item getValue() {
+//					return null;
+//				}
+//				
+//				@Override
+//				public ResourceLocation getKey() {
+//					return dep;
+//				}
+//			});
+//        }
         return model;
     }
 
@@ -177,7 +191,7 @@ public class ModelLoaderRegistry {
      * Use this if you don't care about the exception and want some model anyway.
      */
     public static IUnbakedModel getModelOrMissing(Map.Entry<ResourceLocation, Item> entry) {
-        if (registeredItems.containsKey(entry.getValue())) {
+        if (entry.getValue() == null || registeredItems.containsKey(entry.getValue())) {
             try {
                 return getModel(entry);
             }
@@ -214,6 +228,7 @@ public class ModelLoaderRegistry {
 
     public static void clearModelCache(IResourceManager manager) {
         ModelLoaderRegistry.manager = manager;
+        loaders.clear();
         cache.clear();
         // putting the builtin models in
         cache.put(new ResourceLocation("minecraft:builtin/generated"), ItemLayerModel.INSTANCE);

@@ -1,5 +1,6 @@
 package piman.recievermod.util.handlers;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
 import net.minecraft.util.SoundEvent;
@@ -7,7 +8,6 @@ import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.DeferredRegister;
 import piman.recievermod.Main;
 import piman.recievermod.client.renderer.model.JsonGunLoader;
 import piman.recievermod.client.renderer.model.ModelLoaderRegistry;
@@ -22,6 +22,7 @@ public class RegistryEventHandler {
 
     @SubscribeEvent
     public static void onModelRegistryEvent(ModelRegistryEvent event) {
+    	ModelLoaderRegistry.clearModelCache(Minecraft.getInstance().getResourceManager());
         Main.LOGGER.info("Registering Model Loaders");
         ModelLoaderRegistry.registerLoader(new BBGunLoader());
         ModelLoaderRegistry.registerLoader(new JsonGunLoader());

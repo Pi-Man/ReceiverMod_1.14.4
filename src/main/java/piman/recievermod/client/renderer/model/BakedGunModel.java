@@ -21,9 +21,7 @@ public class BakedGunModel implements IBakedModel {
     private Map<ItemCameraTransforms.TransformType, TRSRTransformation> transforms;
     private List<TRSRTransformation> subTransforms = new ArrayList<>();
     private final TextureAtlasSprite particle;
-    private final VertexFormat format;
     private final ItemOverrideList overrides;
-    private final Map<String, IBakedModel> cache; // contains all the baked models since they'll never change
     private final List<IBakedModel> accessoryModels = new ArrayList<IBakedModel>();
 
     public BakedGunModel(IUnbakedModel parent,
@@ -37,9 +35,7 @@ public class BakedGunModel implements IBakedModel {
         this.models = models;
         this.transforms = transforms;
         this.particle = particle;
-        this.format = format;
         this.overrides = overrides;
-        this.cache = cache;
     }
 
     public void setSubTransforms(List<TRSRTransformation> subTransformations) {
@@ -87,8 +83,6 @@ public class BakedGunModel implements IBakedModel {
     @Nonnull
     @Override
     public List<BakedQuad> getQuads(BlockState state, Direction side, @Nonnull Random rand) {
-
-        Long start = System.nanoTime();
 
         quads.clear();
         if (this.subTransforms == null) {
@@ -216,7 +210,7 @@ public class BakedGunModel implements IBakedModel {
 
     @Override
     public boolean isGui3d() {
-        return false;
+        return true;
     }
 
     @Override

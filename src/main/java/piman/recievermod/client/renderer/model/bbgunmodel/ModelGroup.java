@@ -26,8 +26,6 @@ public class ModelGroup {
         this.elements = elements;
     }
 
-
-
     public static class Deserializer implements JsonDeserializer<ModelGroup> {
 
         /**
@@ -61,6 +59,8 @@ public class ModelGroup {
             Vector3f rotation = getVector3f(jsonObject, "rotation", 0, 0, 0);
 
             Vector3f origin = getVector3f(jsonObject, "origin", 8, 8, 8);
+            
+            rotation.z *= -1;
 
             origin.scale(1f/16f);
 

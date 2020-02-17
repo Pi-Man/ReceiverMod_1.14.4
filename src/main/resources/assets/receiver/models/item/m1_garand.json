@@ -1,4 +1,74 @@
 {
+    "submodels": [
+        {
+            "model": "receiver:m1_garand_action.bbmodel",
+            "predicates": {
+                "slide": [
+                    {
+                        "value": "variable",
+                        "transformation": {
+                            "translation": [0, 0, 0.03]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "model": "receiver:m1_garand_bolt.bbmodel",
+            "predicates": {
+                "slide": [
+                    {
+                    	"order": 0,
+                        "value": {
+                        	"min": 0.0,
+                        	"max": 1.0,
+                        	"scale": true
+                        },
+                        "transformation": {
+                            "rotation": [0, 0, -30],
+                            "center": [-0.03125, 0.1709375, 0.0946875]
+                        }
+                    },
+                    {
+                    	"order":0,
+                    	"value": {
+                    		"min": 1.0001,
+                    		"max": 4.0
+                    	},
+                    	"transformation": {
+                    		"rotation": [0, 0, -30],
+                            "center": [-0.03125, 0.1709375, 0.0946875]
+                    	}
+                    },
+                    {
+                    	"order": 1,
+                    	"value": {
+                    		"min": 0.8,
+                    		"max": 4.0,
+                    		"scale": true,
+                    		"local": true
+                    	},
+                    	"transformation": {
+                    		"rotation": [1.5, 0, 0],
+                            "center": [-0.03125, 0.1709375, 0.0946875]
+                    	}
+                    },
+                    {
+                    	"order": 2,
+                    	"value": {
+                    		"min": 0.8,
+                    		"max": 4.0,
+                    		"scale": true,
+                    		"local": true
+                    	},
+                    	"transformation": {
+                    		"translation": [0, 0, 0.03]
+                    	}
+                    }
+                ]
+            }
+        }
+    ],
   "basetransformation": {
     "predicates": {
       "fired": {
@@ -45,7 +115,7 @@
             "value": "variable",
             "order": 3,
             "transformation": {
-              "translation": [-0.218675, 0.16875, 0.1875]
+              "translation": [-0.21625, 0.16375, 0.1875]
             }
           }
         ],
@@ -54,7 +124,7 @@
             "value": "variable",
             "order": 3,
             "transformation": {
-              "translation": [-0.218675, 0.16875, 0.1875]
+              "translation": [-0.21625, 0.16375, 0.1875]
             }
           }
         ]

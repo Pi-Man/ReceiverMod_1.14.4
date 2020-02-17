@@ -9,6 +9,8 @@ import piman.recievermod.items.ItemBinoculars;
 import piman.recievermod.items.bullets.ItemBulletMedium;
 import piman.recievermod.items.bullets.ItemBulletMediumCasing;
 import piman.recievermod.items.guns.ItemColt;
+import piman.recievermod.items.guns.ItemGarand;
+import piman.recievermod.items.mags.ItemM1Clip;
 import piman.recievermod.items.mags.ItemMagColt;
 import piman.recievermod.util.Reference;
 
@@ -37,6 +39,7 @@ public class ModItems {
     public static final Item _GUN_RPG7 = null;
     public static final Item RPG = null;
     public static final Item M1_GARAND = null;
+    public static final Item M1_CLIP = null;
     public static final Item BULLET45 = null;
     public static final Item BULLET45CASING = null;
     public static final Item BULLET9MM = null;
@@ -45,6 +48,7 @@ public class ModItems {
     public static final Item BULLET38SPECIALCASING = null;
     public static final Item BULLET22 = null;
     public static final Item BULLET22CASING = null;
+    public static final Item BULLET30_06 = null;
     public static final Item BULLETSHOTGUN = null;
     public static final Item BULLETSHOTGUNCASING = null;
     public static final Item LENS = null;
@@ -61,10 +65,14 @@ public class ModItems {
         putModel("_gun_colt");
         ITEMS.add(new ItemMagColt(new Item.Properties()).setRegistryName("colt_mag"));
         putModel("_mag_colt");
-        ITEMS.add(new ItemColt(new Item.Properties().group(ModItemGroups.GUNS)).setRegistryName(Reference.MOD_ID, "m1_garand"));
-        putModel("m1_garand.bbmodel");
-        ITEMS.add(new ItemBulletMedium(new Item.Properties(), 0.45f, 20f).setRegistryName("bullet45"));
+        ITEMS.add(new ItemGarand(new Item.Properties().group(ModItemGroups.GUNS)).setRegistryName(Reference.MOD_ID, "m1_garand"));
+        putModel("m1_garand_full.bbmodel");
+        ITEMS.add(new ItemM1Clip(new Item.Properties()).setRegistryName(Reference.MOD_ID, "m1_clip"));
+        putModel("m1_garand_clip.bbmodel");
+        ITEMS.add(new ItemBulletMedium(new Item.Properties(), 0.45f, 20f, () -> ModItems.BULLET45CASING).setRegistryName("bullet45"));
         ITEMS.add(new ItemBulletMediumCasing((new Item.Properties())).setRegistryName(Reference.MOD_ID, "bullet45casing"));
+        ITEMS.add(new ItemBulletMedium(new Item.Properties(), 0.308f, 20f, () -> ModItems.BULLET45CASING).setRegistryName("bullet30_06"));
+        putModel("bullet30-06.bbmodel");
         ITEMS.add(new ItemBinoculars(new Item.Properties().maxStackSize(1).group(ModItemGroups.TOOLS)).setRegistryName(Reference.MOD_ID, "binoculars"));
         ITEMS.add(new Item(new Item.Properties().group(ModItemGroups.TOOLS)).setRegistryName(Reference.MOD_ID, "lens"));
 

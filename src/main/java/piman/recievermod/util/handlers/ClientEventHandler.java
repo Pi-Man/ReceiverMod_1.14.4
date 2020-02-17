@@ -9,7 +9,6 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import piman.recievermod.capabilities.itemdata.ItemDataProvider;
-import piman.recievermod.init.ModItems;
 import piman.recievermod.items.guns.ItemGun;
 
 @Mod.EventBusSubscriber

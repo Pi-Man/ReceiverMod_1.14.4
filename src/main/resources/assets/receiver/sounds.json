@@ -83,6 +83,41 @@
         "sounds": [{ "name": "receiver:item/glock/slideback", "stream": false}]
     },
     
+    "item.m1garand.clipeject": {
+    	"category": "player",
+    	"subtitle": "item.m1garand.clipeject",
+    	"sounds": [{ "name": "receiver:item/m1garand/clipeject", "stream": false}]
+	},
+	
+	"item.m1garand.actionback": {
+		"category": "player",
+		"subtitle": "item.m1garand.actionback",
+		"sounds": [
+			{ "name": "receiver:item/m1garand/actionback1", "stream": false},
+			{ "name": "receiver:item/m1garand/actionback2", "stream": false},
+			{ "name": "receiver:item/m1garand/actionback3", "stream": false}
+		]
+	},
+	
+	"item.m1garand.actioncatch": {
+		"category": "player",
+		"subtitle": "item.m1garand.actioncatch",
+		"sounds": [
+			{ "name": "receiver:item/m1garand/actioncatch1", "stream": false},
+			{ "name": "receiver:item/m1garand/actioncatch2", "stream": false},
+			{ "name": "receiver:item/m1garand/actioncatch3", "stream": false}
+		]
+	},
+	
+	"item.m1garand.actionforward": {
+		"category": "player",
+		"subtitle": "item.m1garand.actioncatch",
+		"sounds": [
+			{ "name": "receiver:item/m1garand/actionforward1", "stream": false},
+			{ "name": "receiver:item/m1garand/actionforward2", "stream": false}
+		]
+	},
+    
     "entity.turret.target": {
         "category": "hostile",
         "subtitle": "entity.turret.target",

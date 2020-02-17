@@ -26,6 +26,10 @@ public class SoundsHandler {
 	public static final SoundEvent ITEM_GLOCK_SHOT = null;
 	public static final SoundEvent ITEM_GLOCK_SLIDEBACK = null;
 	public static final SoundEvent ITEM_GLOCK_SLIDEFORWARD = null;
+	public static final SoundEvent ITEM_M1GARAND_CLIPEJECT = null;
+	public static final SoundEvent ITEM_M1GARAND_ACTIONBACK = null;
+	public static final SoundEvent ITEM_M1GARAND_ACTIONFORWARD = null;
+	public static final SoundEvent ITEM_M1GARAND_ACTIONCATCH = null;
 	public static final SoundEvent ENTITY_TURRET_TARGET = null;
 
 	public static void registerSounds() {
@@ -43,6 +47,10 @@ public class SoundsHandler {
 		registerSound("item.glock.shot");
 		registerSound("item.glock.slideback");
 		registerSound("item.glock.slideforward");
+		registerSound("item.m1garand.clipeject");
+		registerSound("item.m1garand.actionback");
+		registerSound("item.m1garand.actionforward");
+		registerSound("item.m1garand.actioncatch");
 		registerSound("entity.turret.target");
 	}
 

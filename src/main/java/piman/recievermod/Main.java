@@ -1,6 +1,5 @@
 package piman.recievermod;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
@@ -13,7 +12,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -27,11 +25,8 @@ import piman.recievermod.capabilities.itemdata.ItemData;
 import piman.recievermod.capabilities.itemdata.ItemDataStorage;
 import piman.recievermod.init.ModEntities;
 import piman.recievermod.init.ModItems;
-import piman.recievermod.items.bullets.ItemBullet;
 import piman.recievermod.network.NetworkHandler;
 import piman.recievermod.util.Reference;
-import piman.recievermod.util.SoundsHandler;
-
 import javax.annotation.Nonnull;
 import java.util.Map;
 

@@ -1,16 +1,11 @@
 package piman.recievermod.network.messages;
 
 import java.util.Random;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
-
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.MathHelper;
-import net.minecraftforge.fml.network.NetworkEvent;
 
 public class MessageEject extends MessageBase<MessageEject> {
 

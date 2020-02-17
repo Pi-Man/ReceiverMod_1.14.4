@@ -41,7 +41,7 @@ public abstract class ItemMag extends Item implements IItemInit {
 			}
 			return worldIn.getCapability(ItemDataProvider.ITEMDATA_CAP).map(itemData -> {
 				CompoundNBT nbt = itemData.getItemData().getCompound(stack.getOrCreateTag().getString("UUID"));
-				return (float) nbt.getList("Bullets", 8).size();
+				return (float) nbt.getList("bullets", 8).size();
 			}).orElse(0F);
 		});
 	}
@@ -59,28 +59,28 @@ public abstract class ItemMag extends Item implements IItemInit {
 
 			worldIn.getCapability(ItemDataProvider.ITEMDATA_CAP).ifPresent(itemData -> {
 				CompoundNBT nbt = itemData.getItemData().getCompound(stack.getOrCreateTag().getString("UUID"));
-				if (!nbt.contains("Bullets", 9)) {
-					nbt.put("Bullets", new ListNBT());
+				if (!nbt.contains("bullets", 9)) {
+					nbt.put("bullets", new ListNBT());
 				}
 
 				if (player.getHeldItemMainhand().equals(stack)) {
 
 					if (worldIn.isRemote) {
 						if (KeyInputHandler.isKeyPressed(KeyInputHandler.KeyPresses.AddBullet)) {
-							if (nbt.getList("Bullets", 8).size() < this.maxAmmo) {
+							if (nbt.getList("bullets", 8).size() < this.maxAmmo) {
 
 								ItemStack ammo = findAmmo(player);
 
 								if (!ammo.isEmpty()) {
-									nbt.getList("Bullets", 8).add(new StringNBT(ammo.getItem().getRegistryName().toString()));
+									nbt.getList("bullets", 8).add(new StringNBT(ammo.getItem().getRegistryName().toString()));
 									NetworkHandler.sendToServer(new MessageAddToInventory(ammo, -1));
 								}
 							}
 						}
 
 						if (KeyInputHandler.isKeyPressed(KeyInputHandler.KeyPresses.RemoveBullet)) {
-							if (nbt.getList("Bullets", 8).size() > 0) {
-								nbt.getList("Bullets", 8).remove(nbt.getList("Bullets", 8).size() - 1);
+							if (nbt.getList("bullets", 8).size() > 0) {
+								nbt.getList("bullets", 8).remove(nbt.getList("bullets", 8).size() - 1);
 								NetworkHandler.sendToServer(new MessageAddToInventory(this.ammo, 1));
 							}
 						}
@@ -115,7 +115,12 @@ public abstract class ItemMag extends Item implements IItemInit {
 	
 	@Override
 	public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
-		boolean flag = oldStack.getOrCreateTag().getString("UUID").equals(newStack.getOrCreateTag().getString("UUID"));
+        boolean flag = false;
+
+        if (oldStack.getItem() instanceof ItemMag && newStack.getItem() instanceof ItemMag) {
+            flag = oldStack.getOrCreateTag().getString("UUID").equals(newStack.getOrCreateTag().getString("UUID"));
+        }
+
         return slotChanged || !flag;
     }
 }

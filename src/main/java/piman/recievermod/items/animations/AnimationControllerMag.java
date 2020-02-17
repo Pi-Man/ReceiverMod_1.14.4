@@ -4,16 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.nbt.CompoundNBT;
 import org.apache.commons.lang3.tuple.Pair;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
 import piman.recievermod.capabilities.itemdata.IItemData;
 import piman.recievermod.capabilities.itemdata.ItemDataProvider;
 import piman.recievermod.items.ItemPropertyWrapper;
@@ -23,15 +20,51 @@ import piman.recievermod.network.NetworkHandler;
 import piman.recievermod.network.messages.MessageAddToInventory;
 import piman.recievermod.network.messages.MessagePlaySound;
 import piman.recievermod.util.SoundsHandler;
-import piman.recievermod.util.handlers.RenderPartialTickHandler;
 
 public class AnimationControllerMag implements IAnimationController {
+	
+	public class MagAddEvent extends AnimationEvent {
 
+		public MagAddEvent(ItemStack stack, World world, PlayerEntity player, int itemSlot, boolean isSelected, CompoundNBT nbt, ItemGun gun) {
+			super(stack, world, player, itemSlot, isSelected, nbt, gun);
+		}
+		
+	}
+	
+	public class MagRemoveEvent extends AnimationEvent {
+
+		public MagRemoveEvent(ItemStack stack, World world, PlayerEntity player, int itemSlot, boolean isSelected, CompoundNBT nbt, ItemGun gun) {
+			super(stack, world, player, itemSlot, isSelected, nbt, gun);
+		}
+		
+	}
+	
+	private boolean onMagAdd(ItemStack stack, World world, PlayerEntity player, int itemSlot, boolean isSelected, CompoundNBT nbt, ItemGun gun) {
+
+		MagAddEvent event = new MagAddEvent(stack, world, player, itemSlot, isSelected, nbt, gun);
+		
+		if (MinecraftForge.EVENT_BUS.post(event)) return false;
+		
+		return true;
+		
+	}
+	
+	private boolean onMagRemoved(ItemStack stack, World world, PlayerEntity player, int itemSlot, boolean isSelected, CompoundNBT nbt, ItemGun gun) {
+
+		MagRemoveEvent event = new MagRemoveEvent(stack, world, player, itemSlot, isSelected, nbt, gun);
+		
+		if (MinecraftForge.EVENT_BUS.post(event)) return false;
+		
+		return true;
+		
+	}
+	
 	@Override
 	public List<ItemPropertyWrapper> getProperties() {
 		List<ItemPropertyWrapper> list = new ArrayList<>();
 		
 		list.add(IAnimationController.stringProperty("mag", true));
+		list.add(IAnimationController.listCountProperty("bullets", 8, true));
 		
 		return list;
 	}
@@ -48,12 +81,12 @@ public class AnimationControllerMag implements IAnimationController {
 
 			int magslot = gun.findMag(player);
 
-			if (magslot != -1) {
+			if (magslot != -1 && onMagAdd(stack, worldIn, player, itemSlot, isSelected, nbt, gun)) {
 				ItemStack mag = player.inventory.getStackInSlot(magslot);
 				//System.out.println("Mag Found: " + mag + mag.getTagCompound());
 				NetworkHandler.sendToServer(new MessageAddToInventory(mag, -1, magslot));
 				CompoundNBT magTag = baseTag.getCompound(mag.getOrCreateTag().getString("UUID"));
-				nbt.put("Bullets", magTag.getList("Bullets", 8));
+				nbt.put("bullets", magTag.getList("bullets", 8));
 				nbt.putString("mag", magTag.getString("UUID"));
 				NetworkHandler.sendToServer(new MessagePlaySound(SoundsHandler.ITEM_GLOCK_MAGIN));
 			}
@@ -61,27 +94,29 @@ public class AnimationControllerMag implements IAnimationController {
 		if (flag && KeyInputHandler.isKeyPressed(KeyInputHandler.KeyPresses.RemoveMag)) {
 
 			if (!nbt.getString("mag").isEmpty()) {
-				CompoundNBT magNBT = new CompoundNBT();
-
-				magNBT.put("Bullets", nbt.getList("Bullets", 8));
-				magNBT.putString("UUID", nbt.getString("mag"));
-				nbt.putInt("Bullets", 0);
-				nbt.putString("mag", "");
-
-				ItemStack mag = new ItemStack(gun.mag);
-
-				mag.getOrCreateTag().putString("UUID", magNBT.getString("UUID"));
-				baseTag.put(magNBT.getString("UUID"), magNBT);
-
-				NetworkHandler.sendToServer(new MessageAddToInventory(mag, 1, player.inventory.getSizeInventory() - 1));
-
-				NetworkHandler.sendToServer(new MessagePlaySound(SoundsHandler.ITEM_GLOCK_MAGOUT));
+				if (onMagRemoved(stack, worldIn, player, itemSlot, isSelected, nbt, gun)) {
+					CompoundNBT magNBT = new CompoundNBT();
+	
+					magNBT.put("bullets", nbt.getList("bullets", 8));
+					magNBT.putString("UUID", nbt.getString("mag"));
+					nbt.putInt("bullets", 0);
+					nbt.putString("mag", "");
+	
+					ItemStack mag = new ItemStack(gun.mag.get());
+	
+					mag.getOrCreateTag().putString("UUID", magNBT.getString("UUID"));
+					baseTag.put(magNBT.getString("UUID"), magNBT);
+	
+					NetworkHandler.sendToServer(new MessageAddToInventory(mag, 1, player.inventory.getSizeInventory() - 1));
+	
+					NetworkHandler.sendToServer(new MessagePlaySound(SoundsHandler.ITEM_GLOCK_MAGOUT));
+				}
 			} else if (gun.isMag(player.getHeldItemOffhand())) {
 				TreeMap<Integer, Pair<ItemStack, Integer>> mags = new TreeMap<Integer, Pair<ItemStack, Integer>>();
 				for (int i = 0; i < player.inventory.getSizeInventory() - 1; i++) {
 					ItemStack itemstack = player.inventory.getStackInSlot(i);
 					if (gun.isMag(itemstack)) {
-						mags.put(baseTag.getCompound(itemstack.getOrCreateTag().getString("UUID")).getInt("Bullets"), Pair.of(itemstack, i));
+						mags.put(baseTag.getCompound(itemstack.getOrCreateTag().getString("UUID")).getInt("bullets"), Pair.of(itemstack, i));
 					}
 				}
 				if (!mags.isEmpty()) {

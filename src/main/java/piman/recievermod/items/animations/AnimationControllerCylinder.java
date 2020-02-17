@@ -3,24 +3,16 @@ package piman.recievermod.items.animations;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Nullable;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.world.World;
 import piman.recievermod.Main;
-import piman.recievermod.capabilities.itemdata.ItemDataProvider;
 import piman.recievermod.items.ItemPropertyWrapper;
 import piman.recievermod.items.guns.ItemGun;
 import piman.recievermod.keybinding.KeyInputHandler;
 import piman.recievermod.network.NetworkHandler;
 import piman.recievermod.network.messages.MessageAddToInventory;
-import piman.recievermod.util.handlers.RenderPartialTickHandler;
 
 public class AnimationControllerCylinder implements IAnimationController {
 	
@@ -78,12 +70,12 @@ public class AnimationControllerCylinder implements IAnimationController {
 					n -= 6;
 				}
 
-				if (nbt.getString("BulletChambered").equals(gun.casing.getRegistryName().toString())) {
+				if (nbt.getString("BulletChambered").equals(gun.casing.get().getRegistryName().toString())) {
 					setBullet(n, 2, nbt);
 				}
 
 				if (getBullet(n, nbt) == 1) {
-					nbt.putString("BulletChambered", gun.ammo.getRegistryName().toString());
+					nbt.putString("BulletChambered", gun.ammo.get().getRegistryName().toString());
 				}
 				else {
 					nbt.putString("BulletChambered", "");
@@ -146,10 +138,10 @@ public class AnimationControllerCylinder implements IAnimationController {
 
 				if (i < 6) {
 					if (getBullet(n + 1, nbt) == 1) {
-						NetworkHandler.sendToServer(new MessageAddToInventory(gun.ammo,  1));
+						NetworkHandler.sendToServer(new MessageAddToInventory(gun.ammo.get(), 1));
 					}
 					else {
-						NetworkHandler.sendToServer(new MessageAddToInventory(gun.casing,  1));
+						NetworkHandler.sendToServer(new MessageAddToInventory(gun.casing.get(), 1));
 					}
 					setBullet(n + 1, 0, nbt);
 				}

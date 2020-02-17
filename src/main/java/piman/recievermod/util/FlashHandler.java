@@ -26,8 +26,6 @@ public class FlashHandler {
 			BlockPos pos = entry.getKey();
 			int duration = entry.getValue();
 
-			World world = Minecraft.getInstance().world;
-						
 			if (duration > 1) {
 				entry.setValue(duration - 1);
 			}
