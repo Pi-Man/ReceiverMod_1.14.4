@@ -1,17 +1,14 @@
 package piman.recievermod.items.animations;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.StringNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.registries.ForgeRegistries;
 import piman.recievermod.capabilities.itemdata.IItemData;
 import piman.recievermod.capabilities.itemdata.ItemDataProvider;
@@ -21,11 +18,15 @@ import piman.recievermod.items.animations.AnimationControllerMag.MagRemoveEvent;
 import piman.recievermod.items.guns.ItemGun;
 import piman.recievermod.keybinding.KeyInputHandler;
 import piman.recievermod.network.NetworkHandler;
+import piman.recievermod.network.messages.MessageAddToInventory;
 import piman.recievermod.network.messages.MessageEject;
 import piman.recievermod.network.messages.MessagePlaySound;
 import piman.recievermod.util.SoundsHandler;
 
-@EventBusSubscriber
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 public class AnimationControllerGarandAction implements IAnimationController {
 	
 	private final ItemGun itemgun;
@@ -37,7 +38,7 @@ public class AnimationControllerGarandAction implements IAnimationController {
 		MinecraftForge.EVENT_BUS.register(this);
 	}
 	
-	@SubscribeEvent
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void onMagAdd(MagAddEvent event) {
 		if (event.getGun() == itemgun) {
 			if (event.getNbt().getInt("slide") != 4) {
@@ -50,13 +51,22 @@ public class AnimationControllerGarandAction implements IAnimationController {
 			}
 		}
 	}
-	
-	@SubscribeEvent
+
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void onMagRemove(MagRemoveEvent event) {
 		if (event.getGun() == itemgun) {
 			if (event.getNbt().getInt("slide") != 4) {
 				event.setCanceled(true);
 			}
+		}
+	}
+
+	@SubscribeEvent
+	public void onShootEvent(AnimationControllerShoot.ShootEvent.Post event) {
+		if (event.getGun() == this.itemgun) {
+			event.getNbt().putInt("slide", 4);
+			event.getNbt().getCompound("prev").putInt("slide", 0);
+			NetworkHandler.sendToServer(new MessagePlaySound(SoundsHandler.ITEM_M1GARAND_ACTIONBACK));
 		}
 	}
 
@@ -76,10 +86,6 @@ public class AnimationControllerGarandAction implements IAnimationController {
 		boolean flag = player.getHeldItemMainhand().equals(stack);
 		
 		CompoundNBT baseTag = worldIn.getCapability(ItemDataProvider.ITEMDATA_CAP).map(IItemData::getItemData).orElse(new CompoundNBT());
-		
-		if (nbt.getBoolean("fired")) {
-			nbt.putInt("slide", 4);
-		}
 
 		if (nbt.getInt("slide") < 3 && flag && KeyInputHandler.isKeyDown(KeyInputHandler.KeyPresses.SlideLock) && KeyInputHandler.isKeyDown(KeyInputHandler.KeyPresses.RemoveBullet)) {
 			if (nbt.getInt("check") < 4) {
@@ -147,6 +153,20 @@ public class AnimationControllerGarandAction implements IAnimationController {
 				}
 				nbt.putBoolean("AutoSlideLock", true);
 			}
+			if (flag && KeyInputHandler.isKeyPressed(KeyInputHandler.KeyPresses.AddBullet) && !nbt.getString("mag").isEmpty() && !nbt.getCompound("prev").getString("mag").isEmpty() && nbt.getList("bullets", 8).size() < 8) {
+				ItemStack ammo = gun.mag.get().findAmmo(player);
+
+				if (!ammo.isEmpty()) {
+					nbt.getList("bullets", 8).add(new StringNBT(ammo.getItem().getRegistryName().toString()));
+					NetworkHandler.sendToServer(new MessageAddToInventory(ammo, -1));
+					if (nbt.getList("bullets", 8).size() < 8) {
+						nbt.putBoolean("AutoSlideLock", false);
+					}
+					else {
+						nbt.putBoolean("AutoSlideLock", true);
+					}
+				}
+			}
 		}
 		if (!KeyInputHandler.isKeyDown(KeyInputHandler.KeyPresses.RemoveBullet)) {
 			if (flag && KeyInputHandler.isKeyPressed(KeyInputHandler.KeyPresses.SlideLock)) {
@@ -157,6 +177,11 @@ public class AnimationControllerGarandAction implements IAnimationController {
 				if (flag && KeyInputHandler.isKeyUnpressed(KeyInputHandler.KeyPresses.RemoveBullet)) NetworkHandler.sendToServer(new MessagePlaySound(SoundsHandler.ITEM_M1GARAND_ACTIONCATCH));
 			}
 			if (nbt.getInt("slide") > 0 && !nbt.getBoolean("AutoSlideLock")) {
+				if (nbt.getList("bullets", 8).size() > 0 && nbt.getString("BulletChambered").isEmpty()) {
+					nbt.putString("BulletChambered", nbt.getList("bullets", 8).getString(nbt.getList("bullets", 8).size() - 1));
+					nbt.getList("bullets", 8).remove(nbt.getList("bullets", 8).size() - 1);
+					System.out.println("pickup");
+				}
 				nbt.putInt("slide", 0);
 				if (!nbt.getBoolean("fired")) NetworkHandler.sendToServer(new MessagePlaySound(SoundsHandler.ITEM_M1GARAND_ACTIONFORWARD));
 			}
@@ -184,15 +209,6 @@ public class AnimationControllerGarandAction implements IAnimationController {
 //		}
 		if (nbt.getInt("slide") == 0) {
 			nbt.putBoolean("AutoSlideLock", false);
-		}
-		if (nbt.getBoolean("fired")) {
-			nbt.putInt("slide", 4);
-			NetworkHandler.sendToServer(new MessagePlaySound(SoundsHandler.ITEM_M1GARAND_ACTIONBACK));
-		}
-		if (nbt.getCompound("prev").getInt("slide") > 2 && nbt.getCompound("prev").getInt("slide") < 5 && nbt.getList("bullets", 8).size() > 0 && nbt.getString("BulletChambered").isEmpty() && (nbt.getInt("slide") < nbt.getCompound("prev").getInt("slide"))) {
-			nbt.putString("BulletChambered", nbt.getList("bullets", 8).getString(nbt.getList("bullets", 8).size() - 1));
-			nbt.getList("bullets", 8).remove(nbt.getList("bullets", 8).size() - 1);
-			System.out.println("pickup");
 		}
 		//System.out.println(nbt);
 	}

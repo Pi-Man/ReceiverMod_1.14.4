@@ -24,6 +24,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import net.minecraft.client.renderer.color.BlockColors;
+import net.minecraft.client.renderer.model.ModelBakery;
+import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.item.Item;
 import net.minecraftforge.client.model.ICustomModelLoader;
 import net.minecraftforge.client.model.ItemLayerModel;
@@ -58,6 +61,8 @@ public class ModelLoaderRegistry {
     private static final Deque<ResourceLocation> loadingModels = Queues.newArrayDeque();
 
     private static final Map<Item, ResourceLocation> registeredItems = new HashMap<>();
+
+    private static ModelBakery bakery;
 
     private static IResourceManager manager;
 
@@ -146,18 +151,25 @@ public class ModelLoaderRegistry {
             }
 
             if (accepted == null) {
-                throw new LoaderException("no suitable loader found for the model " + location + ", skipping");
+                if (bakery == null) {
+                    bakery = new ModelLoader(manager, new AtlasTexture("textures"), Minecraft.getInstance().getBlockColors(), Minecraft.getInstance().getProfiler());
+                }
+                model = bakery.getUnbakedModel(actual);
+                //throw new LoaderException("no suitable loader found for the model " + location + ", skipping");
             }
-            try {
-                model = accepted.loadModel(actual);
-            } catch (Exception e) {
-                throw new LoaderException(String.format("Exception loading model %s with loader %s, skipping", location, accepted), e);
-            }
-            if (model == getMissingModel()) {
-                throw new LoaderException(String.format("Loader %s returned missing model while loading model %s", accepted, location));
-            }
-            if (model == null) {
-                throw new LoaderException(String.format("Loader %s returned null while loading model %s", accepted, location));
+            else {
+                try {
+                    model = accepted.loadModel(actual);
+                }
+                catch (Exception e) {
+                    throw new LoaderException(String.format("Exception loading model %s with loader %s, skipping", location, accepted), e);
+                }
+                if (model == getMissingModel()) {
+                    throw new LoaderException(String.format("Loader %s returned missing model while loading model %s", accepted, location));
+                }
+                if (model == null) {
+                    throw new LoaderException(String.format("Loader %s returned null while loading model %s", accepted, location));
+                }
             }
         } finally {
             ResourceLocation popLoc = loadingModels.removeLast();
@@ -228,6 +240,7 @@ public class ModelLoaderRegistry {
 
     public static void clearModelCache(IResourceManager manager) {
         ModelLoaderRegistry.manager = manager;
+        bakery = new NormalModelLoader(manager, Minecraft.getInstance().getTextureMap(), Minecraft.getInstance().getBlockColors(), true);
         loaders.clear();
         cache.clear();
         // putting the builtin models in

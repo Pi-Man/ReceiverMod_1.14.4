@@ -146,7 +146,7 @@ public class SimpleBakedBBModel implements IBakedModel {
 
                 int[] ints = getPointIndexes(facing);
 
-                BakedQuadBuilder builder = new BakedQuadBuilder().setPosition(points[ints[0]], 0).setPosition(points[ints[1]], 1).setPosition(points[ints[2]], 2).setPosition(points[ints[3]], 3).applyRotation(element.rotation, element.origin).setColor(0xffffffff).setTexture(bakedTextureGetter.apply(new ResourceLocation(model.resolveTextureName(face.texture)))).setUV(face.uv);
+                BakedQuadBuilder builder = new BakedQuadBuilder().setPosition(points[ints[0]], 0).setPosition(points[ints[1]], 1).setPosition(points[ints[2]], 2).setPosition(points[ints[3]], 3).applyRotation(element.rotation, element.origin).setColor(0xffffffff).setTexture(bakedTextureGetter.apply(new ResourceLocation(model.resolveTextureName(face.texture)))).setUV(face.uv).setFace(facing);
 
                 for (ModelGroup group : groupStack) {
                     builder.applyRotation(group.rotation, group.origin);

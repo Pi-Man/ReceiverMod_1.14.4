@@ -7,6 +7,7 @@ import javax.vecmath.Vector4f;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.util.Direction;
 
 public class BakedQuadBuilder {
 
@@ -14,6 +15,7 @@ public class BakedQuadBuilder {
 	private Vector4f uv;
 	private long color;
 	private TextureAtlasSprite texture;
+	private Direction face = null;
 	
 	public BakedQuadBuilder setPosition(Vector3f position, int index) {
 		this.positions[index] = position;
@@ -34,7 +36,12 @@ public class BakedQuadBuilder {
 		this.texture = texture;
 		return this;
 	}
-	
+
+	public BakedQuadBuilder setFace(Direction face) {
+		this.face = face;
+		return this;
+	}
+
 	public BakedQuadBuilder applyRotation(Vector3f rotation, Vector3f center) {
 		
 		Matrix4f points = this.buildPositionMatrix();
@@ -59,9 +66,10 @@ public class BakedQuadBuilder {
 			ints[i*7 + 3] = (int) color;
 			ints[i*7 + 4] = Float.floatToRawIntBits(texture.getInterpolatedU(this.getUPoint(i)));
 			ints[i*7 + 5] = Float.floatToRawIntBits(texture.getInterpolatedV(this.getVPoint(i)));
+			ints[i*7 + 6] = calculateNormal(buildPositionMatrix());
 		}
 		
-		return new BakedQuad(ints, (int) color, null, texture, true, DefaultVertexFormats.ITEM);
+		return new BakedQuad(ints, (int) color, face, texture, true, DefaultVertexFormats.ITEM);
 		
 	}
 	
@@ -81,6 +89,37 @@ public class BakedQuadBuilder {
 		else {
 			return uv.y;
 		}
+	}
+
+	private int calculateNormal(Matrix4f points) {
+
+		float xp = points.m03 - points.m01;
+		float yp = points.m13 - points.m11;
+		float zp = points.m23 - points.m21;
+
+		float xq = points.m02 - points.m00;
+		float yq = points.m12 - points.m10;
+		float zq = points.m22 - points.m20;
+
+		//Cross Product
+		float xn = yq * zp - zq * yp;
+		float yn = zq * xp - xq * zp;
+		float zn = xq * yp - yq * xp;
+
+		//Normalize
+		float norm = (float) Math.sqrt(xn * xn + yn * yn + zn * zn);
+		final float SMALL_LENGTH = 1.0E-4F;  //Vec3d.normalise() uses this
+		if (norm < SMALL_LENGTH) norm = 1.0F;  // protect against degenerate quad
+
+		norm = 1.0F / norm;
+		xn *= norm;
+		yn *= norm;
+		zn *= norm;
+
+		int x = ((byte) (xn * 127)) & 0xFF;
+		int y = ((byte) (yn * 127)) & 0xFF;
+		int z = ((byte) (zn * 127)) & 0xFF;
+		return x | (y << 0x08) | (z << 0x10);
 	}
 	
 	private void resolvePositionMatrix(Matrix4f points) {

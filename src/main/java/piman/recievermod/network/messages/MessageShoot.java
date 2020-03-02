@@ -13,12 +13,11 @@ public class MessageShoot extends MessageBase<MessageShoot> {
 	float accuracy2;
 	int life;
 	int bullets;
-	boolean flag;
 
 		
 	public MessageShoot() {}
 	
-	public MessageShoot(CompoundNBT nbt, double damage, float accuracy1, float accuracy2, int life, int bullets, boolean flag) {
+	public MessageShoot(CompoundNBT nbt, double damage, float accuracy1, float accuracy2, int life, int bullets) {
 
 		this.nbt = nbt;
 		this.damage = damage;
@@ -26,8 +25,7 @@ public class MessageShoot extends MessageBase<MessageShoot> {
 		this.accuracy2 = accuracy2;
 		this.life = life;
 		this.bullets = bullets;
-		this.flag = flag;
-		
+
 	}
 
 	@Override
@@ -41,7 +39,6 @@ public class MessageShoot extends MessageBase<MessageShoot> {
 		message.accuracy2 = buf.readFloat();
 		message.life = buf.readInt();
 		message.bullets = buf.readInt();
-		message.flag = buf.readBoolean();
 
 		return message;
 	}
@@ -55,7 +52,6 @@ public class MessageShoot extends MessageBase<MessageShoot> {
 		buf.writeFloat(message.accuracy2);
 		buf.writeInt(message.life);
 		buf.writeInt(message.bullets);
-		buf.writeBoolean(message.flag);
 
 	}
 
@@ -68,7 +64,7 @@ public class MessageShoot extends MessageBase<MessageShoot> {
 	public void handleServerSide(MessageShoot message, PlayerEntity player) {
 		
 		//System.out.println("MessageShoot Received" + message.nbt);
-		((ItemGun) player.getHeldItemMainhand().getItem()).Shoot(message.nbt, player, message.damage, message.accuracy1, message.accuracy2, message.bullets, message.life, message.flag);
+		((ItemGun) player.getHeldItemMainhand().getItem()).Shoot(message.nbt, player, message.damage, message.accuracy1, message.accuracy2, message.bullets, message.life);
 	
 	}
 

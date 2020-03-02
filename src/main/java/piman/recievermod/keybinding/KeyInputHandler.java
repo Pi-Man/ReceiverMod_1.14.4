@@ -77,7 +77,8 @@ public class KeyInputHandler {
 			Keybinds.removeBullet, 
 			Keybinds.removeMag, 
 			Keybinds.slideLock, 
-			Keybinds.safety, 
+			Keybinds.safety,
+			Keybinds.hammer,
 			gs.keyBindAttack, 
 			gs.keyBindUseItem,
 			gs.keyBindSneak};
@@ -164,6 +165,7 @@ public class KeyInputHandler {
 		RemoveMag,
 		SlideLock,
 		Safety,
+		Hammer,
 		LeftClick,
 		RightClick,
 		Shift;

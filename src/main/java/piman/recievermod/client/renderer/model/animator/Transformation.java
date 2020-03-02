@@ -184,7 +184,6 @@ public class Transformation {
                 throw new IndexOutOfBoundsException();
             }
         }
-
     }
 
 }

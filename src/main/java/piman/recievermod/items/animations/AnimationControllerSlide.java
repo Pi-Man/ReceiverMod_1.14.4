@@ -9,6 +9,8 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 import piman.recievermod.items.ItemPropertyWrapper;
 import piman.recievermod.items.guns.ItemGun;
@@ -19,6 +21,21 @@ import piman.recievermod.network.messages.MessagePlaySound;
 import piman.recievermod.util.SoundsHandler;
 
 public class AnimationControllerSlide implements IAnimationController {
+
+	private final ItemGun itemgun;
+	private boolean justfired = false;
+
+	public AnimationControllerSlide(ItemGun itemgun) {
+		this.itemgun = itemgun;
+		MinecraftForge.EVENT_BUS.register(this);
+	}
+
+	@SubscribeEvent
+	public void onShootEvent(AnimationControllerShoot.ShootEvent.Post event) {
+		if (event.getGun() == this.itemgun) {
+			this.justfired = true;
+		}
+	}
 
 	@Override
 	public List<ItemPropertyWrapper> getProperties() {
@@ -35,8 +52,10 @@ public class AnimationControllerSlide implements IAnimationController {
 
 		boolean flag = player.getHeldItemMainhand().equals(stack);
 
-		if (nbt.getBoolean("fired")) {
+		if (this.justfired) {
 			nbt.putInt("slide", 4);
+			nbt.getCompound("prev").putInt("slide", 0);
+			this.justfired = false;
 		}
 
 		if (nbt.getInt("slide") < 3 && flag && KeyInputHandler.isKeyDown(KeyInputHandler.KeyPresses.SlideLock) && KeyInputHandler.isKeyDown(KeyInputHandler.KeyPresses.RemoveBullet)) {
@@ -80,7 +99,7 @@ public class AnimationControllerSlide implements IAnimationController {
 					nbt.putString("BulletChambered", "");
 				}
 			}
-			if (nbt.getInt("slide") == 4 && !nbt.getString("mag").isEmpty() && nbt.getList("bullets", 8).size() == 0) {
+			if (!nbt.getString("mag").isEmpty() && nbt.getList("bullets", 8).size() == 0) {
 				nbt.putBoolean("AutoSlideLock", true);
 			}
 		}
@@ -96,6 +115,11 @@ public class AnimationControllerSlide implements IAnimationController {
 				//NetworkHandler.sendToServer(new MessagePlaySound(SoundsHandler.ITEM_1911_SLIDEFORWARD));
 			}
 			if (nbt.getInt("slide") > 0 && !nbt.getBoolean("AutoSlideLock")) {
+				//if (nbt.getCompound("prev").getInt("slide") > 2 && nbt.getCompound("prev").getInt("slide") < 5 && nbt.getList("bullets", 8).size() > 0 && nbt.getString("BulletChambered").isEmpty() && (nbt.getInt("slide") < nbt.getCompound("prev").getInt("slide"))) {
+				if (nbt.getInt("slide") > 2 && nbt.getList("bullets", 8).size() > 0 && nbt.getString("BulletChambered").isEmpty()) {
+					nbt.putString("BulletChambered", nbt.getList("bullets", 8).getString(nbt.getList("bullets", 8).size() - 1));
+					nbt.getList("bullets", 8).remove(nbt.getList("bullets", 8).size() - 1);
+				}
 				nbt.putInt("slide", 0);
 				NetworkHandler.sendToServer(new MessagePlaySound(SoundsHandler.ITEM_1911_SLIDEFORWARD));
 			}
@@ -123,14 +147,6 @@ public class AnimationControllerSlide implements IAnimationController {
 //		}
 		if (nbt.getInt("slide") == 0) {
 			nbt.putBoolean("AutoSlideLock", false);
-		}
-		if (nbt.getBoolean("fired")) {
-			nbt.putInt("slide", 4);
-		}
-		if (nbt.getCompound("prev").getInt("slide") > 2 && nbt.getCompound("prev").getInt("slide") < 5 && nbt.getList("bullets", 8).size() > 0 && nbt.getString("BulletChambered").isEmpty() && (nbt.getInt("slide") < nbt.getCompound("prev").getInt("slide"))) {
-			nbt.putString("BulletChambered", nbt.getList("bullets", 8).getString(nbt.getList("bullets", 8).size() - 1));
-			nbt.getList("bullets", 8).remove(nbt.getList("bullets", 8).size() - 1);
-			System.out.println("pickup");
 		}
 		//System.out.println(nbt);
 	}

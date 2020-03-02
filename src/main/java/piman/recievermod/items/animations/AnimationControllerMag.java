@@ -23,7 +23,7 @@ import piman.recievermod.util.SoundsHandler;
 
 public class AnimationControllerMag implements IAnimationController {
 	
-	public class MagAddEvent extends AnimationEvent {
+	public static class MagAddEvent extends AnimationEvent {
 
 		public MagAddEvent(ItemStack stack, World world, PlayerEntity player, int itemSlot, boolean isSelected, CompoundNBT nbt, ItemGun gun) {
 			super(stack, world, player, itemSlot, isSelected, nbt, gun);
@@ -31,7 +31,7 @@ public class AnimationControllerMag implements IAnimationController {
 		
 	}
 	
-	public class MagRemoveEvent extends AnimationEvent {
+	public static class MagRemoveEvent extends AnimationEvent {
 
 		public MagRemoveEvent(ItemStack stack, World world, PlayerEntity player, int itemSlot, boolean isSelected, CompoundNBT nbt, ItemGun gun) {
 			super(stack, world, player, itemSlot, isSelected, nbt, gun);
@@ -42,21 +42,17 @@ public class AnimationControllerMag implements IAnimationController {
 	private boolean onMagAdd(ItemStack stack, World world, PlayerEntity player, int itemSlot, boolean isSelected, CompoundNBT nbt, ItemGun gun) {
 
 		MagAddEvent event = new MagAddEvent(stack, world, player, itemSlot, isSelected, nbt, gun);
-		
-		if (MinecraftForge.EVENT_BUS.post(event)) return false;
-		
-		return true;
-		
+
+		return !MinecraftForge.EVENT_BUS.post(event);
+
 	}
 	
 	private boolean onMagRemoved(ItemStack stack, World world, PlayerEntity player, int itemSlot, boolean isSelected, CompoundNBT nbt, ItemGun gun) {
 
 		MagRemoveEvent event = new MagRemoveEvent(stack, world, player, itemSlot, isSelected, nbt, gun);
-		
-		if (MinecraftForge.EVENT_BUS.post(event)) return false;
-		
-		return true;
-		
+
+		return !MinecraftForge.EVENT_BUS.post(event);
+
 	}
 	
 	@Override
@@ -79,7 +75,7 @@ public class AnimationControllerMag implements IAnimationController {
 		if (flag && KeyInputHandler.isKeyPressed(KeyInputHandler.KeyPresses.AddBullet) && nbt.getString("mag").isEmpty()) {
 			System.out.println("Add Mag Pressed");
 
-			int magslot = gun.findMag(player);
+			int magslot = gun.findFullestMag(player, baseTag);
 
 			if (magslot != -1 && onMagAdd(stack, worldIn, player, itemSlot, isSelected, nbt, gun)) {
 				ItemStack mag = player.inventory.getStackInSlot(magslot);
@@ -112,11 +108,11 @@ public class AnimationControllerMag implements IAnimationController {
 					NetworkHandler.sendToServer(new MessagePlaySound(SoundsHandler.ITEM_GLOCK_MAGOUT));
 				}
 			} else if (gun.isMag(player.getHeldItemOffhand())) {
-				TreeMap<Integer, Pair<ItemStack, Integer>> mags = new TreeMap<Integer, Pair<ItemStack, Integer>>();
+				TreeMap<Integer, Pair<ItemStack, Integer>> mags = new TreeMap<>();
 				for (int i = 0; i < player.inventory.getSizeInventory() - 1; i++) {
 					ItemStack itemstack = player.inventory.getStackInSlot(i);
 					if (gun.isMag(itemstack)) {
-						mags.put(baseTag.getCompound(itemstack.getOrCreateTag().getString("UUID")).getInt("bullets"), Pair.of(itemstack, i));
+						mags.put(baseTag.getCompound(itemstack.getOrCreateTag().getString("UUID")).getList("bullets", 8).size(), Pair.of(itemstack, i));
 					}
 				}
 				if (!mags.isEmpty()) {
@@ -131,5 +127,4 @@ public class AnimationControllerMag implements IAnimationController {
 			}
 		}
 	}
-
 }

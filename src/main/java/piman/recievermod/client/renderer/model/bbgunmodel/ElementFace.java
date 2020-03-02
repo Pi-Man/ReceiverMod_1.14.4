@@ -32,7 +32,7 @@ public class ElementFace {
 			
 			JsonObject jsonObject = (JsonObject) baseElement;
 
-			if (jsonObject.get("texture").isJsonNull()) {
+			if (jsonObject.get("texture") == null || jsonObject.get("texture").isJsonNull()) {
 				return null;
 			}
 			

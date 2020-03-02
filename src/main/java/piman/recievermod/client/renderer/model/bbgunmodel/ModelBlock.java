@@ -37,7 +37,7 @@ public class ModelBlock
 {
     private static final Logger LOGGER = LogManager.getLogger();
     @VisibleForTesting
-    static final Gson SERIALIZER = (new GsonBuilder()).registerTypeAdapter(ModelBlock.class, new Deserializer()).registerTypeAdapter(ModelElement.class, new ModelElement.Deserializer()).registerTypeAdapter(ElementFace.class, new ElementFace.Deserializer()).registerTypeAdapter(ModelGroup.class, new ModelGroup.Deserializer()).registerTypeAdapter(ItemTransformVec3f.class, new ItemTransformVec3f.Deserializer()).registerTypeAdapter(ItemCameraTransforms.class, new ItemCameraTransforms.Deserializer()).registerTypeAdapter(ItemOverride.class, new ItemOverrideDeserializer()).create();
+    static final Gson SERIALIZER = (new GsonBuilder()).registerTypeAdapter(ModelBlock.class, new Deserializer()).registerTypeAdapter(ModelElement.class, new ModelElement.Deserializer()).registerTypeAdapter(ElementFace.class, new ElementFace.Deserializer()).registerTypeAdapter(ModelGroup.class, new ModelGroup.Deserializer()).registerTypeAdapter(ItemTransformVec3f.class, new ItemTransformVec3fDeserializer()).registerTypeAdapter(ItemCameraTransforms.class, new ItemCameraTransforms.Deserializer()).registerTypeAdapter(ItemOverride.class, new ItemOverrideDeserializer()).create();
     private final Map<UUID, ModelElement> elements;
     private final List<ModelGroup> groups;
     public Vector3f rotation = new Vector3f();
@@ -70,7 +70,7 @@ public class ModelBlock
         this.cameraTransforms = cameraTransformsIn;
         this.overrides = overridesIn;
     }
-    
+
     public ModelBlock getGroupAsModel(List<ModelGroup> groupList, String name) {
     	ModelBlock model = null;
     	ModelGroup removeGroup = null;
@@ -98,29 +98,29 @@ public class ModelBlock
     	}
     	return model;
     }
-    
+
     public Map<UUID, ModelElement> getAllGroupElements(ModelGroup group) {
     	List<ModelGroup> stack = new ArrayList<>();
     	stack.add(group);
     	return getAllGroupElements(stack);
     }
-    
+
     private Map<UUID, ModelElement> getAllGroupElements(List<ModelGroup> groupStack) {
     	Map<UUID, ModelElement> map = new HashMap<>();
-    	
+
 		for (UUID uuid : groupStack.get(0).elements) {
 			map.put(uuid, this.elements.get(uuid));
 		}
-		
+
 		for (ModelGroup group : groupStack.get(0).subGroups) {
 			groupStack.add(0, group);
 			map.putAll(getAllGroupElements(groupStack));
 			groupStack.remove(0);
 		}
-		
+
     	return map;
     }
-    
+
     public Map<UUID, ModelElement> getElements()
     {
         return this.elements;
@@ -387,4 +387,39 @@ public class ModelBlock
                 return map;
             }
         }
+
+    @OnlyIn(Dist.CLIENT)
+    public static class ItemTransformVec3fDeserializer implements JsonDeserializer<ItemTransformVec3f> {
+        public static final net.minecraft.client.renderer.Vector3f ROTATION_DEFAULT = new net.minecraft.client.renderer.Vector3f(0.0F, 0.0F, 0.0F);
+        public static final net.minecraft.client.renderer.Vector3f TRANSLATION_DEFAULT = new net.minecraft.client.renderer.Vector3f(0.0F, 0.0F, 0.0F);
+        public static final net.minecraft.client.renderer.Vector3f SCALE_DEFAULT = new net.minecraft.client.renderer.Vector3f(1.0F, 1.0F, 1.0F);
+
+        public ItemTransformVec3f deserialize(JsonElement p_deserialize_1_, Type p_deserialize_2_, JsonDeserializationContext p_deserialize_3_) throws JsonParseException {
+            JsonObject jsonobject = p_deserialize_1_.getAsJsonObject();
+            net.minecraft.client.renderer.Vector3f vector3f = this.parseVector(jsonobject, "rotation", ROTATION_DEFAULT);
+            net.minecraft.client.renderer.Vector3f vector3f1 = this.parseVector(jsonobject, "translation", TRANSLATION_DEFAULT);
+            vector3f1.mul(0.0625F);
+            net.minecraft.client.renderer.Vector3f vector3f2 = this.parseVector(jsonobject, "scale", SCALE_DEFAULT);
+            return new ItemTransformVec3f(vector3f, vector3f1, vector3f2);
+        }
+
+        private net.minecraft.client.renderer.Vector3f parseVector(JsonObject json, String key, net.minecraft.client.renderer.Vector3f fallback) {
+            if (!json.has(key)) {
+                return fallback;
+            } else {
+                JsonArray jsonarray = JSONUtils.getJsonArray(json, key);
+                if (jsonarray.size() != 3) {
+                    throw new JsonParseException("Expected 3 " + key + " values, found: " + jsonarray.size());
+                } else {
+                    float[] afloat = new float[3];
+
+                    for(int i = 0; i < afloat.length; ++i) {
+                        afloat[i] = JSONUtils.getFloat(jsonarray.get(i), key + "[" + i + "]");
+                    }
+
+                    return new net.minecraft.client.renderer.Vector3f(afloat[0], afloat[1], afloat[2]);
+                }
+            }
+        }
+    }
 }

@@ -15,6 +15,7 @@ public class Keybinds {
 	public static KeyBinding removeMag = new KeyBinding("key.removeclip", GLFW.GLFW_KEY_G, "key.categories.guncontrols");
 	public static KeyBinding slideLock = new KeyBinding("key.slidelock", GLFW.GLFW_KEY_T, "key.categories.guncontrols");
 	public static KeyBinding safety = new KeyBinding("key.saftey", GLFW.GLFW_KEY_V, "key.categories.guncontrols");
+	public static KeyBinding hammer = new KeyBinding("key.hammer", GLFW.GLFW_KEY_B, "key.categories.guncontrols");
 	
 	public static void register() {
 		
@@ -23,6 +24,7 @@ public class Keybinds {
 		ClientRegistry.registerKeyBinding(removeMag);
 		ClientRegistry.registerKeyBinding(slideLock);
 		ClientRegistry.registerKeyBinding(safety);
+		ClientRegistry.registerKeyBinding(hammer);
 		
 	}	
 }

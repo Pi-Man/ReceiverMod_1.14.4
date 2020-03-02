@@ -2,6 +2,7 @@ package piman.recievermod.items.guns;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeMap;
 import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
@@ -25,11 +26,15 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.apache.commons.lang3.tuple.Pair;
 import piman.recievermod.capabilities.itemdata.IItemData;
 import piman.recievermod.capabilities.itemdata.ItemDataProvider;
+import piman.recievermod.init.ModItemGroups;
 import piman.recievermod.items.IItemInit;
+import piman.recievermod.items.ItemPropertyWrapper;
 import piman.recievermod.items.animations.IAnimationController;
 import piman.recievermod.items.bullets.ItemBullet;
+import piman.recievermod.items.mags.ItemMag;
 import piman.recievermod.keybinding.KeyInputHandler;
 import piman.recievermod.network.NetworkHandler;
 import piman.recievermod.network.messages.MessageShoot;
@@ -67,20 +72,27 @@ public abstract class ItemGun extends Item implements IItemInit {
     protected double spreadX;
     protected double drift;
     protected List<IAnimationController> animationControllers = new ArrayList<>();
-    public Supplier<Item> ammo;
-    public Supplier<Item> casing;
-    public Supplier<Item> mag;
+    public Supplier<ItemBullet> ammo;
+    public Supplier<ItemBullet> casing;
+    public Supplier<ItemMag> mag;
 
     public ItemGun(Item.Properties properties) {
-        super(properties.maxStackSize(1));
+        super(properties.maxStackSize(1).group(ModItemGroups.GUNS));
         this.addPropertyOverride(new ResourceLocation("chambered"), BULLET_CHAMBERED_GETTER);
     }
 
-    public boolean Shoot(CompoundNBT nbt, LivingEntity entityLiving, double damage, float entityAccuracy, float gunAccuracy, int bullets, boolean flag2) {
-        return Shoot(nbt, entityLiving, damage, entityAccuracy, gunAccuracy, bullets, 1200, flag2);
+    @Override
+    public void Init() {
+        List<ItemPropertyWrapper> itemProperties = new ArrayList<>();
+        animationControllers.forEach(controller -> itemProperties.addAll(controller.getProperties()));
+        itemProperties.forEach(property -> addPropertyOverride(property.getName(), property.getOverride()));
     }
 
-    public boolean Shoot(CompoundNBT nbt, LivingEntity entityLiving, double damage, float entityAccuracy, float gunAccuracy, int bullets, int life, boolean flag2) {
+    public boolean Shoot(CompoundNBT nbt, LivingEntity entityLiving, double damage, float entityAccuracy, float gunAccuracy, int bullets) {
+        return Shoot(nbt, entityLiving, damage, entityAccuracy, gunAccuracy, bullets, 1200);
+    }
+
+    public boolean Shoot(CompoundNBT nbt, LivingEntity entityLiving, double damage, float entityAccuracy, float gunAccuracy, int bullets, int life) {
 
         if (entityLiving instanceof PlayerEntity) {
 
@@ -89,16 +101,16 @@ public abstract class ItemGun extends Item implements IItemInit {
             boolean flag1 = player.isCreative();
 
             if (world.isRemote) {
-                NetworkHandler.sendToServer(new MessageShoot(nbt, damage, entityAccuracy, gunAccuracy, life, bullets, flag2));
+                NetworkHandler.sendToServer(new MessageShoot(nbt, damage, entityAccuracy, gunAccuracy, life, bullets));
             }
 
-            int i = net.minecraftforge.event.ForgeEventFactory.onArrowLoose(player.getHeldItemMainhand(), world, player, 20, (flag1 || !nbt.getString("BulletChambered").isEmpty()) && flag2);
+            int i = net.minecraftforge.event.ForgeEventFactory.onArrowLoose(player.getHeldItemMainhand(), world, player, 20, (flag1 || !nbt.getString("BulletChambered").isEmpty()));
 
             if (i < 0) {
                 return false;
             }
 
-            if ((flag1 || !nbt.getString("BulletChambered").isEmpty()) && flag2) {
+            if ((flag1 || !nbt.getString("BulletChambered").isEmpty())) {
 
                 Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(nbt.getString("BulletChambered")));
 
@@ -299,6 +311,26 @@ public abstract class ItemGun extends Item implements IItemInit {
             }
         }
 
+        return -1;
+    }
+
+    public int findFullestMag(PlayerEntity player, CompoundNBT baseTag) {
+        TreeMap<Integer, Pair<ItemStack, Integer>> mags = new TreeMap<Integer, Pair<ItemStack, Integer>>();
+        {
+            ItemStack itemstack = player.inventory.getStackInSlot(player.inventory.getSizeInventory() - 1);
+            if (isMag(itemstack)) {
+                return player.inventory.getSizeInventory() - 1;
+            }
+        }
+        for (int i = 0; i < player.inventory.getSizeInventory() - 1; i++) {
+            ItemStack itemstack = player.inventory.getStackInSlot(i);
+            if (isMag(itemstack)) {
+                mags.put(baseTag.getCompound(itemstack.getOrCreateTag().getString("UUID")).getList("bullets", 8).size(), Pair.of(itemstack, i));
+            }
+        }
+        if (!mags.isEmpty()) {
+            return mags.lastEntry().getValue().getValue();
+        }
         return -1;
     }
 

@@ -4,6 +4,13 @@ import net.minecraft.data.DataGenerator;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.EntityRayTraceResult;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.gen.GenerationStage;
+import net.minecraft.world.gen.feature.ConfiguredFeature;
+import net.minecraft.world.gen.feature.IFeatureConfig;
+import net.minecraft.world.gen.feature.NoFeatureConfig;
+import net.minecraft.world.gen.feature.structure.IStructurePieceType;
+import net.minecraft.world.gen.feature.structure.Structure;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.model.generators.ItemModelProvider;
@@ -12,6 +19,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -27,6 +35,9 @@ import piman.recievermod.init.ModEntities;
 import piman.recievermod.init.ModItems;
 import piman.recievermod.network.NetworkHandler;
 import piman.recievermod.util.Reference;
+import piman.recievermod.util.StructureRegistry;
+import piman.recievermod.world.gen.feature.structure.UndergroundPieces;
+
 import javax.annotation.Nonnull;
 import java.util.Map;
 
@@ -96,6 +107,13 @@ public class Main {
     @SubscribeEvent
     public static void init(FMLCommonSetupEvent event) {
         CapabilityManager.INSTANCE.register(IItemData.class, new ItemDataStorage(), ItemData::new);
+
+        for (Biome biome : ForgeRegistries.BIOMES.getValues()) {
+            Structure<NoFeatureConfig> structure = (Structure<NoFeatureConfig>)ForgeRegistries.FEATURES.getValue(new ResourceLocation(Reference.MOD_ID, "underground_structure"));
+            biome.addStructure(structure, NoFeatureConfig.NO_FEATURE_CONFIG);
+            biome.addFeature(GenerationStage.Decoration.UNDERGROUND_STRUCTURES, new ConfiguredFeature<>(structure, NoFeatureConfig.NO_FEATURE_CONFIG));
+        }
+
         //soundsHandler = new SoundsHandler();
         //todo update
         //NetworkRegistry.INSTANCE.registerGuiHandler(this.instance, new GuiHandler());

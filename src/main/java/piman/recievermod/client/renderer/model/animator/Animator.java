@@ -118,9 +118,9 @@ public class Animator {
                 ResourceLocation predicateName = entry2.getFirst();
                 IItemPropertyGetter propertyGetter = stack.getItem().getPropertyGetter(predicateName);
 
-                if (propertyGetter != null) {
+                if (propertyGetter != null || predicateName.getPath().equals("none")) {
 
-                    float value = propertyGetter.call(stack, world, entity);
+                    float value = propertyGetter == null ? 0f : propertyGetter.call(stack, world, entity);
                     Predicate predicate = entry2.getSecond();
                     
                     for (Transformation transformation : predicate.getTransformations()) {

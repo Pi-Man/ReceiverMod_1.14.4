@@ -1,6 +1,7 @@
 package piman.recievermod.items.mags;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
@@ -22,14 +23,17 @@ import piman.recievermod.network.NetworkHandler;
 import piman.recievermod.network.messages.MessageAddToInventory;
 import piman.recievermod.network.messages.MessageUpdateNBT;
 
-public abstract class ItemMag extends Item implements IItemInit {
+public class ItemMag extends Item {
 	
 	protected int maxAmmo;
 	
-	protected Item ammo;
+	protected Supplier<Item> ammo;
 
-	public ItemMag(Item.Properties properties) {
+	public ItemMag(Item.Properties properties, int maxAmmo, Supplier<Item> ammo) {
 		super(properties.group(ModItemGroups.GUNS).maxStackSize(1));
+
+		this.maxAmmo = maxAmmo;
+		this.ammo = ammo;
 	
 		this.addPropertyOverride(new ResourceLocation("bullets"), (stack, worldIn, entityIn) -> {
 			if (worldIn == null && entityIn != null) {
@@ -81,7 +85,7 @@ public abstract class ItemMag extends Item implements IItemInit {
 						if (KeyInputHandler.isKeyPressed(KeyInputHandler.KeyPresses.RemoveBullet)) {
 							if (nbt.getList("bullets", 8).size() > 0) {
 								nbt.getList("bullets", 8).remove(nbt.getList("bullets", 8).size() - 1);
-								NetworkHandler.sendToServer(new MessageAddToInventory(this.ammo, 1));
+								NetworkHandler.sendToServer(new MessageAddToInventory(this.ammo.get(), 1));
 							}
 						}
 						//Main.LOGGER.info("Sending nbt at slot {}", itemSlot);
@@ -94,7 +98,7 @@ public abstract class ItemMag extends Item implements IItemInit {
 		}
 	}
 	
-	private ItemStack findAmmo(PlayerEntity player) {
+	public ItemStack findAmmo(PlayerEntity player) {
 		for (int i = 0; i < player.inventory.getSizeInventory(); ++i)
         {
             ItemStack itemstack = player.inventory.getStackInSlot(i);
@@ -108,8 +112,8 @@ public abstract class ItemMag extends Item implements IItemInit {
         return ItemStack.EMPTY;
 	}
 	
-	protected boolean isBullet(ItemStack stack) {
-        return stack.getItem() == this.ammo;
+	public boolean isBullet(ItemStack stack) {
+        return stack.getItem() == this.ammo.get();
     }
 	
 	

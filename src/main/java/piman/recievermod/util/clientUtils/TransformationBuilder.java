@@ -17,6 +17,11 @@ public class TransformationBuilder {
 	Map<Integer, Vector3f> rotations = new TreeMap<>();
 	Map<Integer, Vector3f> centers = new TreeMap<>();
 	Map<Integer, Vector3f> translations = new TreeMap<>();
+
+	private Vector3f scale = new Vector3f(1, 1, 1);
+	private Vector3f rotation = new Vector3f();
+	private Vector3f center = new Vector3f();
+	private Vector3f translation = new Vector3f();
 			
 	public TransformationBuilder add(Vector3f translation, Vector3f rotation, Vector3f center, Vector3f scale, int order) {
 		
@@ -37,7 +42,7 @@ public class TransformationBuilder {
 		centers.put(order, new Vector3f(center));
 		translations.put(order, new Vector3f(translation));
 		
-		if (replaced != null) {
+		if (replaced != null && order != 0) {
 			Main.LOGGER.warn("Transorm was replaced");
 		}
 		return this;

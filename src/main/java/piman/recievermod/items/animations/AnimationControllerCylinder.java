@@ -7,6 +7,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import piman.recievermod.Main;
 import piman.recievermod.items.ItemPropertyWrapper;
 import piman.recievermod.items.guns.ItemGun;
@@ -17,9 +19,49 @@ import piman.recievermod.network.messages.MessageAddToInventory;
 public class AnimationControllerCylinder implements IAnimationController {
 	
 	private final double friction;
+	private final ItemGun itemGun;
 	
-	public AnimationControllerCylinder(double friction) {
+	public AnimationControllerCylinder(ItemGun itemGun, double friction) {
 		this.friction = friction;
+		this.itemGun = itemGun;
+		MinecraftForge.EVENT_BUS.register(this);
+	}
+
+	@SubscribeEvent
+	public void onShootEvent(AnimationControllerShoot.ShootEvent event) {
+		if (event.getGun() == itemGun) {
+
+			CompoundNBT nbt = event.getNbt();
+
+			int n = (int) -Math.round(nbt.getDouble("theta")) + 2;
+			
+			while (n < 1) {
+				n += 6;
+			}
+			while (n > 6) {
+				n -= 6;
+			}
+
+			if (event.getType() == AnimationControllerShoot.ShootEvent.Type.Pre) {
+				if (getBullet(n, nbt) == 1) {
+					nbt.putString("BulletChambered", itemGun.ammo.get().getRegistryName().toString());
+				}
+				else {
+					nbt.putString("BulletChambered", "");
+				}
+			}
+			else {
+				setBullet(n, 2, nbt);
+			}
+
+		}
+	}
+
+	@SubscribeEvent
+	public void onHammerDown(AnimationControllerHammer.HammerDownEvent event) {
+		if (event.getGun() == itemGun) {
+			event.getNbt().putDouble("theta", event.getNbt().getDouble("theta") + 1);
+		}
 	}
 
 	@Override
@@ -57,33 +99,6 @@ public class AnimationControllerCylinder implements IAnimationController {
 
 			if (KeyInputHandler.isKeyPressed(KeyInputHandler.KeyPresses.RemoveMag)) {
 				nbt.putBoolean("open", !nbt.getBoolean("open"));
-			}
-
-			{
-				int n = (int) -Math.round(theta) + 2;
-
-				while (n < 1) {
-					n += 6;
-				}
-
-				while (n > 6) {
-					n -= 6;
-				}
-
-				if (nbt.getString("BulletChambered").equals(gun.casing.get().getRegistryName().toString())) {
-					setBullet(n, 2, nbt);
-				}
-
-				if (getBullet(n, nbt) == 1) {
-					nbt.putString("BulletChambered", gun.ammo.get().getRegistryName().toString());
-				}
-				else {
-					nbt.putString("BulletChambered", "");
-				}
-			}
-
-			if (nbt.getBoolean("hammer") && KeyInputHandler.isKeyDown(KeyInputHandler.KeyPresses.LeftClick)) {
-				theta += 1;
 			}
 
 			if (KeyInputHandler.isKeyPressed(KeyInputHandler.KeyPresses.AddBullet) && nbt.getBoolean("open")) {
@@ -141,7 +156,7 @@ public class AnimationControllerCylinder implements IAnimationController {
 						NetworkHandler.sendToServer(new MessageAddToInventory(gun.ammo.get(), 1));
 					}
 					else {
-						NetworkHandler.sendToServer(new MessageAddToInventory(gun.casing.get(), 1));
+						NetworkHandler.sendToServer(new MessageAddToInventory(gun.ammo.get().getCasing(), 1));
 					}
 					setBullet(n + 1, 0, nbt);
 				}
@@ -172,6 +187,8 @@ public class AnimationControllerCylinder implements IAnimationController {
 		nbt.putDouble("dtheta", dtheta);
 		nbt.getCompound("prev").putDouble("theta", prevtheta);
 		nbt.getCompound("prev").putDouble("dtheta", prevdtheta);
+		nbt.putFloat("spin", (float) theta - (nbt.getBoolean("hammer") ? 0.5f : 1.0f));
+		nbt.getCompound("prev").putFloat("spin", (float) prevtheta - (nbt.getCompound("prev").getBoolean("hammer") ? 0.5f : 1.0f));
 	}
 	
 	public int getBullet(int n, CompoundNBT nbt) {

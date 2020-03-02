@@ -57,7 +57,7 @@ public class ItemBulletMedium extends ItemBullet {
     		
     		world.addEntity(bullet);
             
-            world.playSound(null, player.posX, player.posY, player.posZ, SoundsHandler.ITEM_1911_SHOT, SoundCategory.PLAYERS, 1, 1);
+            world.playSound(null, player.posX, player.posY, player.posZ, SoundsHandler.ITEM_RIFLE_SHOT, SoundCategory.PLAYERS, 1, 1);
             
     	}
 	}
