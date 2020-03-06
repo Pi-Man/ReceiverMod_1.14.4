@@ -104,7 +104,7 @@ public class ModItems {
         ITEMS.add(new ItemBulletMedium(new Item.Properties(), 0.308f, 20f, () -> ModItems.BULLET30_06CASING).setRegistryName("bullet30_06"));
         putModel("bullet30-06.bbmodel");
         ITEMS.add(new ItemBulletMediumCasing(new Item.Properties()).setRegistryName(Reference.MOD_ID, "bullet30_06casing"));
-        putModel("bullet45casing");
+        putModel("bullet30-06casing.bbmodel");
 
         ITEMS.add(new ItemBinoculars(new Item.Properties().maxStackSize(1).group(ModItemGroups.TOOLS)).setRegistryName(Reference.MOD_ID, "binoculars"));
 

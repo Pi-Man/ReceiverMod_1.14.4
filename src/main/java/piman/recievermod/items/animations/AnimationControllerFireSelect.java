@@ -52,7 +52,7 @@ public class AnimationControllerFireSelect implements IAnimationController {
 		return list;
 	}
 
-	@SubscribeEvent(priority = EventPriority.HIGHEST)
+	@SubscribeEvent(priority = EventPriority.HIGH)
 	public void onHammerDownEvent(AnimationControllerHammer.HammerDownEvent event) {
 		if (event.getGun() == this.itemgun) {
 			Modes mode = Modes.values()[event.getNbt().getInt("mode")];
@@ -67,6 +67,7 @@ public class AnimationControllerFireSelect implements IAnimationController {
 			else if (mode == Modes.BURST) {
 				int burstCount = event.getNbt().getInt("burstcount");
 				if (event.getNbt().getBoolean("held")) {
+					System.out.println("burst" + event.getNbt().getInt("burstcount"));
 					if (burstCount >= maxBurstCount - 1) {
 						event.setCanceled(true);
 					}

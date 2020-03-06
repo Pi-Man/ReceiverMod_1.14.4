@@ -32,6 +32,15 @@ public class AnimationControllerShoot implements IAnimationController {
 	}
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
+	public void onHammerDown(AnimationControllerHammer.HammerDownEvent event) {
+		if (event.getGun() == this.itemGun) {
+			if (!condition.apply(event.getNbt())) {
+				event.setCanceled(true);
+			}
+		}
+	}
+
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void onHammerHit(AnimationControllerHammer.HammerHitEvent event) {
 		if (event.getGun() == this.itemGun) {
 			if (condition.apply(event.getNbt())) {
@@ -45,7 +54,6 @@ public class AnimationControllerShoot implements IAnimationController {
 							FlashHandler.CreateFlash(new BlockPos(event.getPlayer().posX, event.getPlayer().posY + 1, event.getPlayer().posZ), event.getPlayer().dimension.getId(), 10);
 						}
 						event.getNbt().putBoolean("fired", true);
-						event.getNbt().putBoolean("hammer", false);
 					} else {
 						NetworkHandler.sendToServer(new MessagePlaySound(SoundsHandler.ITEM_GLOCK_DRY));
 					}

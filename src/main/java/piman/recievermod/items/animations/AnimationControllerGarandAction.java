@@ -87,7 +87,7 @@ public class AnimationControllerGarandAction implements IAnimationController {
 		
 		CompoundNBT baseTag = worldIn.getCapability(ItemDataProvider.ITEMDATA_CAP).map(IItemData::getItemData).orElse(new CompoundNBT());
 
-		if (nbt.getInt("slide") < 3 && flag && KeyInputHandler.isKeyDown(KeyInputHandler.KeyPresses.SlideLock) && KeyInputHandler.isKeyDown(KeyInputHandler.KeyPresses.RemoveBullet)) {
+		if (nbt.getInt("slide") < 4 && flag && KeyInputHandler.isKeyDown(KeyInputHandler.KeyPresses.SlideLock) && KeyInputHandler.isKeyDown(KeyInputHandler.KeyPresses.RemoveBullet)) {
 			if (nbt.getInt("check") < 4) {
 				nbt.putInt("check", nbt.getInt("check") + 1);
 			}
@@ -100,7 +100,7 @@ public class AnimationControllerGarandAction implements IAnimationController {
 
 		if (flag && KeyInputHandler.isKeyDown(KeyInputHandler.KeyPresses.RemoveBullet)) {
 			if (nbt.getInt("slide") == 0) NetworkHandler.sendToServer(new MessagePlaySound(SoundsHandler.ITEM_M1GARAND_ACTIONBACK));
-			if (nbt.getInt("slide") < 4 && nbt.getInt("check") < 3) {
+			if (nbt.getInt("slide") < 4 && nbt.getInt("check") < 4) {
 				nbt.putInt("slide", nbt.getInt("slide") + 1);
 			}
 		}

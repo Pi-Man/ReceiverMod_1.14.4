@@ -21,7 +21,7 @@ public class ItemGarand extends ItemGun {
 
         this.animationControllers.add(new AnimationControllerADS());
         this.animationControllers.add(new AnimationControllerShoot(this, nbt->nbt.getInt("slide") == 0));
-        this.animationControllers.add(new AnimationControllerFireSelect(this, AnimationControllerFireSelect.Modes.SEMI));
+        this.animationControllers.add(new AnimationControllerFireSelect(this, AnimationControllerFireSelect.Modes.SAFETY, AnimationControllerFireSelect.Modes.SEMI));
         this.animationControllers.add(new AnimationControllerHammer(this, false));
         this.animationControllers.add(new AnimationControllerMag());
         this.animationControllers.add(new AnimationControllerGarandAction(this));

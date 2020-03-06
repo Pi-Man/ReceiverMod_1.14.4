@@ -1,8 +1,12 @@
 package piman.recievermod.world.gen.feature.structure;
 
+import com.mojang.datafixers.Dynamic;
+import com.mojang.datafixers.types.DynamicOps;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.ChestBlock;
 import net.minecraft.entity.monster.ZombieEntity;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.state.properties.StructureMode;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Rotation;
@@ -13,9 +17,7 @@ import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.feature.structure.IStructurePieceType;
 import net.minecraft.world.gen.feature.structure.StructurePiece;
-import net.minecraft.world.gen.feature.template.PlacementSettings;
-import net.minecraft.world.gen.feature.template.Template;
-import net.minecraft.world.gen.feature.template.TemplateManager;
+import net.minecraft.world.gen.feature.template.*;
 import org.lwjgl.system.CallbackI;
 import piman.recievermod.util.Reference;
 import piman.recievermod.util.handlers.RegistryEventHandler;
@@ -90,6 +92,21 @@ public class UndergroundPieces {
                 Direction direction = Direction.byName(nbt.getString(i + "direction"));
                 doorLocations.put(location, direction);
             }
+        }
+
+        protected void handleDataMarkers(IWorld worldIn, Random randomIn, Template template, BlockPos pos, PlacementSettings placeSettings){
+            for(Template.BlockInfo template$blockinfo : template.func_215381_a(pos, placeSettings, Blocks.STRUCTURE_BLOCK)) {
+                if (template$blockinfo.nbt != null) {
+                    StructureMode structuremode = StructureMode.valueOf(template$blockinfo.nbt.getString("mode"));
+                    if (structuremode == StructureMode.DATA) {
+                        this.handleDataMarker(template$blockinfo.nbt.getString("metadata"), template$blockinfo.pos, worldIn, randomIn, placeSettings.getBoundingBox());
+                    }
+                }
+            }
+        }
+
+        protected void handleDataMarker(String function, BlockPos pos, IWorld worldIn, Random rand, MutableBoundingBox sbb) {
+
         }
 
         public static <T extends AbstractPiece> AbstractPiece fitPiece(TemplateManager manager, Random rand, int sizeX, int sizeZ, BlockPos center, boolean[][] mask, int tries, Factory<T> factory) {
@@ -194,6 +211,7 @@ public class UndergroundPieces {
 
         Template elevatorTop, elevatorMid, elevatorBot, elevator;
         int height;
+        int elevatorLoc;
 
         public Elevator(TemplateManager templateManager, Random rand, int x, int y, int z) {
             super(RegistryEventHandler.UGEV, templateManager, rand, x, y, z);
@@ -203,6 +221,7 @@ public class UndergroundPieces {
             elevator = templateManager.getTemplateDefaulted(new ResourceLocation(Reference.MOD_ID, "elevator"));
             this.doorLocations.put(new BlockPos(0, 0, 0), Direction.NORTH);
             height = rand.nextInt(3);
+            elevatorLoc = rand.nextInt(height * 7 + 10);
             for (int i = 0; i < height; i++) {
                 this.doorLocations.put(new BlockPos(0, -7 * (i+1), 0), Direction.NORTH);
             }
@@ -221,6 +240,7 @@ public class UndergroundPieces {
             elevatorBot = templateManager.getTemplateDefaulted(new ResourceLocation(Reference.MOD_ID, "elevator_bot"));
             elevator = templateManager.getTemplateDefaulted(new ResourceLocation(Reference.MOD_ID, "elevator"));
             height = compoundNBT.getInt("height");
+            elevatorLoc = compoundNBT.getInt("elevatorLoc");
             boundingBox = elevatorTop.getMutableBoundingBox(new PlacementSettings(), this.pos);
             int i;
             for (i = 0; i < height; i++) {
@@ -238,6 +258,7 @@ public class UndergroundPieces {
         protected void readAdditional(CompoundNBT tagCompound) {
             super.readAdditional(tagCompound);
             tagCompound.putInt("height", height);
+            tagCompound.putInt("elevatorLoc", elevatorLoc);
         }
 
         /**
@@ -260,6 +281,8 @@ public class UndergroundPieces {
             }
 
             elevatorBot.addBlocksToWorld(worldIn, pos.add(0, -7 * (i + 1) - 2, 0), new PlacementSettings().setBoundingBox(structureBoundingBoxIn));
+
+            elevator.addBlocksToWorld(worldIn, pos.add(0, -7 * (i + 1) - 2 + elevatorLoc, 0), new PlacementSettings().setBoundingBox(structureBoundingBoxIn));
 
             return true;
         }
@@ -310,10 +333,21 @@ public class UndergroundPieces {
         @Override
         public boolean addComponentParts(IWorld worldIn, Random randomIn, MutableBoundingBox structureBoundingBoxIn, ChunkPos chunkPosIn) {
 
-            shootingRange.addBlocksToWorld(worldIn, pos, new PlacementSettings().setRotation(this.rotation).setBoundingBox(structureBoundingBoxIn));
+            PlacementSettings settings = new PlacementSettings().setRotation(this.rotation).setBoundingBox(structureBoundingBoxIn);
+
+            shootingRange.addBlocksToWorld(worldIn, pos, settings);
+
+            this.handleDataMarkers(worldIn, randomIn, shootingRange, pos, settings);
 
             return true;
         }
+
+        protected void handleDataMarker(String function, BlockPos pos, IWorld worldIn, Random rand, MutableBoundingBox sbb) {
+            if (function.equals("chest")) {
+                this.generateChest(worldIn, sbb, rand, pos, new ResourceLocation(Reference.MOD_ID, "shooting_range"), Blocks.CHEST.getDefaultState().with(ChestBlock.FACING, rotation.rotate(Direction.SOUTH)));
+            }
+        }
+
     }
 
     public static class Barracks extends  AbstractPiece {
@@ -358,9 +392,23 @@ public class UndergroundPieces {
         @Override
         public boolean addComponentParts(IWorld worldIn, Random randomIn, MutableBoundingBox structureBoundingBoxIn, ChunkPos chunkPosIn) {
 
-            template.addBlocksToWorld(worldIn, this.pos, new PlacementSettings().setRotation(rotation).setBoundingBox(structureBoundingBoxIn));
+            PlacementSettings settings = new PlacementSettings().setRotation(rotation).setBoundingBox(structureBoundingBoxIn);
+
+            template.addBlocksToWorld(worldIn, this.pos, settings);
+
+            this.handleDataMarkers(worldIn, randomIn, template, pos, settings);
 
             return true;
+        }
+
+        @Override
+        protected void handleDataMarker(String function, BlockPos pos, IWorld worldIn, Random rand, MutableBoundingBox sbb) {
+            if (function.equals("chest_left")) {
+                this.generateChest(worldIn, sbb, rand, pos, new ResourceLocation(Reference.MOD_ID, "barracks"), Blocks.CHEST.getDefaultState().with(ChestBlock.FACING, rotation.rotate(Direction.WEST)));
+            }
+            if (function.equals("chest_right")) {
+                this.generateChest(worldIn, sbb, rand, pos, new ResourceLocation(Reference.MOD_ID, "barracks"), Blocks.CHEST.getDefaultState().with(ChestBlock.FACING, rotation.rotate(Direction.EAST)));
+            }
         }
     }
 
@@ -405,9 +453,20 @@ public class UndergroundPieces {
         @Override
         public boolean addComponentParts(IWorld worldIn, Random randomIn, MutableBoundingBox structureBoundingBoxIn, ChunkPos chunkPosIn) {
 
-            this.template.addBlocksToWorld(worldIn, this.pos, new PlacementSettings().setRotation(this.rotation).setBoundingBox(structureBoundingBoxIn));
+            PlacementSettings settings = new PlacementSettings().setRotation(this.rotation).setBoundingBox(structureBoundingBoxIn);
+
+            this.template.addBlocksToWorld(worldIn, this.pos, settings);
+
+            this.handleDataMarkers(worldIn, randomIn, template, pos, settings);
 
             return true;
+        }
+
+        @Override
+        protected void handleDataMarker(String function, BlockPos pos, IWorld worldIn, Random rand, MutableBoundingBox sbb) {
+            if (function.equals("barrel")) {
+                this.generateChest(worldIn, sbb, rand, pos, new ResourceLocation(Reference.MOD_ID, "kitchen"), Blocks.CHEST.getDefaultState().with(ChestBlock.FACING, rotation.rotate(Direction.WEST)));
+            }
         }
     }
 

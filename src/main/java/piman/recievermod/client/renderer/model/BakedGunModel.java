@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.model.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.Direction;
+import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.model.PerspectiveMapWrapper;
 import net.minecraftforge.common.model.TRSRTransformation;
 import org.apache.commons.lang3.tuple.Pair;
@@ -97,17 +98,18 @@ public class BakedGunModel implements IBakedModel {
 
                     //System.out.println(quad.getFormat());
 
+                    Matrix4f transformation = this.subTransforms.get(i).getMatrixVec();
+
+                    if (transformation.equals(TRSRTransformation.identity().getMatrixVec())) {
+                        quads.add(quad);
+                        continue;
+                    }
+
                     int[] data = quad.getVertexData().clone();
 
                     //System.out.println(data);
 
                     Matrix4f points = new Matrix4f();
-                    Matrix4f transformation = this.subTransforms.get(i).getMatrixVec();
-
-                    if (transformation == TRSRTransformation.identity().getMatrixVec()) {
-                        quads.add(quad);
-                        continue;
-                    }
 
                     points.m00 = Float.intBitsToFloat(data[0]);
                     points.m10 = Float.intBitsToFloat(data[1]);
@@ -131,27 +133,23 @@ public class BakedGunModel implements IBakedModel {
 
                     points.mul(transformation, points);
 
-                    int norm = calculateNormal(points);
-
                     data[0] = Float.floatToRawIntBits(points.m00);
                     data[1] = Float.floatToRawIntBits(points.m10);
                     data[2] = Float.floatToRawIntBits(points.m20);
-                    data[6] = norm;
 
                     data[7] = Float.floatToRawIntBits(points.m01);
                     data[8] = Float.floatToRawIntBits(points.m11);
                     data[9] = Float.floatToRawIntBits(points.m21);
-                    data[13] = norm;
 
                     data[14] = Float.floatToRawIntBits(points.m02);
                     data[15] = Float.floatToRawIntBits(points.m12);
                     data[16] = Float.floatToRawIntBits(points.m22);
-                    data[20] = norm;
 
                     data[21] = Float.floatToRawIntBits(points.m03);
                     data[22] = Float.floatToRawIntBits(points.m13);
                     data[23] = Float.floatToRawIntBits(points.m23);
-                    data[27] = norm;
+
+                    ForgeHooksClient.fillNormal(data, null);
 
                     BakedQuad newQuad = new BakedQuad(data, quad.getTintIndex(), quad.getFace(), quad.getSprite(), quad.shouldApplyDiffuseLighting(), quad.getFormat());
 

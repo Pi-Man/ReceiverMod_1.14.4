@@ -98,14 +98,12 @@ public class MessageUpdateNBT extends MessageBase<MessageUpdateNBT> {
 							itemTag.merge(message.nbt);
 							itemTag.putString("UUID", uuid[0]);
 							status[0] = 1;
-							itemData.setItemData(baseTag);
 						}
 						NetworkHandler.sendToAll(new MessageUpdateNBT(finalStack, message.slot, itemTag));
 					} else {
 						itemTag = getItemTag(baseTag, message.nbt.getString("UUID"));
 						itemTag.merge(message.nbt);
 						status[0] = 2;
-						itemData.setItemData(baseTag);
 					}
 				} else {
 					if (status[0] == 0) {

@@ -18,6 +18,8 @@ import net.minecraft.world.World;
 import piman.recievermod.capabilities.itemdata.ItemDataProvider;
 import piman.recievermod.init.ModItemGroups;
 import piman.recievermod.items.IItemInit;
+import piman.recievermod.items.ItemPropertyWrapper;
+import piman.recievermod.items.animations.IAnimationController;
 import piman.recievermod.keybinding.KeyInputHandler;
 import piman.recievermod.network.NetworkHandler;
 import piman.recievermod.network.messages.MessageAddToInventory;
@@ -34,20 +36,10 @@ public class ItemMag extends Item {
 
 		this.maxAmmo = maxAmmo;
 		this.ammo = ammo;
-	
-		this.addPropertyOverride(new ResourceLocation("bullets"), (stack, worldIn, entityIn) -> {
-			if (worldIn == null && entityIn != null) {
-				worldIn = entityIn.world;
-			}
 
-			if (entityIn == null || worldIn == null || !stack.hasTag()) {
-				return 0.0F;
-			}
-			return worldIn.getCapability(ItemDataProvider.ITEMDATA_CAP).map(itemData -> {
-				CompoundNBT nbt = itemData.getItemData().getCompound(stack.getOrCreateTag().getString("UUID"));
-				return (float) nbt.getList("bullets", 8).size();
-			}).orElse(0F);
-		});
+		ItemPropertyWrapper bullets = IAnimationController.listCountProperty("bullets", 8, true);
+	
+		this.addPropertyOverride(bullets.getName(), bullets.getOverride());
 	}
 	
 	@Override
@@ -57,43 +49,53 @@ public class ItemMag extends Item {
 	
 	@Override
 	public void inventoryTick(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
-		if (entityIn instanceof PlayerEntity) {
+		if (entityIn instanceof PlayerEntity && worldIn.isRemote) {
 						
 			PlayerEntity player = (PlayerEntity) entityIn;
 
 			worldIn.getCapability(ItemDataProvider.ITEMDATA_CAP).ifPresent(itemData -> {
-				CompoundNBT nbt = itemData.getItemData().getCompound(stack.getOrCreateTag().getString("UUID"));
+
+				CompoundNBT nbt;
+
+				if (itemData.getItemData().contains(stack.getOrCreateTag().getString("UUID"))) {
+					nbt = itemData.getItemData().getCompound(stack.getOrCreateTag().getString("UUID"));
+				}
+				else {
+					nbt = new CompoundNBT();
+					itemData.getItemData().put(stack.getOrCreateTag().getString("UUID"), nbt);
+				}
+
+				CompoundNBT old = nbt.copy();
+				old.remove("prev");
+				nbt.put("prev", old);
+
 				if (!nbt.contains("bullets", 9)) {
 					nbt.put("bullets", new ListNBT());
 				}
 
 				if (player.getHeldItemMainhand().equals(stack)) {
 
-					if (worldIn.isRemote) {
-						if (KeyInputHandler.isKeyPressed(KeyInputHandler.KeyPresses.AddBullet)) {
-							if (nbt.getList("bullets", 8).size() < this.maxAmmo) {
+					if (KeyInputHandler.isKeyPressed(KeyInputHandler.KeyPresses.AddBullet)) {
+						if (nbt.getList("bullets", 8).size() < this.maxAmmo) {
 
-								ItemStack ammo = findAmmo(player);
+							ItemStack ammo = findAmmo(player);
 
-								if (!ammo.isEmpty()) {
-									nbt.getList("bullets", 8).add(new StringNBT(ammo.getItem().getRegistryName().toString()));
-									NetworkHandler.sendToServer(new MessageAddToInventory(ammo, -1));
-								}
+							if (!ammo.isEmpty()) {
+								nbt.getList("bullets", 8).add(new StringNBT(ammo.getItem().getRegistryName().toString()));
+								NetworkHandler.sendToServer(new MessageAddToInventory(ammo, -1));
 							}
 						}
-
-						if (KeyInputHandler.isKeyPressed(KeyInputHandler.KeyPresses.RemoveBullet)) {
-							if (nbt.getList("bullets", 8).size() > 0) {
-								nbt.getList("bullets", 8).remove(nbt.getList("bullets", 8).size() - 1);
-								NetworkHandler.sendToServer(new MessageAddToInventory(this.ammo.get(), 1));
-							}
-						}
-						//Main.LOGGER.info("Sending nbt at slot {}", itemSlot);
 					}
+
+					if (KeyInputHandler.isKeyPressed(KeyInputHandler.KeyPresses.RemoveBullet)) {
+						if (nbt.getList("bullets", 8).size() > 0) {
+							nbt.getList("bullets", 8).remove(nbt.getList("bullets", 8).size() - 1);
+							NetworkHandler.sendToServer(new MessageAddToInventory(this.ammo.get(), 1));
+						}
+					}
+					//Main.LOGGER.info("Sending nbt at slot {}", itemSlot);
 				}
-				if (worldIn.isRemote) {
-					NetworkHandler.sendToServer(new MessageUpdateNBT(stack, itemSlot, nbt));
-				}
+				NetworkHandler.sendToServer(new MessageUpdateNBT(stack, itemSlot, nbt));
 			});
 		}
 	}

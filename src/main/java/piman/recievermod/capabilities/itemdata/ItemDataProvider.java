@@ -10,7 +10,7 @@ import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nonnull;
 
-public class ItemDataProvider implements ICapabilityProvider {
+public class ItemDataProvider implements ICapabilitySerializable<INBT> {
 
 	@CapabilityInject(IItemData.class)
 	public static Capability<IItemData> ITEMDATA_CAP;
@@ -23,14 +23,14 @@ public class ItemDataProvider implements ICapabilityProvider {
 		return ITEMDATA_CAP.orEmpty(capability, instance);
 	}
 
-//	@Override
-//	public INBT serializeNBT() {
-//		return ITEMDATA_CAP.getStorage().writeNBT(ITEMDATA_CAP, this.instance.orElse(null), null);
-//	}
-//
-//	@Override
-//	public void deserializeNBT(INBT nbt) {
-//		ITEMDATA_CAP.getStorage().readNBT(ITEMDATA_CAP, this.instance.orElse(null), null, nbt);
-//	}
+	@Override
+	public INBT serializeNBT() {
+		return ITEMDATA_CAP.getStorage().writeNBT(ITEMDATA_CAP, this.instance.orElse(ITEMDATA_CAP.getDefaultInstance()), null);
+	}
+
+	@Override
+	public void deserializeNBT(INBT nbt) {
+		ITEMDATA_CAP.getStorage().readNBT(ITEMDATA_CAP, this.instance.orElse(ITEMDATA_CAP.getDefaultInstance()), null, nbt);
+	}
 
 }

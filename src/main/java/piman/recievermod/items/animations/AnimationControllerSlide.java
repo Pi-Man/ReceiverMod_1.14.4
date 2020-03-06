@@ -55,7 +55,6 @@ public class AnimationControllerSlide implements IAnimationController {
 		if (this.justfired) {
 			nbt.putInt("slide", 4);
 			nbt.getCompound("prev").putInt("slide", 0);
-			this.justfired = false;
 		}
 
 		if (nbt.getInt("slide") < 3 && flag && KeyInputHandler.isKeyDown(KeyInputHandler.KeyPresses.SlideLock) && KeyInputHandler.isKeyDown(KeyInputHandler.KeyPresses.RemoveBullet)) {
@@ -103,6 +102,7 @@ public class AnimationControllerSlide implements IAnimationController {
 				nbt.putBoolean("AutoSlideLock", true);
 			}
 		}
+
 		if (!KeyInputHandler.isKeyDown(KeyInputHandler.KeyPresses.RemoveBullet)) {
 			if ((nbt.getInt("slide") == 4 && KeyInputHandler.isKeyDown(KeyInputHandler.KeyPresses.SlideLock)) || nbt.getBoolean("AutoSlideLock")) {
 				nbt.putBoolean("AutoSlideLock", true);
@@ -148,6 +148,16 @@ public class AnimationControllerSlide implements IAnimationController {
 		if (nbt.getInt("slide") == 0) {
 			nbt.putBoolean("AutoSlideLock", false);
 		}
+
+		if (this.justfired) {
+			nbt.putInt("slide", 4);
+			nbt.getCompound("prev").putInt("slide", 0);
+		}
+
+		if (this.justfired) {
+			this.justfired = false;
+		}
+
 		//System.out.println(nbt);
 	}
 

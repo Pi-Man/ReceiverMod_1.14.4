@@ -162,7 +162,7 @@
             "order": 1,
             "transformation": {
               "translation": [0, 0, 0],
-              "rotation": [0, 10, -10]
+              "rotation": [0, 10, -20]
             }
           }
         ],

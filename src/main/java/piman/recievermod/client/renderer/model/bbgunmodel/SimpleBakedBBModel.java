@@ -9,16 +9,18 @@ import javax.annotation.Nullable;
 import javax.vecmath.Vector3f;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.model.ItemOverrideList;
+import net.minecraft.client.renderer.FaceDirection;
+import net.minecraft.client.renderer.model.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.model.BasicState;
+import net.minecraftforge.common.model.ITransformation;
+import net.minecraftforge.common.model.TRSRTransformation;
 import piman.recievermod.util.clientUtils.BakedQuadBuilder;
+import piman.recievermod.util.clientUtils.TransformationBuilder;
 
 @OnlyIn(Dist.CLIENT)
 public class SimpleBakedBBModel implements IBakedModel {
@@ -83,6 +85,8 @@ public class SimpleBakedBBModel implements IBakedModel {
 		private final ModelBlock model;
 		private final ItemOverrideList overrides;
 		private final Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter;
+
+		private static final FaceBakery bakery = new FaceBakery();
 		
 		public Builder(ModelBlock model, ItemOverrideList overrides, final Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter) {
 			this.model = model;
@@ -108,7 +112,7 @@ public class SimpleBakedBBModel implements IBakedModel {
 			    buildFromElement(groupStack, entry.getValue(), quads);
             }
 			
-			return new SimpleBakedBBModel(quads, null, model.ambientOcclusion, false, bakedTextureGetter.apply(new ResourceLocation(model.textures.get("0"))), model.getAllTransforms(), overrides);
+			return new SimpleBakedBBModel(quads, null, model.ambientOcclusion, model.isGui3d(), bakedTextureGetter.apply(new ResourceLocation(model.textures.get("0"))), model.getAllTransforms(), overrides);
 		}
 
         private void buildFromGroup(List<ModelGroup> groupStack, Map<UUID, ModelElement> elementMap, List<BakedQuad> quads) {
@@ -128,6 +132,15 @@ public class SimpleBakedBBModel implements IBakedModel {
 
             Vector3f[] points = new Vector3f[8];
 
+            float vertexinfo[] = new float[Direction.values().length];
+
+            vertexinfo[FaceDirection.Constants.WEST_INDEX] = element.start.x;
+            vertexinfo[FaceDirection.Constants.DOWN_INDEX] = element.start.y;
+            vertexinfo[FaceDirection.Constants.NORTH_INDEX] = element.start.z;
+            vertexinfo[FaceDirection.Constants.EAST_INDEX] = element.end.x;
+            vertexinfo[FaceDirection.Constants.UP_INDEX] = element.end.y;
+            vertexinfo[FaceDirection.Constants.SOUTH_INDEX] = element.end.z;
+
             points[0] = new Vector3f(element.start.x, element.end.y, element.end.z);
             points[1] = new Vector3f(element.end.x, element.end.y, element.end.z);
             points[2] = new Vector3f(element.end.x, element.end.y, element.start.z);
@@ -138,23 +151,41 @@ public class SimpleBakedBBModel implements IBakedModel {
             points[6] = new Vector3f(element.end.x, element.start.y, element.end.z);
             points[7] = new Vector3f(element.start.x, element.start.y, element.end.z);
 
-            for (Entry<Direction, ElementFace> entry : element.faces.entrySet()) {
+            for (Direction facing : Direction.values()) {
 
-                Direction facing = entry.getKey();
+                ElementFace face = element.faces.get(facing);
 
-                ElementFace face = entry.getValue();
+                if (face != null) {
 
-                int[] ints = getPointIndexes(facing);
+                    TransformationBuilder transformationBuilder = new TransformationBuilder();
 
-                BakedQuadBuilder builder = new BakedQuadBuilder().setPosition(points[ints[0]], 0).setPosition(points[ints[1]], 1).setPosition(points[ints[2]], 2).setPosition(points[ints[3]], 3).applyRotation(element.rotation, element.origin).setColor(0xffffffff).setTexture(bakedTextureGetter.apply(new ResourceLocation(model.resolveTextureName(face.texture)))).setUV(face.uv).setFace(facing);
+                    int[] ints = getPointIndexes(facing);
 
-                for (ModelGroup group : groupStack) {
-                    builder.applyRotation(group.rotation, group.origin);
+                    Vector3f[] aVector3f = new Vector3f[4];
+                    for (int i = 0; i < 4; i++) {
+                        aVector3f[i] = new Vector3f(vertexinfo[FaceDirection.getFacing(facing).getVertexInformation(i).xIndex], vertexinfo[FaceDirection.getFacing(facing).getVertexInformation(i).yIndex], vertexinfo[FaceDirection.getFacing(facing).getVertexInformation(i).zIndex]);
+                    }
+
+                    BakedQuadBuilder builder = new BakedQuadBuilder().setPosition(aVector3f[0], 0).setPosition(aVector3f[1], 1).setPosition(aVector3f[2], 2).setPosition(aVector3f[3], 3).applyRotation(element.rotation, element.origin).setColor(0xffffffff).setTexture(bakedTextureGetter.apply(new ResourceLocation(model.resolveTextureName(face.texture)))).setUV(face.uv).setFace(facing);
+
+                    int i = 0;
+
+                    transformationBuilder.add(null, element.rotation, element.origin, null, i++);
+
+                    for (ModelGroup group : groupStack) {
+                        builder.applyRotation(group.rotation, group.origin);
+                        transformationBuilder.add(null, group.rotation, group.origin, null, i++);
+                    }
+
+                    transformationBuilder.add(null, model.rotation, model.origin, null, i);
+
+                    quads.add(builder.applyRotation(model.rotation, model.origin).build());
+                    float[] uvs = new float[4];
+                    face.uv.get(uvs);
+
+                    //quads.add(bakery.makeBakedQuad(new net.minecraft.client.renderer.Vector3f(element.start.x * 16, element.start.y * 16, element.start.z * 16), new net.minecraft.client.renderer.Vector3f(element.end.x * 16, element.end.y * 16, element.end.z * 16), new BlockPartFace(null, -1, "0", new BlockFaceUV(uvs, 0)), bakedTextureGetter.apply(new ResourceLocation(model.resolveTextureName(face.texture))), facing, new BasicState(TRSRTransformation.identity(), false), new BlockPartRotation(new net.minecraft.client.renderer.Vector3f(0, 0, 0), Direction.Axis.X, 0.0f, false), true));
                 }
-
-                quads.add(builder.applyRotation(model.rotation, model.origin).build());
             }
-
         }
 
         private int[] getPointIndexes(Direction facing) {

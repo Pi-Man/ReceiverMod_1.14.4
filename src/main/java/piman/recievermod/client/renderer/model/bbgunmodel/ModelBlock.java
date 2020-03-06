@@ -269,7 +269,7 @@ public class ModelBlock
             	
             	List<ItemOverride> overrides = this.getItemOverrides(context, baseObject);
             	
-            	return new ModelBlock(elements, groups, textures, ambientOclusion, true, itemcameratransforms, overrides);
+            	return new ModelBlock(elements, groups, textures, true, true, itemcameratransforms, overrides);
             	
             }
 
