@@ -2,9 +2,12 @@ package piman.recievermod.network.messages;
 
 import java.util.Random;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketBuffer;
+import piman.recievermod.client.particles.NumberParticle;
+import piman.recievermod.util.handlers.ClientSetupEventHandler;
 
 public class MessageDamageParticles extends MessageBase<MessageDamageParticles> {
 	
@@ -95,42 +98,42 @@ public class MessageDamageParticles extends MessageBase<MessageDamageParticles> 
 	    		
 	    		int d = damage[i] - '0';
 	    		    		
-//	    		switch(d) {
-//	    		case 0:
-//	    			textureatlassprite = TextureStitcher.ZERO;
-//	    			break;
-//	    		case 1:
-//	    			textureatlassprite = TextureStitcher.ONE;
-//	    			break;
-//	    		case 2:
-//	    			textureatlassprite = TextureStitcher.TWO;
-//	    			break;
-//	    		case 3:
-//	    			textureatlassprite = TextureStitcher.THREE;
-//	    			break;
-//	    		case 4:
-//	    			textureatlassprite = TextureStitcher.FOUR;
-//	    			break;
-//	    		case 5:
-//	    			textureatlassprite = TextureStitcher.FIVE;
-//	    			break;
-//	    		case 6:
-//	    			textureatlassprite = TextureStitcher.SIX;
-//	    			break;
-//	    		case 7:
-//	    			textureatlassprite = TextureStitcher.SEVEN;
-//	    			break;
-//	    		case 8:
-//	    			textureatlassprite = TextureStitcher.EIGHT;
-//	    			break;
-//	    		case 9:
-//	    			textureatlassprite = TextureStitcher.NINE;
-//	    			break;
-//				default:
-//					textureatlassprite = null;
-//	    		}
-//	    		ParticleNumber particlenumber = new ParticleNumber(player.world, x, message.posY, z, vx, vy, vz, scale, textureatlassprite);
-//	    		Minecraft.getInstance().effectRenderer.addEffect(particlenumber);
+	    		switch(d) {
+	    		case 0:
+	    			textureatlassprite = ClientSetupEventHandler.Particles.ZERO;
+	    			break;
+	    		case 1:
+	    			textureatlassprite = ClientSetupEventHandler.Particles.ONE;
+	    			break;
+	    		case 2:
+	    			textureatlassprite = ClientSetupEventHandler.Particles.TWO;
+	    			break;
+	    		case 3:
+	    			textureatlassprite = ClientSetupEventHandler.Particles.THREE;
+	    			break;
+	    		case 4:
+	    			textureatlassprite = ClientSetupEventHandler.Particles.FOUR;
+	    			break;
+	    		case 5:
+	    			textureatlassprite = ClientSetupEventHandler.Particles.FIVE;
+	    			break;
+	    		case 6:
+	    			textureatlassprite = ClientSetupEventHandler.Particles.SIX;
+	    			break;
+	    		case 7:
+	    			textureatlassprite = ClientSetupEventHandler.Particles.SEVEN;
+	    			break;
+	    		case 8:
+	    			textureatlassprite = ClientSetupEventHandler.Particles.EIGHT;
+	    			break;
+	    		case 9:
+	    			textureatlassprite = ClientSetupEventHandler.Particles.NINE;
+	    			break;
+				default:
+					textureatlassprite = null;
+	    		}
+	    		NumberParticle particlenumber = new NumberParticle(player.world, x, message.posY, z, vx, vy, vz, scale, textureatlassprite);
+	    		Minecraft.getInstance().particles.addEffect(particlenumber);
 	    	}
 		}
 	}

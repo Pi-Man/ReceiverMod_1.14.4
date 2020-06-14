@@ -1,7 +1,9 @@
 package piman.recievermod;
 
+import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.item.Item;
+import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.EntityRayTraceResult;
 import net.minecraft.world.biome.Biome;
@@ -31,6 +33,9 @@ import net.minecraftforge.fml.common.Mod;
 import piman.recievermod.capabilities.itemdata.IItemData;
 import piman.recievermod.capabilities.itemdata.ItemData;
 import piman.recievermod.capabilities.itemdata.ItemDataStorage;
+import piman.recievermod.client.gui.inventory.AmmoContainerScreen;
+import piman.recievermod.client.gui.inventory.GuiBulletCrafter;
+import piman.recievermod.init.ModContainerTypes;
 import piman.recievermod.init.ModEntities;
 import piman.recievermod.init.ModItems;
 import piman.recievermod.network.NetworkHandler;
@@ -102,6 +107,8 @@ public class Main {
     @OnlyIn(Dist.CLIENT)
     public static void cinit(FMLClientSetupEvent event) {
         ModEntities.registerRenderers();
+        ScreenManager.registerFactory(ModContainerTypes.AMMO_CONTAINER, AmmoContainerScreen::new);
+        ScreenManager.registerFactory(ModContainerTypes.BULLET_CRAFTER, GuiBulletCrafter::new);
     }
 
     @SubscribeEvent
@@ -142,7 +149,7 @@ public class Main {
         return (1 - k)*a + k*b;
     }
 
-    public static RayTraceResult rayTraceEntity(Vec3d vec3d1, Vec3d vec3d2, Entity entity) {
+    public static EntityRayTraceResult rayTraceEntity(Vec3d vec3d1, Vec3d vec3d2, Entity entity) {
 
         double x1 = vec3d1.x;
         double x2 = vec3d2.x;

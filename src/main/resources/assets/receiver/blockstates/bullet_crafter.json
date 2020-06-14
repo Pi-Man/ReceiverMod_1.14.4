@@ -1,0 +1,12 @@
+{
+    "variants": {
+        "active=false,facing=north": {"model": "receiver:block/bullet_crafter"},
+        "active=false,facing=east": {"model": "receiver:block/bullet_crafter", "y": 90},
+        "active=false,facing=south": {"model": "receiver:block/bullet_crafter", "y": 180},
+        "active=false,facing=west": {"model": "receiver:block/bullet_crafter", "y": 270},
+        "active=true,facing=north": {"model": "receiver:block/bullet_crafter_on"},
+        "active=true,facing=east": {"model": "receiver:block/bullet_crafter_on", "y": 90},
+        "active=true,facing=south": {"model": "receiver:block/bullet_crafter_on", "y": 180},
+        "active=true,facing=west": {"model": "receiver:block/bullet_crafter_on", "y": 270}
+    }
+}

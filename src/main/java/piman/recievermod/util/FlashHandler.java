@@ -48,11 +48,15 @@ public class FlashHandler {
 		
 		BlockPos pos2 = pos.add(0, -1, 0);
 
-		if (world.isAreaLoaded(pos2, 0)) {
-			world.getChunk(pos2).getWorldLightManager().func_215573_a(pos2, 15);
+		try {
+			if (world.isAreaLoaded(pos2, 0)) {
+				world.getChunk(pos2).getWorldLightManager().func_215573_a(pos2, 15);
+			}
+			flashcache.put(pos, duration);
 		}
-		
-		flashcache.put(pos, duration);
+		catch (NullPointerException ignore) {
+
+		}
 	}
 	
 }

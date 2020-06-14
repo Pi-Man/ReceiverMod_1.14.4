@@ -49,7 +49,6 @@ public class UnbakedJsonGunModel implements IUnbakedModel {
         }
         catch (IOException e) {
             animator = new Animator();
-            e.printStackTrace();
         }
 
         try {
@@ -92,8 +91,6 @@ public class UnbakedJsonGunModel implements IUnbakedModel {
     @Nullable
     @Override
     public IBakedModel bake(ModelBakery bakery, Function<ResourceLocation, TextureAtlasSprite> spriteGetter, ISprite sprite, VertexFormat format) {
-
-        System.out.println("Baking Whole Model");
 
         if (format != DefaultVertexFormats.ITEM) {
             throw new IllegalArgumentException("Vertex Format Must be ITEM");

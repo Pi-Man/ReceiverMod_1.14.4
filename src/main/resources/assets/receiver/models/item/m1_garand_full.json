@@ -204,7 +204,8 @@
             "order": 0,
             "transformation": {
               "center": [0, 0.125, 0],
-              "rotation": [0, 0, -16]
+              "rotation": [0, 0, -16],
+              "translation": [0, 0, -0.0625]
             }
           },
           {

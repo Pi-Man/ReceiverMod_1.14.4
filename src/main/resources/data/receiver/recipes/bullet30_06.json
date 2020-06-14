@@ -1,0 +1,8 @@
+{
+    "type": "receiver:bullet_crafter",
+    "name": "receiver:bullet30_06",
+    "count": 16,
+    "redstone": 1,
+    "gunpowder": 8,
+    "iron": 8
+}

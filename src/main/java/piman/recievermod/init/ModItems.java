@@ -2,12 +2,15 @@ package piman.recievermod.init;
 
 
 import net.minecraft.client.renderer.model.ModelResourceLocation;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.registries.ObjectHolder;
 import piman.recievermod.items.IItemInit;
+import piman.recievermod.items.ItemAmmoContainer;
 import piman.recievermod.items.ItemBinoculars;
 import piman.recievermod.items.bullets.ItemBullet;
+import piman.recievermod.items.bullets.ItemBulletLarge;
 import piman.recievermod.items.bullets.ItemBulletMedium;
 import piman.recievermod.items.bullets.ItemBulletMediumCasing;
 import piman.recievermod.items.guns.*;
@@ -58,6 +61,7 @@ public class ModItems {
     public static final Item FRAG_GRENADE = null;
     public static final Item CASSETTE = null;
     public static final Item SCOPE = null;
+    public static final ItemAmmoContainer AMMO_CONTAINER = null;
 
     public static Item[] getItemArray() {
 
@@ -85,13 +89,13 @@ public class ModItems {
         ITEMS.add(new ItemMag(new Item.Properties(), 8, () -> BULLET30_06).setRegistryName(Reference.MOD_ID, "m1_clip"));
         putModel("m1_garand_clip.bbmodel");
 
-        ITEMS.add(new ItemLeeEnfield(new Item.Properties()).setRegistryName(Reference.MOD_ID, "lee_enfield"));
-        putModel("lee_enfield.bbmodel");
+        //ITEMS.add(new ItemLeeEnfield(new Item.Properties()).setRegistryName(Reference.MOD_ID, "lee_enfield"));
+        //putModel("lee_enfield.bbmodel");
 
         ITEMS.add(new ItemBulletMedium(new Item.Properties(), 0.45f, 20f, () -> ModItems.BULLET45CASING).setRegistryName("bullet45"));
         ITEMS.add(new ItemBulletMediumCasing(new Item.Properties()).setRegistryName(Reference.MOD_ID, "bullet45casing"));
 
-        ITEMS.add(new ItemBulletMedium(new Item.Properties(), 0.3555f, 20f, () -> ModItems.BULLET9MMCASING).setRegistryName("bullet9mm"));
+        ITEMS.add(new ItemBulletMedium(new Item.Properties(), 0.357f, 20f, () -> ModItems.BULLET9MMCASING).setRegistryName("bullet9mm"));
         putModel("bullet45");
         ITEMS.add(new ItemBulletMediumCasing(new Item.Properties()).setRegistryName(Reference.MOD_ID, "bullet9mmcasing"));
         putModel("bullet45casing");
@@ -101,7 +105,7 @@ public class ModItems {
         ITEMS.add(new ItemBulletMediumCasing(new Item.Properties()).setRegistryName(Reference.MOD_ID, "bullet38specialcasing"));
         putModel("bullet45casing");
 
-        ITEMS.add(new ItemBulletMedium(new Item.Properties(), 0.308f, 20f, () -> ModItems.BULLET30_06CASING).setRegistryName("bullet30_06"));
+        ITEMS.add(new ItemBulletLarge(new Item.Properties(), 0.308f, 20f, () -> ModItems.BULLET30_06CASING).setRegistryName("bullet30_06"));
         putModel("bullet30-06.bbmodel");
         ITEMS.add(new ItemBulletMediumCasing(new Item.Properties()).setRegistryName(Reference.MOD_ID, "bullet30_06casing"));
         putModel("bullet30-06casing.bbmodel");
@@ -110,7 +114,9 @@ public class ModItems {
 
         ITEMS.add(new Item(new Item.Properties().group(ModItemGroups.TOOLS)).setRegistryName(Reference.MOD_ID, "lens"));
 
+        ITEMS.add(new ItemAmmoContainer(new Item.Properties()).setRegistryName("ammo_container"));
 
+        ITEMS.add(new BlockItem(ModBlocks.BULLET_CRAFTER, new Item.Properties().group(ModItemGroups.TOOLS)).setRegistryName(Reference.MOD_ID, "bullet_crafter"));
 
         ITEMS.forEach(item -> {if (item instanceof IItemInit) ((IItemInit)item).Init();});
 

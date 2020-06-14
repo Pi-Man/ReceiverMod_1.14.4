@@ -53,11 +53,11 @@ public class ItemBulletMedium extends ItemBullet {
 
     		bullet.setMotion(floats[0], floats[1], floats[2]);
 
-    		bullet.setDamage(caliber * caliber * velocity * velocity * 10/81);
+    		bullet.setDamage(Math.round(caliber * caliber * velocity * velocity * 10/81));
     		
     		world.addEntity(bullet);
             
-            world.playSound(null, player.posX, player.posY, player.posZ, SoundsHandler.ITEM_RIFLE_SHOT, SoundCategory.PLAYERS, 1, 1);
+            world.playSound(null, player.posX, player.posY, player.posZ, SoundsHandler.ITEM_1911_SHOT, SoundCategory.PLAYERS, 1, 1);
             
     	}
 	}

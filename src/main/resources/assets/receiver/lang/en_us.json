@@ -1,0 +1,27 @@
+{
+    "Tools": "comment",
+    "item.receiver.bullet45": ".45 ACP Cartridge",
+    "item.receiver.bullet45casing": ".45 ACP Casing",
+    "item.receiver.bullet9mm": "9mm Lugar Cartridge",
+    "item.receiver.bullet9mmcasing": "9mm Lugar Casing",
+    "item.receiver.bullet38special": ".38 Special Cartridge",
+    "item.receiver.bullet38specialcasing": ".38 Special Casing",
+    "item.receiver.bullet30_06": ".30-06 Cartridge",
+    "item.receiver.bullet30_06casing": ".30-06 Casing",
+    "item.receiver.binoculars": "Binoculars",
+    "item.receiver.lens": "Lens",
+    "item.receiver.ammo_container": "Ammo Container",
+    "block.receiver.bullet_crafter": "Bullet Crafter",
+
+    "Guns": "comment",
+    "itemGroup.guns": "Guns",
+    "item.receiver.colt_1911": "Colt 1911",
+    "item.receiver.colt_mag": "Colt 1911 Magazine",
+    "item.receiver.glock17": "Glock 17",
+    "item.receiver.glock17_mag": "Glock 17 Magazine",
+    "item.receiver.model10": "S&W Model 10 Revolver",
+    "item.receiver.thompson": "Thompson",
+    "item.receiver.thompson_mag": "Thompson Drum Magazine",
+    "item.receiver.m1_garand": "M1 Garand",
+    "item.receiver.m1_clip": "M1 Garand Clip"
+}

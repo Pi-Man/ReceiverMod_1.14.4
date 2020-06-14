@@ -17,7 +17,7 @@ public class ModEntities {
     public static final EntityType<EntityBullet> ENTITYBULLET = null;
 
     public static void register() {
-        ForgeRegistries.ENTITIES.register(EntityType.Builder.<EntityBullet>create(EntityBullet::new, EntityClassification.MISC).disableSummoning().immuneToFire().setUpdateInterval(Integer.MAX_VALUE).setShouldReceiveVelocityUpdates(true).size(0.25F, 0.25F).build("entity_bullet").setRegistryName(Reference.MOD_ID, "entitybullet"));
+        ForgeRegistries.ENTITIES.register(EntityType.Builder.<EntityBullet>create(EntityBullet::new, EntityClassification.MISC).disableSummoning().immuneToFire().setUpdateInterval(1).setShouldReceiveVelocityUpdates(false).size(0.25F, 0.25F).build("entity_bullet").setRegistryName(Reference.MOD_ID, "entitybullet"));
     }
 
     @OnlyIn(Dist.CLIENT)

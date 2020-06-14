@@ -87,8 +87,8 @@ public class AnimationControllerFireSelect implements IAnimationController {
 		boolean flag = player.getHeldItemMainhand().equals(stack);
 		if (flag && KeyInputHandler.isKeyPressed(KeyInputHandler.KeyPresses.Safety)) {
 			nbt.putInt("modeindex", (nbt.getInt("modeindex") + 1)%options.size());
-			nbt.putInt("mode", options.toArray(new Modes[0])[nbt.getInt("modeindex")].ordinal());
 		}
+		nbt.putInt("mode", options.toArray(new Modes[0])[nbt.getInt("modeindex")].ordinal());
 	}
 	
 	public enum Modes {

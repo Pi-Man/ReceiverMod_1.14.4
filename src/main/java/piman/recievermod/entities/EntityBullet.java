@@ -16,7 +16,9 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.IProjectile;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.Pose;
+import net.minecraft.entity.monster.AbstractSkeletonEntity;
 import net.minecraft.entity.monster.EndermanEntity;
+import net.minecraft.entity.passive.horse.SkeletonHorseEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.entity.projectile.ProjectileHelper;
@@ -47,6 +49,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.network.NetworkHooks;
 import net.minecraftforge.registries.ForgeRegistries;
+import piman.recievermod.Main;
 import piman.recievermod.init.ModEntities;
 
 public class EntityBullet extends Entity implements IProjectile, IEntityAdditionalSpawnData {
@@ -212,6 +215,10 @@ public class EntityBullet extends Entity implements IProjectile, IEntityAddition
                 if (raytraceresult != null && raytraceresult.getType() == RayTraceResult.Type.ENTITY) {
                     Entity entity = ((EntityRayTraceResult)raytraceresult).getEntity();
                     Entity entity1 = this.getShooter();
+                    EntityRayTraceResult locationRayTrace = Main.rayTraceEntity(vec3d1, vec3d2, entity);
+                    if (locationRayTrace != null) {
+                        raytraceresult = locationRayTrace;
+                    }
                     if (entity instanceof PlayerEntity && entity1 instanceof PlayerEntity && !((PlayerEntity)entity1).canAttackPlayer((PlayerEntity)entity)) {
                         raytraceresult = null;
                         entityraytraceresult = null;
@@ -305,7 +312,7 @@ public class EntityBullet extends Entity implements IProjectile, IEntityAddition
             this.posX -= vec3d1.x;
             this.posY -= vec3d1.y;
             this.posZ -= vec3d1.z;
-            this.playSound(this.getHitGroundSound(), 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
+            //this.playSound(this.getHitGroundSound(), 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
             this.inGround = true;
             this.setPierceLevel((byte)0);
             this.setHitSound(SoundEvents.ENTITY_ARROW_HIT);
@@ -328,10 +335,9 @@ public class EntityBullet extends Entity implements IProjectile, IEntityAddition
     /**
      * Called when the arrow hits an entity
      */
-    protected void onEntityHit(EntityRayTraceResult p_213868_1_) {
-        Entity entity = p_213868_1_.getEntity();
+    protected void onEntityHit(EntityRayTraceResult entityRayTraceResult) {
+        Entity entity = entityRayTraceResult.getEntity();
         float f = (float)this.getMotion().length();
-        int i = MathHelper.ceil(Math.max((double)f * this.damage, 0.0D));
         if (this.getPierceLevel() > 0) {
             if (this.piercedEntities == null) {
                 this.piercedEntities = new IntOpenHashSet(5);
@@ -365,7 +371,23 @@ public class EntityBullet extends Entity implements IProjectile, IEntityAddition
             entity.setFire(5);
         }
 
-        if (entity.attackEntityFrom(damagesource, (float)i)) {
+        entity.hurtResistantTime = 0;
+
+        Vec3d entityMotion = entity.getMotion();
+
+        float f1 = (float) this.damage;
+
+        if (entityRayTraceResult.getHitVec().getY() > entity.posY - entity.getHeight() + 2*entity.getEyeHeight()) {
+            f1 *= 2.0326f;
+        }
+        else if (entity instanceof AbstractSkeletonEntity || entity instanceof SkeletonHorseEntity) {
+            f1 /= 10;
+        }
+
+        if (entity.attackEntityFrom(damagesource, (float) f1)) {
+
+            entity.setMotion(entityMotion);
+
             if (entity instanceof LivingEntity) {
                 LivingEntity livingentity = (LivingEntity)entity;
                 if (!this.world.isRemote && this.getPierceLevel() <= 0) {
@@ -387,7 +409,7 @@ public class EntityBullet extends Entity implements IProjectile, IEntityAddition
                 }
             }
 
-            this.playSound(this.hitSound, 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
+            //this.playSound(this.hitSound, 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
             if (this.getPierceLevel() <= 0 && !(entity instanceof EndermanEntity)) {
                 this.remove();
             }

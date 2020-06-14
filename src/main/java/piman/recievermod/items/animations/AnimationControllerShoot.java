@@ -8,6 +8,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -45,13 +46,13 @@ public class AnimationControllerShoot implements IAnimationController {
 		if (event.getGun() == this.itemGun) {
 			if (condition.apply(event.getNbt())) {
 				if (onShootEventPre(event.getStack(), event.getWorld(), event.getPlayer(), event.getItemSlot(), event.isSelected(), event.getNbt(), event.getGun())) {
-					boolean flag = this.itemGun.Shoot(event.getNbt(), event.getPlayer(), 10, event.getNbt().getBoolean("ads") ? 0 : 10, 0, 1);
+					boolean flag = this.itemGun.Shoot(event.getNbt(), event.getPlayer(), 10, this.getEntityAccuracy(event), event.getGun().getAccuracy(), 1);
 					if (flag) {
 						onShootEventPost(event.getStack(), event.getWorld(), event.getPlayer(), event.getItemSlot(), event.isSelected(), event.getNbt(), event.getGun());
 						if (event.getNbt().getInt("mode") == AnimationControllerFireSelect.Modes.AUTO.ordinal() && !KeyInputHandler.isKeyPressed(KeyInputHandler.KeyPresses.LeftClick)) {
 							FlashHandler.CreateFlash(new BlockPos(event.getPlayer().posX, event.getPlayer().posY + 1, event.getPlayer().posZ), event.getPlayer().dimension.getId(), 1);
 						} else {
-							FlashHandler.CreateFlash(new BlockPos(event.getPlayer().posX, event.getPlayer().posY + 1, event.getPlayer().posZ), event.getPlayer().dimension.getId(), 10);
+							FlashHandler.CreateFlash(new BlockPos(event.getPlayer().posX, event.getPlayer().posY + 1, event.getPlayer().posZ), event.getPlayer().dimension.getId(), 2);
 						}
 						event.getNbt().putBoolean("fired", true);
 					} else {
@@ -101,6 +102,13 @@ public class AnimationControllerShoot implements IAnimationController {
 //		else if (KeyInputHandler.isKeyUnpressed(KeyInputHandler.KeyPresses.LeftClick)) {
 //			nbt.putBoolean("held", false);
 //		}
+	}
+
+	public float getEntityAccuracy(AnimationEvent event) {
+		Vec3d motion = event.getPlayer().getMotion();
+		motion.scale(20);
+		motion.add(0, 1.568, 0);
+		return (float) ((event.getNbt().getBoolean("ads") ? 1.0f : 10.0f) * motion.length());
 	}
 
 	public interface Condition {

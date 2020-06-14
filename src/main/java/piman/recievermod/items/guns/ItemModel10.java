@@ -17,6 +17,7 @@ public class ItemModel10 extends ItemGun {
         this.drift = 5;
         this.spreadX = 0.5;
         this.spreadY = 0.5;
+        this.accuracy = 0.064f;
 
         this.animationControllers.add(new AnimationControllerADS());
         this.animationControllers.add(new AnimationControllerShoot(this, nbt -> !nbt.getBoolean("open")));

@@ -1,9 +1,22 @@
 package piman.recievermod.util.handlers;
 
+import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.entity.EntityType;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.Item;
+import net.minecraft.item.crafting.CookingRecipeSerializer;
+import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.item.crafting.IRecipeSerializer;
+import net.minecraft.item.crafting.IRecipeType;
+import net.minecraft.particles.BasicParticleType;
+import net.minecraft.particles.ParticleType;
+import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
+import net.minecraft.world.World;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.NoFeatureConfig;
 import net.minecraft.world.gen.feature.structure.IStructurePieceType;
@@ -14,13 +27,22 @@ import net.minecraftforge.fml.common.Mod;
 import piman.recievermod.Main;
 import piman.recievermod.client.renderer.model.JsonGunLoader;
 import piman.recievermod.client.renderer.model.ModelLoaderRegistry;
+import piman.recievermod.init.ModBlocks;
 import piman.recievermod.init.ModEntities;
 import piman.recievermod.init.ModItems;
 import piman.recievermod.client.renderer.model.BBGunLoader;
+import piman.recievermod.inventory.container.AmmoContainer;
+import piman.recievermod.inventory.container.ContainerBulletCrafter;
+import piman.recievermod.items.crafting.BulletCrafterRecipe;
+import piman.recievermod.items.crafting.BulletCrafterRecipeSerializer;
+import piman.recievermod.tileentity.TileEntityBulletCrafter;
 import piman.recievermod.util.Reference;
 import piman.recievermod.util.SoundsHandler;
 import piman.recievermod.world.gen.feature.structure.UndergroundPieces;
 import piman.recievermod.world.gen.feature.structure.UndergroundStructure;
+
+import java.awt.event.ContainerAdapter;
+import java.util.Optional;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class RegistryEventHandler {
@@ -34,6 +56,8 @@ public class RegistryEventHandler {
     public static IStructurePieceType UGCR;
     public static IStructurePieceType UGSC;
 
+    public static IRecipeType<BulletCrafterRecipe> BULLET_CRAFTER;
+
     @SubscribeEvent
     public static void onModelRegistryEvent(ModelRegistryEvent event) {
     	ModelLoaderRegistry.clearModelCache(Minecraft.getInstance().getResourceManager());
@@ -44,8 +68,24 @@ public class RegistryEventHandler {
     }
 
     @SubscribeEvent
+    public static void onBlockRegister(RegistryEvent.Register<Block> event) {
+        event.getRegistry().registerAll(ModBlocks.getBlockArray());
+    }
+
+    @SubscribeEvent
     public static void onItemRegister(RegistryEvent.Register<Item> event) {
         event.getRegistry().registerAll(ModItems.getItemArray());
+    }
+
+    @SubscribeEvent
+    public static void onTileEntityTypeRegister(RegistryEvent.Register<TileEntityType<?>> event) {
+        event.getRegistry().register(TileEntityType.Builder.create(TileEntityBulletCrafter::new, ModBlocks.BULLET_CRAFTER).build(null).setRegistryName(Reference.MOD_ID, "bullet_crafter"));
+    }
+
+    @SubscribeEvent
+    public static void onRecipeSerializerRegister(RegistryEvent.Register<IRecipeSerializer<?>> event) {
+        event.getRegistry().register(new BulletCrafterRecipeSerializer().setRegistryName(new ResourceLocation(Reference.MOD_ID, "bullet_crafter")));
+        BULLET_CRAFTER = IRecipeType.register("bullet_crafter");
     }
 
     @SubscribeEvent
@@ -60,7 +100,6 @@ public class RegistryEventHandler {
 
     @SubscribeEvent
     public static void onFeatureRegister(RegistryEvent.Register<Feature<?>> event) {
-        System.out.println("FeatureRegister");
         event.getRegistry().register(new UndergroundStructure(NoFeatureConfig::deserialize).setRegistryName(Reference.MOD_ID, "underground_structure"));
         UGTP = IStructurePieceType.register(UndergroundPieces.TestPiece::new, "UGTP");
         UGEV = IStructurePieceType.register(UndergroundPieces.Elevator::new, "UGEV");
@@ -70,6 +109,12 @@ public class RegistryEventHandler {
         UGLB = IStructurePieceType.register(UndergroundPieces.Lab::new, "UGLB");
         UGCR = IStructurePieceType.register(UndergroundPieces.CorridorJunction::new, "UGCR");
         UGSC = IStructurePieceType.register(UndergroundPieces.Stairs::new, "UGSC");
+    }
+
+    @SubscribeEvent
+    public static void onContainerTypeRegister(RegistryEvent.Register<ContainerType<?>> event) {
+        event.getRegistry().register(new ContainerType<>(AmmoContainer::new).setRegistryName(Reference.MOD_ID, "ammo_container"));
+        event.getRegistry().register(new ContainerType<>(ContainerBulletCrafter::new).setRegistryName(Reference.MOD_ID, "bullet_crafter"));
     }
 
 }

@@ -4,10 +4,16 @@ import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.ChestBlock;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.monster.SkeletonEntity;
+import net.minecraft.entity.monster.WitchEntity;
 import net.minecraft.entity.monster.ZombieEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.state.properties.StructureMode;
 import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
@@ -63,7 +69,7 @@ public class UndergroundPieces {
         @Override
         public boolean addComponentParts(@Nonnull IWorld worldIn, @Nonnull Random randomIn, @Nonnull MutableBoundingBox structureBoundingBoxIn, @Nonnull ChunkPos chunkPosIn) {
 
-            this.setBlockState(worldIn, Blocks.GLASS.getDefaultState(), 0, 0, 0, structureBoundingBoxIn);
+            this.setBlockState(worldIn, Blocks.TORCH.getDefaultState(), 0, 0, 0, structureBoundingBoxIn);
 
             return true;
         }
@@ -220,7 +226,7 @@ public class UndergroundPieces {
             elevatorBot = templateManager.getTemplateDefaulted(new ResourceLocation(Reference.MOD_ID, "elevator_bot"));
             elevator = templateManager.getTemplateDefaulted(new ResourceLocation(Reference.MOD_ID, "elevator"));
             this.doorLocations.put(new BlockPos(0, 0, 0), Direction.NORTH);
-            height = rand.nextInt(3);
+            height = rand.nextInt(5) + y/7 - 6;
             elevatorLoc = rand.nextInt(height * 7 + 10);
             for (int i = 0; i < height; i++) {
                 this.doorLocations.put(new BlockPos(0, -7 * (i+1), 0), Direction.NORTH);
@@ -306,8 +312,6 @@ public class UndergroundPieces {
             super(RegistryEventHandler.UGSR, nbt);
             this.shootingRange = templateManager.getTemplateDefaulted(new ResourceLocation(Reference.MOD_ID, "shooting_range"));
             this.doorLocations.put(this.getDoorLocation(new BlockPos(2, 0, 0), this.rotation), Direction.NORTH);
-            BlockPos pos = this.doorLocations.keySet().iterator().next();
-            this.pos = this.pos.subtract(pos);
             this.boundingBox = shootingRange.getMutableBoundingBox(new PlacementSettings().setRotation(this.rotation), this.pos);
         }
 
@@ -333,7 +337,7 @@ public class UndergroundPieces {
         @Override
         public boolean addComponentParts(IWorld worldIn, Random randomIn, MutableBoundingBox structureBoundingBoxIn, ChunkPos chunkPosIn) {
 
-            PlacementSettings settings = new PlacementSettings().setRotation(this.rotation).setBoundingBox(structureBoundingBoxIn);
+            PlacementSettings settings = new PlacementSettings().setRotation(this.rotation).setBoundingBox(structureBoundingBoxIn).addProcessor(BlockIgnoreStructureProcessor.STRUCTURE_BLOCK);
 
             shootingRange.addBlocksToWorld(worldIn, pos, settings);
 
@@ -369,8 +373,6 @@ public class UndergroundPieces {
             this.template = templateManager.getTemplateDefaulted(new ResourceLocation(Reference.MOD_ID, "barracks"));
             this.rotation = Rotation.valueOf(nbt.getString("rotation"));
             this.doorLocations.put(getDoorLocation(new BlockPos(0, 0, 0), rotation), Direction.NORTH);
-            BlockPos pos = this.doorLocations.keySet().iterator().next();
-            this.pos = this.pos.subtract(pos);
             this.boundingBox = template.getMutableBoundingBox(new PlacementSettings().setRotation(rotation), this.pos);
         }
 
@@ -392,7 +394,7 @@ public class UndergroundPieces {
         @Override
         public boolean addComponentParts(IWorld worldIn, Random randomIn, MutableBoundingBox structureBoundingBoxIn, ChunkPos chunkPosIn) {
 
-            PlacementSettings settings = new PlacementSettings().setRotation(rotation).setBoundingBox(structureBoundingBoxIn);
+            PlacementSettings settings = new PlacementSettings().setRotation(rotation).setBoundingBox(structureBoundingBoxIn).addProcessor(BlockIgnoreStructureProcessor.STRUCTURE_BLOCK);
 
             template.addBlocksToWorld(worldIn, this.pos, settings);
 
@@ -435,8 +437,6 @@ public class UndergroundPieces {
             this.doorLocations.put(getDoorLocation(new BlockPos(-4, 0, 10), this.rotation), Direction.WEST);
             this.doorLocations.put(getDoorLocation(new BlockPos(-4, 0, 20), this.rotation), Direction.WEST);
             this.doorLocations.put(getDoorLocation(new BlockPos(1, 0, 30), this.rotation), Direction.SOUTH);
-            BlockPos pos = this.doorLocations.keySet().iterator().next();
-            this.pos = this.pos.subtract(pos);
             this.template = templateManager.getTemplateDefaulted(new ResourceLocation(Reference.MOD_ID, "kitchen"));
             this.boundingBox = template.getMutableBoundingBox(new PlacementSettings().setRotation(rotation), this.pos);
         }
@@ -453,11 +453,13 @@ public class UndergroundPieces {
         @Override
         public boolean addComponentParts(IWorld worldIn, Random randomIn, MutableBoundingBox structureBoundingBoxIn, ChunkPos chunkPosIn) {
 
-            PlacementSettings settings = new PlacementSettings().setRotation(this.rotation).setBoundingBox(structureBoundingBoxIn);
+            PlacementSettings settings = new PlacementSettings().setRotation(this.rotation).setBoundingBox(structureBoundingBoxIn).addProcessor(BlockIgnoreStructureProcessor.STRUCTURE_BLOCK);
 
-            this.template.addBlocksToWorld(worldIn, this.pos, settings);
+            if(this.template.addBlocksToWorld(worldIn, this.pos, settings, 2)) {
 
-            this.handleDataMarkers(worldIn, randomIn, template, pos, settings);
+                this.handleDataMarkers(worldIn, randomIn, template, pos, settings);
+
+            }
 
             return true;
         }
@@ -486,7 +488,6 @@ public class UndergroundPieces {
         public Lab(TemplateManager templateManager, CompoundNBT nbt) {
             super(RegistryEventHandler.UGLB, nbt);
             this.doorLocations.put(getDoorLocation(new BlockPos(0, 0, 0), this.rotation), Direction.NORTH);
-            this.pos = this.pos.subtract(this.doorLocations.keySet().iterator().next());
             template = templateManager.getTemplateDefaulted(new ResourceLocation(Reference.MOD_ID, "laboratory"));
             this.boundingBox = template.getMutableBoundingBox(new PlacementSettings().setRotation(this.rotation), this.pos);
         }
@@ -514,12 +515,14 @@ public class UndergroundPieces {
         Template template;
         Rotation rotation;
         byte wallmask;
+        int level;
 
-        public CorridorJunction(TemplateManager templateManager, Random rand, Rotation rotation, int x, int y, int z, byte wallmask) {
+        public CorridorJunction(TemplateManager templateManager, Random rand, int level, Rotation rotation, int x, int y, int z, byte wallmask) {
             super(RegistryEventHandler.UGCR, templateManager, rand, x, y, z);
             this.template = templateManager.getTemplateDefaulted(new ResourceLocation(Reference.MOD_ID, "hallway_junction"));
             this.rotation = rotation;
             this.wallmask = wallmask;
+            this.level = level;
             this.boundingBox = this.template.getMutableBoundingBox(new PlacementSettings().setRotation(this.rotation), this.pos);
             this.setCoordBaseMode(Direction.SOUTH);
         }
@@ -529,6 +532,7 @@ public class UndergroundPieces {
             this.template = templateManager.getTemplate(new ResourceLocation(Reference.MOD_ID, "hallway_junction"));
             this.rotation = Rotation.valueOf(nbt.getString("rotation"));
             this.wallmask = nbt.getByte("wallmask");
+            this.level = nbt.getInt("level");
             this.boundingBox = this.template.getMutableBoundingBox(new PlacementSettings().setRotation(this.rotation), this.pos);
             this.setCoordBaseMode(Direction.SOUTH);
         }
@@ -538,6 +542,7 @@ public class UndergroundPieces {
             super.readAdditional(tagCompound);
             tagCompound.putString("rotation", this.rotation.name());
             tagCompound.putByte("wallmask", this.wallmask);
+            tagCompound.putInt("level", this.level);
         }
 
         /**
@@ -583,12 +588,37 @@ public class UndergroundPieces {
                 }
             }
 
-            for (int i = 0; i < 50; i++) {
+            int zombieTries = 5 + level;
+
+            int skeletonTries = 2*level;
+
+            int witchTries = -5 + 2*level;
+
+            for (int i = 0; i < zombieTries; i++) {
                 if (randomIn.nextInt(50) == 0) {
-                    ZombieEntity zombie = new ZombieEntity(worldIn.getWorld());
-                    zombie.setPosition(this.getXWithOffset(2, 2), this.getYWithOffset(1), this.getZWithOffset(2, 2));
-                    zombie.enablePersistence();
-                    worldIn.addEntity(zombie);
+                    ZombieEntity zombieEntity = new ZombieEntity(worldIn.getWorld());
+                    zombieEntity.setPosition(this.getXWithOffset(2, 2), this.getYWithOffset(1), this.getZWithOffset(2, 2));
+                    zombieEntity.enablePersistence();
+                    worldIn.addEntity(zombieEntity);
+                }
+            }
+
+            for (int i = 0; i < skeletonTries; i++) {
+                if (randomIn.nextInt(50) == 0) {
+                    SkeletonEntity skeletonEntity = new SkeletonEntity(EntityType.SKELETON, worldIn.getWorld());
+                    skeletonEntity.setPosition(this.getXWithOffset(2, 2), this.getYWithOffset(1), this.getZWithOffset(2, 2));
+                    skeletonEntity.enablePersistence();
+                    skeletonEntity.setHeldItem(Hand.MAIN_HAND, new ItemStack(Items.BOW));
+                    worldIn.addEntity(skeletonEntity);
+                }
+            }
+
+            for (int i = 0; i < witchTries; i++) {
+                if (randomIn.nextInt(50) == 0) {
+                    WitchEntity witchEntity = new WitchEntity(EntityType.WITCH, worldIn.getWorld());
+                    witchEntity.setPosition(this.getXWithOffset(2, 2), this.getYWithOffset(1), this.getZWithOffset(2, 2));
+                    witchEntity.enablePersistence();
+                    worldIn.addEntity(witchEntity);
                 }
             }
 
@@ -615,8 +645,6 @@ public class UndergroundPieces {
             super(RegistryEventHandler.UGSC, nbt);
             this.doorLocations.put(getDoorLocation(new BlockPos(0, 7, 15), this.rotation), Direction.SOUTH);
             this.doorLocations.put(getDoorLocation(new BlockPos(0, 0, 0), this.rotation), Direction.NORTH);
-            BlockPos pos = doorLocations.keySet().iterator().next();
-            this.pos = this.pos.subtract(pos);
             this.template = templateManager.getTemplateDefaulted(new ResourceLocation(Reference.MOD_ID, "stairs"));
             this.boundingBox = template.getMutableBoundingBox(new PlacementSettings().setRotation(this.rotation), this.pos);
         }

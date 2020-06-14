@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import javax.vecmath.Matrix4f;
 
+import com.google.common.collect.ImmutableMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
@@ -16,6 +17,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.UseAction;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
@@ -24,6 +26,7 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.animation.ITimeValue;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.tuple.Pair;
@@ -71,6 +74,7 @@ public abstract class ItemGun extends Item implements IItemInit {
     protected double spreadY;
     protected double spreadX;
     protected double drift;
+    protected float accuracy;
     protected List<IAnimationController> animationControllers = new ArrayList<>();
     public Supplier<ItemBullet> ammo;
     public Supplier<ItemBullet> casing;
@@ -185,6 +189,10 @@ public abstract class ItemGun extends Item implements IItemInit {
 //    }
 
     public abstract float getDefaultZoomFactor(ItemStack stack);
+
+    public float getAccuracy() {
+        return accuracy;
+    }
 
     public boolean hasAccessories(ItemStack stack) {
         return false;

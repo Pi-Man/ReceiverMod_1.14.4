@@ -12,6 +12,8 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.resources.IResource;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.client.model.ModelLoaderRegistry2;
 import net.minecraftforge.common.model.IModelState;
 import piman.recievermod.client.renderer.model.animator.Animator;
 import piman.recievermod.Main;
@@ -44,7 +46,6 @@ public class UnbakedBBGunModel implements net.minecraft.client.renderer.model.IU
             this.animator = Animator.deserialize(new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8));
         } catch (IOException e) {
             this.animator = new Animator();
-            e.printStackTrace();
         }
 
         try {
@@ -76,7 +77,7 @@ public class UnbakedBBGunModel implements net.minecraft.client.renderer.model.IU
 	                animator.addSubAnimator(location1, Animator.deserialize(reader1));
         		}
         		catch (IOException e) {
-        			Main.LOGGER.warn("Could not load animator: {}", animatorPath);
+        			//Main.LOGGER.warn("Could not load animator: {}", animatorPath);
         			//e.printStackTrace();
         		}
         	}
@@ -114,8 +115,6 @@ public class UnbakedBBGunModel implements net.minecraft.client.renderer.model.IU
     @Nullable
     @Override
     public IBakedModel bake(ModelBakery bakery, Function<ResourceLocation, TextureAtlasSprite> spriteGetter, ISprite sprite, VertexFormat format) {
-
-        System.out.println("Baking Whole Model");
 
         if (format != DefaultVertexFormats.ITEM) {
             throw new IllegalArgumentException("Vertex Format Must be ITEM");

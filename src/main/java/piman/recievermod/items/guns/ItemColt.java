@@ -11,9 +11,12 @@ public class ItemColt extends ItemGun {
 
     public ItemColt(Item.Properties properties) {
         super(properties);
+
         this.drift = 5;
         this.spreadX = 0.5;
         this.spreadY = 0.5;
+        this.accuracy = 0.16f;
+
         this.ammo = () -> ModItems.BULLET45;
         this.casing = () -> ModItems.BULLET45CASING;
         this.mag = () -> ModItems.COLT_MAG;

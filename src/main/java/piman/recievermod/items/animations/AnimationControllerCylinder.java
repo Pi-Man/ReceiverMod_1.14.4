@@ -33,7 +33,7 @@ public class AnimationControllerCylinder implements IAnimationController {
 
 			CompoundNBT nbt = event.getNbt();
 
-			int n = (int) -Math.round(nbt.getDouble("theta")) + 2;
+			int n = (int) -Math.round(nbt.getDouble("theta")) + 3;
 			
 			while (n < 1) {
 				n += 6;

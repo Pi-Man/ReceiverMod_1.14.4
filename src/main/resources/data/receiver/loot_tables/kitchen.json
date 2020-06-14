@@ -7,6 +7,192 @@
                 {
                     "type": "item",
                     "name": "minecraft:cooked_beef",
+                    "conditions": [
+                        {
+                            "condition": "random_chance",
+                            "chance": 0.7
+                        }
+                    ],
+                    "functions": [
+                        {
+                            "function": "set_count",
+                            "count": {
+                                "type": "uniform",
+                                "min": 2,
+                                "max": 5
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "item",
+                    "name": "minecraft:apple",
+                    "conditions": [
+                        {
+                            "condition": "random_chance",
+                            "chance": 0.7
+                        }
+                    ],
+                    "functions": [
+                        {
+                            "function": "set_count",
+                            "count": {
+                                "type": "uniform",
+                                "min": 2,
+                                "max": 5
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "item",
+                    "name": "minecraft:bread",
+                    "conditions": [
+                        {
+                            "condition": "random_chance",
+                            "chance": 0.7
+                        }
+                    ],
+                    "functions": [
+                        {
+                            "function": "set_count",
+                            "count": {
+                                "type": "uniform",
+                                "min": 2,
+                                "max": 5
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "item",
+                    "name": "minecraft:cooked_chicken",
+                    "conditions": [
+                        {
+                            "condition": "random_chance",
+                            "chance": 0.7
+                        }
+                    ],
+                    "functions": [
+                        {
+                            "function": "set_count",
+                            "count": {
+                                "type": "uniform",
+                                "min": 2,
+                                "max": 5
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "item",
+                    "name": "minecraft:cooked_porkchop",
+                    "conditions": [
+                        {
+                            "condition": "random_chance",
+                            "chance": 0.7
+                        }
+                    ],
+                    "functions": [
+                        {
+                            "function": "set_count",
+                            "count": {
+                                "type": "uniform",
+                                "min": 2,
+                                "max": 5
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "item",
+                    "name": "minecraft:carrot",
+                    "conditions": [
+                        {
+                            "condition": "random_chance",
+                            "chance": 0.7
+                        }
+                    ],
+                    "functions": [
+                        {
+                            "function": "set_count",
+                            "count": {
+                                "type": "uniform",
+                                "min": 2,
+                                "max": 5
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "item",
+                    "name": "minecraft:baked_potato",
+                    "conditions": [
+                        {
+                            "condition": "random_chance",
+                            "chance": 0.7
+                        }
+                    ],
+                    "functions": [
+                        {
+                            "function": "set_count",
+                            "count": {
+                                "type": "uniform",
+                                "min": 2,
+                                "max": 5
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "item",
+                    "name": "minecraft:cooked_rabbit",
+                    "conditions": [
+                        {
+                            "condition": "random_chance",
+                            "chance": 0.7
+                        }
+                    ],
+                    "functions": [
+                        {
+                            "function": "set_count",
+                            "count": {
+                                "type": "uniform",
+                                "min": 2,
+                                "max": 5
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "item",
+                    "name": "minecraft:cooked_mutton",
+                    "conditions": [
+                        {
+                            "condition": "random_chance",
+                            "chance": 0.7
+                        }
+                    ],
+                    "functions": [
+                        {
+                            "function": "set_count",
+                            "count": {
+                                "type": "uniform",
+                                "min": 2,
+                                "max": 5
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "item",
+                    "name": "minecraft:beetroot",
+                    "conditions": [
+                        {
+                            "condition": "random_chance",
+                            "chance": 0.7
+                        }
+                    ],
                     "functions": [
                         {
                             "function": "set_count",

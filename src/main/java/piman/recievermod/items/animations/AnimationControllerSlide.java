@@ -98,7 +98,7 @@ public class AnimationControllerSlide implements IAnimationController {
 					nbt.putString("BulletChambered", "");
 				}
 			}
-			if (!nbt.getString("mag").isEmpty() && nbt.getList("bullets", 8).size() == 0) {
+			if (!nbt.getString("mag").isEmpty() && nbt.getList("bullets", 8).size() == 0 && nbt.getString("BulletChambered").isEmpty()) {
 				nbt.putBoolean("AutoSlideLock", true);
 			}
 		}
