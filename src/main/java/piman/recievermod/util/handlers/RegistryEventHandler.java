@@ -7,10 +7,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.Item;
-import net.minecraft.item.crafting.CookingRecipeSerializer;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.IRecipeType;
+import net.minecraft.item.crafting.*;
 import net.minecraft.particles.BasicParticleType;
 import net.minecraft.particles.ParticleType;
 import net.minecraft.tileentity.TileEntityType;
@@ -33,6 +30,7 @@ import piman.recievermod.init.ModItems;
 import piman.recievermod.client.renderer.model.BBGunLoader;
 import piman.recievermod.inventory.container.AmmoContainer;
 import piman.recievermod.inventory.container.ContainerBulletCrafter;
+import piman.recievermod.items.crafting.AccessoryRecipe;
 import piman.recievermod.items.crafting.BulletCrafterRecipe;
 import piman.recievermod.items.crafting.BulletCrafterRecipeSerializer;
 import piman.recievermod.tileentity.TileEntityBulletCrafter;
@@ -57,6 +55,7 @@ public class RegistryEventHandler {
     public static IStructurePieceType UGSC;
 
     public static IRecipeType<BulletCrafterRecipe> BULLET_CRAFTER;
+    public static IRecipeType<AccessoryRecipe> ACCESSORY;
 
     @SubscribeEvent
     public static void onModelRegistryEvent(ModelRegistryEvent event) {
@@ -85,7 +84,9 @@ public class RegistryEventHandler {
     @SubscribeEvent
     public static void onRecipeSerializerRegister(RegistryEvent.Register<IRecipeSerializer<?>> event) {
         event.getRegistry().register(new BulletCrafterRecipeSerializer().setRegistryName(new ResourceLocation(Reference.MOD_ID, "bullet_crafter")));
+        event.getRegistry().register(new SpecialRecipeSerializer<>(AccessoryRecipe::new).setRegistryName(Reference.MOD_ID, "accessory"));
         BULLET_CRAFTER = IRecipeType.register("bullet_crafter");
+        ACCESSORY = IRecipeType.register("accessory");
     }
 
     @SubscribeEvent

@@ -2,14 +2,19 @@ package piman.recievermod.client.renderer.model;
 
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.model.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.model.PerspectiveMapWrapper;
 import net.minecraftforge.common.model.TRSRTransformation;
 import org.apache.commons.lang3.tuple.Pair;
+import piman.recievermod.capabilities.itemdata.ItemDataProvider;
+import piman.recievermod.items.accessories.ItemScope;
 
 import javax.annotation.Nonnull;
 import javax.vecmath.Matrix4f;
@@ -24,6 +29,7 @@ public class BakedGunModel implements IBakedModel {
     private final TextureAtlasSprite particle;
     private final ItemOverrideList overrides;
     private final List<IBakedModel> accessoryModels = new ArrayList<IBakedModel>();
+    private final Map<String, IBakedModel> cache = new HashMap<>();
 
     public BakedGunModel(IUnbakedModel parent,
                          List<IBakedModel> models,
@@ -45,41 +51,45 @@ public class BakedGunModel implements IBakedModel {
         this.subTransforms.addAll(subTransformations);
     }
 
-//    public void addAccessories(List<ItemStack> list) {
-//        for (ItemStack stack : list) {
-//            IBakedModel model;
-//            TRSRTransformation subtransform;
-//
-//            int[] ints = stack.getOrCreateTag().getIntArray("transform");
-//            float[] floats = new float[16];
-//            for (int i = 0; i < 16; i++) {
-//                floats[i] = Float.intBitsToFloat(ints[i]);
-//            }
-//            subtransform = new TRSRTransformation(new Matrix4f(floats));
-//
-//            if (cache.containsKey(stack.toString())) {
-//                model = cache.get(stack.toString());
-//            }
-//            else {
-//                model = Minecraft.getInstance().getItemRenderer().getItemModelWithOverrides(stack, null, null);
-//                cache.put(stack.toString(), model);
-//            }
-//            subTransforms.add(subtransform);
-//            for (Map.Entry<ItemCameraTransforms.TransformType, TRSRTransformation> entry : transforms.entrySet()) {
-//                if (entry.getKey() == ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND || entry.getKey() == ItemCameraTransforms.TransformType.FIRST_PERSON_RIGHT_HAND) {
-//                    CompoundNBT datatag = Minecraft.getInstance().world.getCapability(ItemDataProvider.ITEMDATA_CAP, null).getItemData();
-//                    CompoundNBT itemtag = datatag.getCompound(stack.getOrCreateTag().getString("UUID"));
-//                    if (itemtag.getBoolean("ADS")) {
-//                        //entry.setValue(entry.getValue().compose(TRSRTransformation.blockCenterToCorner(new TRSRTransformation(model.handlePerspective(TransformType.FIRST_PERSON_LEFT_HAND).getRight()))));
-//                        entry.setValue(TRSRTransformation.blockCenterToCorner(new TRSRTransformation(model.handlePerspective(ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND).getRight())).compose(subtransform.inverse()));
-//                    }
-//                }
-//            }
-//            if (!models.contains(model)) {
-//                this.models.add(model);
-//            }
-//        }
-//    }
+    public void addAccessories(List<ItemStack> list) {
+        for (ItemStack stack : list) {
+            IBakedModel model;
+            TRSRTransformation subtransform;
+
+            int[] ints = stack.getOrCreateTag().getIntArray("transform");
+            float[] floats = new float[16];
+            for (int i = 0; i < 16; i++) {
+                floats[i] = Float.intBitsToFloat(ints[i]);
+            }
+            subtransform = new TRSRTransformation(new Matrix4f(floats));
+
+            if (cache.containsKey(stack.toString())) {
+                model = cache.get(stack.toString());
+            }
+            else {
+                model = Minecraft.getInstance().getItemRenderer().getItemModelWithOverrides(stack, null, null);
+                cache.put(stack.toString(), model);
+            }
+            subTransforms.add(subtransform);
+            if (stack.getItem() instanceof ItemScope) {
+                for (Map.Entry<ItemCameraTransforms.TransformType, TRSRTransformation> entry : transforms.entrySet()) {
+                    if (entry.getKey() == ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND || entry.getKey() == ItemCameraTransforms.TransformType.FIRST_PERSON_RIGHT_HAND) {
+                        Minecraft.getInstance().world.getCapability(ItemDataProvider.ITEMDATA_CAP, null).ifPresent(itemData -> {
+                            CompoundNBT datatag = itemData.getItemData();
+                            CompoundNBT itemtag = datatag.getCompound(stack.getOrCreateTag().getString("UUID"));
+                            if (itemtag.getBoolean("ads")) {
+                                //entry.setValue(entry.getValue().compose(TRSRTransformation.blockCenterToCorner(new TRSRTransformation(model.handlePerspective(TransformType.FIRST_PERSON_LEFT_HAND).getRight()))));
+                                entry.setValue(TRSRTransformation.blockCenterToCorner(new TRSRTransformation(model.handlePerspective(ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND).getRight())).compose(subtransform.inverse()));
+                            }
+                        });
+                    }
+                }
+            }
+            if (!models.contains(model)) {
+                this.models.add(model);
+            }
+        }
+    }
 
     @Nonnull
     @Override

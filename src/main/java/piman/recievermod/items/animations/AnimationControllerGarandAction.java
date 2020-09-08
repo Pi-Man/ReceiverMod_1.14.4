@@ -180,7 +180,6 @@ public class AnimationControllerGarandAction implements IAnimationController {
 				if (nbt.getList("bullets", 8).size() > 0 && nbt.getString("BulletChambered").isEmpty()) {
 					nbt.putString("BulletChambered", nbt.getList("bullets", 8).getString(nbt.getList("bullets", 8).size() - 1));
 					nbt.getList("bullets", 8).remove(nbt.getList("bullets", 8).size() - 1);
-					System.out.println("pickup");
 				}
 				nbt.putInt("slide", 0);
 				if (!nbt.getBoolean("fired")) NetworkHandler.sendToServer(new MessagePlaySound(SoundsHandler.ITEM_M1GARAND_ACTIONFORWARD));

@@ -10,6 +10,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.model.PerspectiveMapWrapper;
 import net.minecraftforge.common.model.TRSRTransformation;
 import piman.recievermod.client.renderer.model.animator.Animator;
+import piman.recievermod.items.guns.ItemGun;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -35,6 +36,10 @@ public class GunOverrideHandler extends ItemOverrideList {
             Map<ItemCameraTransforms.TransformType, TRSRTransformation> baseTransforms = animator.getBaseTransforms(stack, worldIn, entityIn);
             PerspectiveMapWrapper.getTransforms(gunModel.getItemCameraTransforms()).forEach((type, transform) -> baseTransforms.put(type, transform.compose(baseTransforms.get(type))));
             gunModel.setCameraTransforms(ImmutableMap.copyOf(baseTransforms));
+
+            if (stack.getItem() instanceof ItemGun) {
+                gunModel.addAccessories(((ItemGun) stack.getItem()).getAccesories(stack));
+            }
 
         }
 

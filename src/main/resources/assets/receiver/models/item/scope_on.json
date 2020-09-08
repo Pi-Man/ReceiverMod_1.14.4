@@ -1,0 +1,31 @@
+{
+	"parent": "receiver:item/scope",
+	"display": {
+		"thirdperson_righthand": {
+			"translation": [0, 0, 0]
+		},
+		"thirdperson_lefthand": {
+			"translation": [0, 0, 0]
+		},
+		"firstperson_righthand": {
+			"translation": [0, 0, 0],
+			"scale": [0, 0, 0]
+		},
+		"firstperson_lefthand": {
+			"translation": [-8.95, 6.418, 14],
+			"scale": [2, 2, 1]
+		},
+		"ground": {
+			"translation": [0, 0, 0]
+		},
+		"gui": {
+			"rotation": [0, 0, 0],
+			"translation": [0, 0, 0],
+			"scale": [0, 0, 0]
+		},
+		"fixed": {
+			"rotation": [0, 0, 0],
+			"translation": [0, 0, 0]
+		}
+	}
+}

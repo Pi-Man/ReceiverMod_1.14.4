@@ -23,5 +23,9 @@
     "item.receiver.thompson": "Thompson",
     "item.receiver.thompson_mag": "Thompson Drum Magazine",
     "item.receiver.m1_garand": "M1 Garand",
-    "item.receiver.m1_clip": "M1 Garand Clip"
+    "item.receiver.m1_clip": "M1 Garand Clip",
+    "item.receiver.scope": "10x Scope",
+
+    "ToolTips": "comment",
+    "tooltip.SCOPE": "Scope"
 }

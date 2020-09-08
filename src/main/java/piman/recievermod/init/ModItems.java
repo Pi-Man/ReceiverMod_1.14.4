@@ -9,6 +9,8 @@ import net.minecraftforge.registries.ObjectHolder;
 import piman.recievermod.items.IItemInit;
 import piman.recievermod.items.ItemAmmoContainer;
 import piman.recievermod.items.ItemBinoculars;
+import piman.recievermod.items.accessories.ItemAccessory;
+import piman.recievermod.items.accessories.ItemScope;
 import piman.recievermod.items.bullets.ItemBullet;
 import piman.recievermod.items.bullets.ItemBulletLarge;
 import piman.recievermod.items.bullets.ItemBulletMedium;
@@ -117,6 +119,8 @@ public class ModItems {
         ITEMS.add(new ItemAmmoContainer(new Item.Properties()).setRegistryName("ammo_container"));
 
         ITEMS.add(new BlockItem(ModBlocks.BULLET_CRAFTER, new Item.Properties().group(ModItemGroups.TOOLS)).setRegistryName(Reference.MOD_ID, "bullet_crafter"));
+
+        ITEMS.add(new ItemScope(new Item.Properties().group(ModItemGroups.TOOLS), 0.1f).setRegistryName(Reference.MOD_ID, "scope"));
 
         ITEMS.forEach(item -> {if (item instanceof IItemInit) ((IItemInit)item).Init();});
 

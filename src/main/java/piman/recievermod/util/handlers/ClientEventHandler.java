@@ -35,7 +35,7 @@ public class ClientEventHandler {
                 Minecraft.getInstance().world.getCapability(ItemDataProvider.ITEMDATA_CAP).ifPresent(itemData -> {
                     CompoundNBT nbt = itemData.getItemData().getCompound(stack.getOrCreateTag().getString("UUID"));
                     if (nbt.getBoolean("ads")) {
-                        float f = gun.getDefaultZoomFactor(stack);
+                        float f = gun.getZoomFactor(stack);
                         setMouseSensitivity = mouseSensitivity * f;
                     }
                 });
@@ -87,7 +87,7 @@ public class ClientEventHandler {
             Minecraft.getInstance().world.getCapability(ItemDataProvider.ITEMDATA_CAP).ifPresent(itemData -> {
                 CompoundNBT nbt = itemData.getItemData().getCompound(stack.getOrCreateTag().getString("UUID"));
                 if (nbt.getBoolean("ads")) {
-                    event.setNewfov(event.getFov() * gun.getDefaultZoomFactor(stack));
+                    event.setNewfov(event.getFov() * gun.getZoomFactor(stack));
                 }
             });
 
@@ -122,7 +122,7 @@ public class ClientEventHandler {
                     Minecraft.getInstance().world.getCapability(ItemDataProvider.ITEMDATA_CAP).ifPresent(itemData -> {
                         CompoundNBT nbt = itemData.getItemData().getCompound(stack.getOrCreateTag().getString("UUID"));
                         if (nbt.getBoolean("ads")) {
-                            float f = gun.getDefaultZoomFactor(stack);
+                            float f = gun.getZoomFactor(stack);
                             //Minecraft.getInstance().gameSettings.mouseSensitivity = mouseSensitivity * f;
                         }
                         else {

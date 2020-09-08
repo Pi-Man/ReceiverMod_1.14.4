@@ -56,6 +56,8 @@ public class ItemBulletMedium extends ItemBullet {
     		bullet.setDamage(Math.round(caliber * caliber * velocity * velocity * 10/81));
     		
     		world.addEntity(bullet);
+
+    		bullet.tick();
             
             world.playSound(null, player.posX, player.posY, player.posZ, SoundsHandler.ITEM_1911_SHOT, SoundCategory.PLAYERS, 1, 1);
             

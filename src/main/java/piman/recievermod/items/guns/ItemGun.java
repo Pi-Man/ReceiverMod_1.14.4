@@ -23,6 +23,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -35,6 +36,8 @@ import piman.recievermod.capabilities.itemdata.ItemDataProvider;
 import piman.recievermod.init.ModItemGroups;
 import piman.recievermod.items.IItemInit;
 import piman.recievermod.items.ItemPropertyWrapper;
+import piman.recievermod.items.accessories.ItemAccessory;
+import piman.recievermod.items.accessories.ItemScope;
 import piman.recievermod.items.animations.IAnimationController;
 import piman.recievermod.items.bullets.ItemBullet;
 import piman.recievermod.items.mags.ItemMag;
@@ -42,6 +45,7 @@ import piman.recievermod.keybinding.KeyInputHandler;
 import piman.recievermod.network.NetworkHandler;
 import piman.recievermod.network.messages.MessageShoot;
 import piman.recievermod.network.messages.MessageUpdateNBT;
+import piman.recievermod.util.Reference;
 import piman.recievermod.util.handlers.ClientEventHandler;
 
 public abstract class ItemGun extends Item implements IItemInit {
@@ -178,15 +182,14 @@ public abstract class ItemGun extends Item implements IItemInit {
 
     public abstract SoundEvent getShootSound();
 
-//    public float getZoomFactor(ItemStack stack) {
-//        if (stack.getOrCreateTag().contains("Accessories", 10)) {
-//            ItemAccessories item = (ItemAccessories) ForgeRegistries.ITEMS.getValue(new ResourceLocation(this.getNBTTag(stack).getCompoundTag("Accessories").getString("1")));
-//            if (item != null) {
-//                return item.getZoomFactor();
-//            }
-//        }
-//        return this.getDefaultZoomFactor(stack);
-//    }
+    public float getZoomFactor(ItemStack stack) {
+        if (this.hasAccessory(stack, ItemAccessory.AccessoryType.SCOPE)) {
+            return ((ItemScope) this.getAccessory(stack, ItemAccessory.AccessoryType.SCOPE)).getZoom();
+        }
+        else {
+            return this.getDefaultZoomFactor(stack);
+        }
+    }
 
     public abstract float getDefaultZoomFactor(ItemStack stack);
 
@@ -195,38 +198,92 @@ public abstract class ItemGun extends Item implements IItemInit {
     }
 
     public boolean hasAccessories(ItemStack stack) {
+        CompoundNBT nbt = stack.getOrCreateChildTag(Reference.MOD_ID);
+        CompoundNBT accessoriesNBT = nbt.getCompound("Accessories");
+        if (!nbt.contains("Accessories", 10)) {
+            nbt.put("Accessories", accessoriesNBT);
+        }
+        for (int i = 0; i < 9; i++) {
+            if (i == 4) continue;
+            if (accessoriesNBT.contains(Integer.toString(i), 8)) return true;
+        }
         return false;
     }
 
-    public boolean hasAccessory(ItemStack stack, int type) {
-        return stack.getOrCreateChildTag("Accessories").contains(Integer.valueOf(type).toString(), 8) && !stack.getOrCreateChildTag("Accessories").getString(Integer.valueOf(type).toString()).isEmpty();
+    public boolean hasAccessory(ItemStack stack, ItemAccessory.AccessoryType type) {
+        return hasAccessory(stack, type.getSlot());
     }
 
-//    public List<ItemStack> getAccesories(ItemStack stack) {
-//
-//        if (stack.getOrCreateTag().contains("Accessories", 10)) {
-//            CompoundNBT nbt = stack.getOrCreateChildTag("Accessories");
-//
-//            List<ItemStack> list = new ArrayList<ItemStack>();
-//
-//            for (int i = 0; i < 9; i++) {
-//                ItemStack accessory = new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(nbt.getString(Integer.toString(i)))));
-//                if (!accessory.isEmpty()) {
-//                    accessory.getOrCreateTag().putBoolean("model", true);
-//                    accessory.getOrCreateTag().putString("UUID", stack.getOrCreateTag().getString("UUID"));
-//                    accessory.getOrCreateTag().putIntArray("transform", this.getAccessoryTransformInts(((ItemAccessories)accessory.getItem()).getType()));
-//                    list.add(accessory);
-//                }
-//            }
-//
-//            return list;
-//        }
-//        else {
-//            return null;
-//        }
-//    }
+    public boolean hasAccessory(ItemStack stack, int type) {
+        CompoundNBT nbt = stack.getOrCreateChildTag(Reference.MOD_ID);
+        CompoundNBT accessoriesNBT = nbt.getCompound("Accessories");
+        if (!nbt.contains("Accessories", 10)) {
+            nbt.put("Accessories", accessoriesNBT);
+        }
+        return accessoriesNBT.contains(Integer.toString(type), 8);
+    }
 
-    private int [] getAccessoryTransformInts(int type) {
+    public boolean acceptsAccessory(ItemAccessory.AccessoryType type) {
+        return false;
+    }
+
+    public void setAccessory(ItemStack gun, ItemAccessory accessory) {
+        CompoundNBT nbt = gun.getOrCreateChildTag(Reference.MOD_ID);
+        CompoundNBT accessoriesNBT = nbt.getCompound("Accessories");
+        if (!nbt.contains("Accessories", 10)) {
+            nbt.put("Accessories", accessoriesNBT);
+        }
+        accessoriesNBT.putString(Integer.toString(accessory.getSlot()), accessory.getRegistryName().toString());
+    }
+
+    public ItemAccessory getAccessory(ItemStack gun, ItemAccessory.AccessoryType type) {
+        return getAccessory(gun, type.getSlot());
+    }
+
+    public ItemAccessory removeAccessory(ItemStack gun, ItemAccessory.AccessoryType type) {
+        return removeAccessory(gun, type.getSlot());
+    }
+
+    public ItemAccessory getAccessory(ItemStack gun, int slot) {
+        CompoundNBT nbt = gun.getOrCreateChildTag(Reference.MOD_ID);
+        CompoundNBT accessoriesNBT = nbt.getCompound("Accessories");
+        if (!nbt.contains("Accessories", 10)) {
+            nbt.put("Accessories", accessoriesNBT);
+        }
+        return (ItemAccessory) ForgeRegistries.ITEMS.getValue(new ResourceLocation(accessoriesNBT.getString(Integer.toString(slot))));
+    }
+
+    public ItemAccessory removeAccessory(ItemStack gun, int slot) {
+        CompoundNBT nbt = gun.getOrCreateChildTag(Reference.MOD_ID);
+        CompoundNBT accessoriesNBT = nbt.getCompound("Accessories");
+        if (!nbt.contains("Accessories", 10)) {
+            nbt.put("Accessories", accessoriesNBT);
+        }
+        ItemAccessory accessory = (ItemAccessory) ForgeRegistries.ITEMS.getValue(new ResourceLocation(accessoriesNBT.getString(Integer.toString(slot))));
+        accessoriesNBT.remove(Integer.toString(slot));
+        return accessory;
+    }
+
+    public List<ItemStack> getAccesories(ItemStack stack) {
+        CompoundNBT nbt = stack.getOrCreateChildTag(Reference.MOD_ID);
+        List<ItemStack> list = new ArrayList<ItemStack>();
+        if (nbt.contains("Accessories", 10)) {
+            CompoundNBT accessoriesNBT = nbt.getCompound("Accessories");
+            for (int i = 0; i < 9; i++) {
+                if (i == 4) continue;
+                ItemStack accessory = new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(accessoriesNBT.getString(Integer.toString(i)))));
+                if (!accessory.isEmpty()) {
+                    accessory.getOrCreateTag().putBoolean("model", true);
+                    accessory.getOrCreateTag().putString("UUID", stack.getOrCreateTag().getString("UUID"));
+                    accessory.getOrCreateTag().putIntArray("transform", this.getAccessoryTransformInts(((ItemAccessory) accessory.getItem()).getType()));
+                    list.add(accessory);
+                }
+            }
+        }
+        return list;
+    }
+
+    private int [] getAccessoryTransformInts(ItemAccessory.AccessoryType type) {
 
         int [] ints = new int[16];
 
@@ -239,7 +296,7 @@ public abstract class ItemGun extends Item implements IItemInit {
         return ints;
     }
 
-    public Matrix4f getAccessoryTransform(int type) {
+    public Matrix4f getAccessoryTransform(ItemAccessory.AccessoryType type) {
         Matrix4f m = new Matrix4f();
         m.setIdentity();
         return m;
@@ -290,6 +347,14 @@ public abstract class ItemGun extends Item implements IItemInit {
     @Override
     public void addInformation(ItemStack stack, World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
         tooltip.add(new StringTextComponent("ID: " + stack.getOrCreateTag().getString("UUID")));
+        if (hasAccessories(stack)) {
+            tooltip.add(new StringTextComponent("Accessories:"));
+            for (int i = 0; i < 9; i++) {
+                if (this.hasAccessory(stack, i)) {
+                    tooltip.add(new StringTextComponent("    ").appendSibling(new TranslationTextComponent("tooltip."+ ItemAccessory.AccessoryType.getTypeBySlot(i).toString())).appendText(": ").appendSibling(new TranslationTextComponent(getAccessory(stack, i).getTranslationKey())));
+                }
+            }
+        }
     }
 
     public int findAmmo(PlayerEntity player) {
